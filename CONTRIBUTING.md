@@ -1,0 +1,47 @@
+# Contributing
+
+## Coding Conventions
+
+(tbd)
+
+## Git Workflow
+
+```
+git clone git@github.com:resurfaceio/logger-go.git resurfaceio-logger-go
+cd resurfaceio-logger-go
+(tbd - install dependencies like npm install?)
+```
+
+Running unit tests:
+
+```
+(tbd))
+```
+
+Committing changes:
+
+```
+git add -A
+git commit -m "#123 Updated readme"       (123 is the GitHub issue number)
+git pull --rebase                         (avoid merge bubbles)
+git push origin master
+```
+
+## Release Process
+
+All [integration tests](https://github.com/resurfaceio/logger-tests) must pass first.
+
+Push artifacts to ???:
+
+```
+(tbd)
+```
+
+Tag release version:
+
+```
+git tag v1.x.x
+git push origin master --tags
+```
+
+Start the next version by incrementing the version number in TBD files.
