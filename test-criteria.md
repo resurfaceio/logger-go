@@ -53,3 +53,14 @@ Last Updated: 11/04/2020
     - initialize with proper id and url
     - enable/disable options
         - check that options are properly set
+
+
+# (Potential) Helper Class 
+
+- Attributes
+    - valid and invalid request bodies
+    - valid and invalid urls
+
+- Methods
+    - valid and invalid requests
+    - functioning and non-functioning apis
