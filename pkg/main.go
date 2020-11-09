@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"./test/helper"
+	"../test"
 )
 
 func main() {
 	fmt.Println("Hello Resurface!")
 
-	testHelper := helper.GetHelper()
+	testHelper := test.GetTestHelper()
 
 	fmt.Println(testHelper)
 }

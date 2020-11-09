@@ -1,4 +1,4 @@
-package helper
+package test
 
 import (
 
@@ -63,7 +63,7 @@ func (h *Helper) parseable(s string) (/* add return type */) {
 
 }
 
-func GetHelper() *Helper {
+func GetTestHelper() *Helper {
 	newHelper := Helper {
 		DEMO_URL: "https://demo.resurface.io/ping",
 

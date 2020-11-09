@@ -20,12 +20,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="64b73bec-d964-4948-9cf5-7b6bebfa5ce8" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/client-logger-go.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/main.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/test/helper/helper.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-criteria.md" beforeDir="false" afterPath="$PROJECT_DIR$/test-criteria.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/test/helper/helper.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/helper.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,8 +63,11 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/pkg/test/helper" />
       <recent name="$PROJECT_DIR$/pkg" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/pkg/main" />
+      <recent name="$PROJECT_DIR$/pkg/test" />
+      <recent name="$PROJECT_DIR$/pkg/test/helper" />
     </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
