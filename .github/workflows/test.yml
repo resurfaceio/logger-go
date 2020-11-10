@@ -24,4 +24,4 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Test
-      run: go test ../test/
+      run: go test ./test/...
