@@ -23,45 +23,45 @@ type Helper struct {
 }
 
 
-func (h *Helper) mockCustomApp() (/* add return type */) {
-
-}
-
-func (h *Helper) mockCustom404App() (/* add return type */) {
-
-}
-
-func (h *Helper) mockExceptionApp() (/* add return type */) {
-
-}
-
-func (h *Helper) mockHtmlApp() (/* add return type */) {
-
-}
-
-func (h *Helper) mockHtml404App() (/* add return type */) {
-
-}
-
-func (h *Helper) mockRequest() (/* add return type */) {
-
-}
-
-func (h *Helper) mockRequestWithJson() (/* add return type */) {
-
-}
-
-func (h *Helper) mockRequestWithJson2() (/* add return type */) {
-
-}
-
-func (h *Helper) mockResponseWithHtml() (/* add return type */) {
-
-}
-
-func (h *Helper) parseable(s string) (/* add return type */) {
-
-}
+//func (h *Helper) mockCustomApp() (/* add return type */) {
+//
+//}
+//
+//func (h *Helper) mockCustom404App() (/* add return type */) {
+//
+//}
+//
+//func (h *Helper) mockExceptionApp() (/* add return type */) {
+//
+//}
+//
+//func (h *Helper) mockHtmlApp() (/* add return type */) {
+//
+//}
+//
+//func (h *Helper) mockHtml404App() (/* add return type */) {
+//
+//}
+//
+//func (h *Helper) mockRequest() (/* add return type */) {
+//
+//}
+//
+//func (h *Helper) mockRequestWithJson() (/* add return type */) {
+//
+//}
+//
+//func (h *Helper) mockRequestWithJson2() (/* add return type */) {
+//
+//}
+//
+//func (h *Helper) mockResponseWithHtml() (/* add return type */) {
+//
+//}
+//
+//func (h *Helper) parseable(s string) (/* add return type */) {
+//
+//}
 
 func GetTestHelper() *Helper {
 	newHelper := Helper {
