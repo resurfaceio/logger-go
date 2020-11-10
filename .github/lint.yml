@@ -1,0 +1,31 @@
+name: Lint Go Code
+
+on:
+  push:
+    branches:
+      - tl/initial-setup
+
+jobs:
+  lint:
+    strategy:
+      matrix:
+        # linting with 3 latest version of Go
+        go-version: [1.13.x, 1.14.x, 1.15.x]
+        # linting on the latest version of 3 Operating Systems
+        platform: [ubuntu-latest, macos-latest, windows-latest]
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          stable: 'false'
+          go-version: ${{ matrix.go-version }}
+
+      - name: lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh |
+          sh -s -- -b $(go env GOPATH)/bin v1.26.0
+
+          golangci-lint run
