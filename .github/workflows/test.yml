@@ -3,18 +3,22 @@ name: Test
 on:
   push:
     branches:
-      - tl/initial-setup
+      - master
 
 jobs:
   test:
     strategy:
       matrix:
+        # run the tests with the following version of Go
         go-version: [1.13.x, 1.14.x, 1.15.x]
+        # run the tests on the following operating systems
         platform: [ubuntu-latest, macos-latest, windows-latest]
 
     runs-on: ${{ matrix.platform }}
 
     steps:
+    # install Go and check it out to
+    # the container for running the tests
     - name: Install go
       uses: actions/setup-go@v2
       with:
@@ -23,5 +27,6 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v2
 
+    # run the tests from the following project path
     - name: Test
       run: go test ./test/...

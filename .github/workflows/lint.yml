@@ -1,9 +1,10 @@
 name: Lint Go Code
 
+# linting should occur on push or merge to master branch
 on:
   push:
     branches:
-      - tl/initial-setup
+      - master
 
 jobs:
   lint:
