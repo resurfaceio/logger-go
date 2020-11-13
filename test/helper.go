@@ -1,9 +1,5 @@
 package test
 
-import (
-
-)
-
 type Helper struct {
 	DEMO_URL string
 	MOCK_AGENT string
