@@ -16,7 +16,7 @@ Last Updated: 11/04/2020
     - Enable all instances with UsageLoggoers
         - check that all instances are enabled
 
-- Check that the Base Logger has a valid host (for client is a assume this would check for a valid host for the api that it is hooked into?)
+- Check that the Base Logger has a valid host (for client I a assume this would check for a valid host for the api that it is hooked into?)
 
 - Check if metadataId initialzed and properly formatted
 
