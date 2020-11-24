@@ -5,7 +5,7 @@ import (
 )
 
 
-func HelperTest(t *testing.T) {
+func TestHelper(t *testing.T) {
 	testHelper := GetTestHelper()
 	if testHelper.DEMO_URL == "" {
 		t.Error("Helper DEMO_URL is empty")
