@@ -1,10 +1,7 @@
 package main
 
-import (
-	"./logger"
-)
+import "fmt"
 
 func main() {
-	testLogger := logger.NewLogger()
-	testLogger.Get("https://www.google.com/")
+	fmt.Println("Hello Resurface!")
 }

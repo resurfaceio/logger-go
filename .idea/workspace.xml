@@ -20,11 +20,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="64b73bec-d964-4948-9cf5-7b6bebfa5ce8" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/test/BaseLogger_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/BaseLogger_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/lint.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/lint.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/test.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/test.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/client-logger-go.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/client-logger-go.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/helper.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/helper.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/helperTest.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/helper_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/get.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/logger/BaseLogger.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/logger/BaseLogger.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/BaseLogger_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/helper.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/helper.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/helper_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/helper_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,6 +49,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GoLibraries">
+    <option name="useGoPathFromSystemEnvironment" value="false" />
+  </component>
   <component name="ProjectId" id="1k23YH7Axol58Jo5ldiSzlarKhY" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -54,8 +63,12 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="configurable.Global.GOPATH.is.expanded" value="true" />
+    <property name="configurable.Module.GOPATH.is.expanded" value="true" />
+    <property name="configurable.Project.GOPATH.is.expanded" value="true" />
     <property name="go.import.settings.migrated" value="true" />
     <property name="go.sdk.automatically.set" value="true" />
+    <property name="go.tried.to.enable.integration.vgo.integrator" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
@@ -63,14 +76,16 @@
     <property name="node.js.path.for.package.tslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
+    <property name="settings.editor.selected.configurable" value="com.goide.configuration.GoProjectSettingsConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src" />
+      <recent name="$PROJECT_DIR$/src/logger" />
+      <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/src/test" />
       <recent name="$PROJECT_DIR$/src/main" />
-      <recent name="$PROJECT_DIR$" />
-      <recent name="$PROJECT_DIR$/src/logger" />
     </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -88,5 +103,20 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="440" y="222" key="#Go_Modules" timestamp="1606231388251">
+      <screen x="0" y="23" width="1280" height="715" />
+    </state>
+    <state x="440" y="222" key="#Go_Modules/0.23.1280.715@0.23.1280.715" timestamp="1606231388251" />
+    <state x="386" y="253" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1" timestamp="1606227333474">
+      <screen x="0" y="23" width="1280" height="715" />
+    </state>
+    <state x="386" y="253" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.23.1280.715@0.23.1280.715" timestamp="1606227333474" />
+    <state x="141" y="23" width="997" height="715" key="SettingsEditor" timestamp="1606234869375">
+      <screen x="0" y="23" width="1280" height="713" />
+    </state>
+    <state x="141" y="23" key="SettingsEditor/0.23.1280.713@0.23.1280.713" timestamp="1606234869375" />
+    <state x="141" y="23" width="997" height="715" key="SettingsEditor/0.23.1280.715@0.23.1280.715" timestamp="1606234521076" />
   </component>
 </project>

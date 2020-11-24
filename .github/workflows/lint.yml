@@ -4,7 +4,10 @@ name: Lint Go Code
 on:
   push:
     branches:
-      - master
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   lint:
@@ -22,3 +25,4 @@ jobs:
           sh -s -- -b $(go env GOPATH)/bin v1.32.0
 
           golangci-lint run
+

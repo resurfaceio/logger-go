@@ -46,13 +46,13 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Homepage Enpoint Hit")
 }
 
-func (*Helper) MockCustomApp() {
+func (h *Helper) MockCustomApp() {
 	http.HandleFunc("/", homePage)
 	http.HandleFunc("/articles", allArticles)
 	log.Fatal(http.ListenAndServe(":8081", nil))
 }
 
-func GetTestHelper() *Helper {
+func NewTestHelper() *Helper {
 	newHelper := Helper {
 		DEMO_URL: "https://demo.resurface.io/ping",
 

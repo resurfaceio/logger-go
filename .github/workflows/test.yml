@@ -1,7 +1,11 @@
 name: Test
 
+# testing should occur on push or merge to master branch
 on:
   push:
+    branches:
+      - master
+  pull_request:
     branches:
       - master
 

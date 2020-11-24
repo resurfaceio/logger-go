@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -9,18 +10,23 @@ import (
 
 type BaseClientLogger struct {
 	http.Client
+	LOG_FLAG bool
 }
 
-func (cl *BaseClientLogger) Get(url string) (resp *http.Response, err error) {
+func (bcl *BaseClientLogger) Get(url string) (resp *http.Response, err error) {
 	// capture the response or error
-	getResp, getErr := cl.Client.Get(url)
+	getResp, getErr := bcl.Client.Get(url)
+
+	ioWriter := os.Stdout
 
 	// create or open a file to log to
-	f, err := os.OpenFile("get.log",
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if bcl.LOG_FLAG {
+		ioWriter, err = os.OpenFile("./get.log",
+			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	}
 
 	// create a log.Logger to direct output of logging
-	logger := log.New(f,"", log.LstdFlags)
+	logger := log.New(ioWriter,"", log.LstdFlags)
 
 	// logging conditions
 	if err != nil {
@@ -31,18 +37,21 @@ func (cl *BaseClientLogger) Get(url string) (resp *http.Response, err error) {
 		logger.Println("STATUS: " + getResp.Status)
 		//logger.Println("STATUS CODE: " + getResp.StatusCode)
 	} else {
-		//bodyBytes, _ := ioutil.ReadAll(getResp.Body)
+		bodyBytes, _ := ioutil.ReadAll(getResp.Body)
 		logger.Println("SUCCESS: GET Request")
 		logger.Println("URL: " + url)
-		//logger.Println("RESPONSE: " + string(bodyBytes))
+		logger.Println("RESPONSE: " + string(bodyBytes))
 	}
 
 	return getResp, getErr
 }
 
-// takes
 func NewLogger() BaseClientLogger {
 	return BaseClientLogger{
-
+		LOG_FLAG: true,
 	}
+}
+
+func (bcl *BaseClientLogger) SetLogFlag(flag bool) {
+	bcl.LOG_FLAG = flag
 }
