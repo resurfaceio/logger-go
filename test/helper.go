@@ -1,5 +1,6 @@
 package test
 
+
 type Helper struct {
 	DEMO_URL string
 	MOCK_AGENT string
@@ -15,7 +16,8 @@ type Helper struct {
 	MOCK_URL string
 	MOCK_URLS_DENIED []string
 	MOCK_URLS_INVALID []string
-
+	//mockRequest Helper
+	//mockRequestWithJson Helper
 }
 
 func GetTestHelper() *Helper {
@@ -57,8 +59,26 @@ func GetTestHelper() *Helper {
 			"noway3is5this1valid2",
 			"ftp:\\www.noway3is5this1valid2.com/",
 			"urn:ISSN:1535–3613"},
-
 	}
 
 	return &newHelper
+}
+func mockRequest(*Helper) int{
+	return 0;
+}
+
+func mockRequestWithJson(*Helper) int{
+	return 0;
+}
+
+func mockRequestWithJson2(*Helper) int{
+	return 0;
+}
+
+func mockResponse(*Helper) int{
+	return 0;
+}
+
+func mockResponseWithHtml(*Helper) int{
+	return 0;
 }

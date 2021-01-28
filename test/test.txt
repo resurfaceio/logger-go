@@ -1,0 +1,5 @@
+How to Run Tests
+
+1. cd into /test directory
+2. Run "go build"
+3. Run "go test"
