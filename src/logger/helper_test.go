@@ -11,4 +11,3 @@ func TestHelper(t *testing.T) {
 		t.Error("Helper DEMO_URL is empty")
 	}
 }
-
