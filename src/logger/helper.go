@@ -1,4 +1,4 @@
-package test
+package logger
 
 import (
 	"encoding/json"
@@ -53,7 +53,7 @@ func (h *Helper) MockCustomApp() {
 }
 
 func NewTestHelper() *Helper {
-	newHelper := Helper {
+	newHelper := Helper{
 		DEMO_URL: "https://demo.resurface.io/ping",
 
 		MOCK_AGENT: "helper.java",

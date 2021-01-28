@@ -1,7 +1,6 @@
-package test
+package logger
 
 import (
-	"../src/logger"
 	"fmt"
 	"testing"
 )
@@ -9,7 +8,7 @@ import (
 func TestBaseLogger(t *testing.T) {
 	testHelper := NewTestHelper()
 
-	testLogger := logger.NewLogger()
+	testLogger := NewLogger()
 
 	testLogger.SetLogFlag(false)
 
