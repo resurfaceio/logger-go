@@ -8,26 +8,25 @@ import (
 )
 
 type Helper struct {
-	DEMO_URL string
-	MOCK_AGENT string
-	MOCK_HTML string
-	MOCK_HTML2 string
-	MOCK_HTML3 string
-	MOCK_HTML4 string
-	MOCK_HTML5 string
-	MOCK_JSON string
+	DEMO_URL          string
+	MOCK_AGENT        string
+	MOCK_HTML         string
+	MOCK_HTML2        string
+	MOCK_HTML3        string
+	MOCK_HTML4        string
+	MOCK_HTML5        string
+	MOCK_JSON         string
 	MOCK_JSON_ESCAPED string
-	MOCK_NOW int64
+	MOCK_NOW          int64
 	MOCK_QUERY_STRING string
-	MOCK_URL string
-	MOCK_URLS_DENIED []string
+	MOCK_URL          string
+	MOCK_URLS_DENIED  []string
 	MOCK_URLS_INVALID []string
-
 }
 
 type Article struct {
-	Title string `json:"Title"`
-	Desc string `json:"desc"`
+	Title   string `json:"Title"`
+	Desc    string `json:"desc"`
 	Content string `json:"content"`
 }
 
@@ -83,7 +82,7 @@ func NewTestHelper() *Helper {
 
 		MOCK_URL: "http://something.com:3000/index.html",
 
-		MOCK_URLS_DENIED: []string{ "https://demo.resurface.io/ping",
+		MOCK_URLS_DENIED: []string{"https://demo.resurface.io/ping",
 			"/noway3is5this1valid2",
 			"https://www.noway3is5this1valid2.com/"},
 
@@ -91,7 +90,6 @@ func NewTestHelper() *Helper {
 			"noway3is5this1valid2",
 			"ftp:\\www.noway3is5this1valid2.com/",
 			"urn:ISSN:1535–3613"},
-
 	}
 
 	return &newHelper

@@ -8,7 +8,7 @@ import (
 func TestBaseLogger(t *testing.T) {
 	testHelper := NewTestHelper()
 
-	testLogger := NewLogger()
+	testLogger := newLogger()
 
 	testLogger.SetLogFlag(false)
 
@@ -16,7 +16,7 @@ func TestBaseLogger(t *testing.T) {
 	if err == nil {
 		fmt.Println("Get request success")
 	}
-	if testLogger.LOG_FLAG {
+	if testLogger.LOGFLAG {
 		t.Error("LOG_FLAG true when set to false")
 	}
 }
