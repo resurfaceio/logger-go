@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestBaseLogger(t *testing.T) {
+func TestNetLogger(t *testing.T) {
 	testHelper := NewTestHelper()
 
 	testLogger := newLogger()
