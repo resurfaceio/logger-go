@@ -14,7 +14,11 @@ func TestOverrideDefaultRules() {
 // test uses allow http url rules
 
 func TestUsesAllowHttpUrlRules() {
-	var logger := BaseClientLogger{}
+
+	logger := BaseClientLogger{}
+	url := "http://mysite.com"
+	rule := ""
+
 }
 
 // test uses remove rules
