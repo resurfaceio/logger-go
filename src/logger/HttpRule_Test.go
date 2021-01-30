@@ -15,7 +15,7 @@ func TestChangesDefaultRules(t *testing.T) {
 	assert.Equal(t, "", testRules.defaultRules,
 		"Rules should be empty after initialized with empty string")
 
-	testRule.SetDefaultRules(" include default")
+	testRules.SetDefaultRules(" include default")
 	assert.Equal(t, "", testRules.defaultRules, "")
 
 	testRules.SetDefaultRules("include default\n")
