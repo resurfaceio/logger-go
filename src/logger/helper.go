@@ -8,7 +8,6 @@ import (
 )
 
 type Helper struct {
-<<<<<<< HEAD:src/logger/helper.go
 	demoURL         string
 	mockAgent       string
 	mockHTML        string
@@ -23,22 +22,6 @@ type Helper struct {
 	mockURL         string
 	mockURLSdenied  []string
 	mockURLSinvalid []string
-=======
-	DEMO_URL          string
-	MOCK_AGENT        string
-	MOCK_HTML         string
-	MOCK_HTML2        string
-	MOCK_HTML3        string
-	MOCK_HTML4        string
-	MOCK_HTML5        string
-	MOCK_JSON         string
-	MOCK_JSON_ESCAPED string
-	MOCK_NOW          int64
-	MOCK_QUERY_STRING string
-	MOCK_URL          string
-	MOCK_URLS_DENIED  []string
-	MOCK_URLS_INVALID []string
->>>>>>> 7c6f55721f57030eaff4cd21234ba3cece9a0c17:test/helper.go
 }
 
 type Article struct {
