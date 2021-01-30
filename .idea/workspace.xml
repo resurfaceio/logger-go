@@ -20,17 +20,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="64b73bec-d964-4948-9cf5-7b6bebfa5ce8" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/test/BaseLogger_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.github/workflows/lint.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/lint.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.github/workflows/test.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/test.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/client-logger-go.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/client-logger-go.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/get.log" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/logger/BaseLogger.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/logger/BaseLogger.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/BaseLogger_test.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/helper.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/helper.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/helper_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/helper_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BaseLogger_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/logger/BaseLogger_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/helper.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/logger/helper.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/helper_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/logger/helper_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,16 +71,32 @@
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
-    <property name="settings.editor.selected.configurable" value="com.goide.configuration.GoProjectSettingsConfigurable" />
+    <property name="settings.editor.selected.configurable" value="com.goide.configuration.GoLibrariesConfigurableProvider" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src" />
-      <recent name="$PROJECT_DIR$/src/logger" />
       <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/logger" />
+      <recent name="$PROJECT_DIR$/src/logger" />
       <recent name="$PROJECT_DIR$/src/test" />
-      <recent name="$PROJECT_DIR$/src/main" />
     </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="BaseLogger_test.go" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="client-logger-go" />
+      <working_directory value="$PROJECT_DIR$/logger" />
+      <framework value="gotest" />
+      <kind value="FILE" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/logger/BaseLogger_test.go" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Test.BaseLogger_test.go" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TypeScriptGeneratedFilesManager">
@@ -104,6 +114,9 @@
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
+  <component name="VgoProject">
+    <integration-enabled>true</integration-enabled>
+  </component>
   <component name="WindowStateProjectService">
     <state x="440" y="222" key="#Go_Modules" timestamp="1606231388251">
       <screen x="0" y="23" width="1280" height="715" />
@@ -113,10 +126,28 @@
       <screen x="0" y="23" width="1280" height="715" />
     </state>
     <state x="386" y="253" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.23.1280.715@0.23.1280.715" timestamp="1606227333474" />
-    <state x="141" y="23" width="997" height="715" key="SettingsEditor" timestamp="1606234869375">
-      <screen x="0" y="23" width="1280" height="713" />
+    <state width="1238" height="211" key="GridCell.Tab.0.bottom" timestamp="1606590354856">
+      <screen x="0" y="0" width="1280" height="800" />
     </state>
+    <state width="1238" height="211" key="GridCell.Tab.0.bottom/0.0.1280.800@0.0.1280.800" timestamp="1606590354856" />
+    <state width="1238" height="211" key="GridCell.Tab.0.center" timestamp="1606590354854">
+      <screen x="0" y="0" width="1280" height="800" />
+    </state>
+    <state width="1238" height="211" key="GridCell.Tab.0.center/0.0.1280.800@0.0.1280.800" timestamp="1606590354854" />
+    <state width="1238" height="211" key="GridCell.Tab.0.left" timestamp="1606590354853">
+      <screen x="0" y="0" width="1280" height="800" />
+    </state>
+    <state width="1238" height="211" key="GridCell.Tab.0.left/0.0.1280.800@0.0.1280.800" timestamp="1606590354853" />
+    <state width="1238" height="211" key="GridCell.Tab.0.right" timestamp="1606590354855">
+      <screen x="0" y="0" width="1280" height="800" />
+    </state>
+    <state width="1238" height="211" key="GridCell.Tab.0.right/0.0.1280.800@0.0.1280.800" timestamp="1606590354855" />
+    <state x="148" y="23" width="997" height="721" key="SettingsEditor" timestamp="1606752342485">
+      <screen x="0" y="23" width="1280" height="721" />
+    </state>
+    <state x="141" y="23" width="997" height="722" key="SettingsEditor/0.0.1280.800@0.0.1280.800" timestamp="1606590354740" />
     <state x="141" y="23" key="SettingsEditor/0.23.1280.713@0.23.1280.713" timestamp="1606234869375" />
     <state x="141" y="23" width="997" height="715" key="SettingsEditor/0.23.1280.715@0.23.1280.715" timestamp="1606234521076" />
+    <state x="148" y="23" width="997" height="721" key="SettingsEditor/0.23.1280.721@0.23.1280.721" timestamp="1606752342485" />
   </component>
 </project>

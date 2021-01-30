@@ -1,4 +1,4 @@
-package test
+package logger
 
 import (
 	"encoding/json"
@@ -8,26 +8,25 @@ import (
 )
 
 type Helper struct {
-	DEMO_URL string
-	MOCK_AGENT string
-	MOCK_HTML string
-	MOCK_HTML2 string
-	MOCK_HTML3 string
-	MOCK_HTML4 string
-	MOCK_HTML5 string
-	MOCK_JSON string
-	MOCK_JSON_ESCAPED string
-	MOCK_NOW int64
-	MOCK_QUERY_STRING string
-	MOCK_URL string
-	MOCK_URLS_DENIED []string
-	MOCK_URLS_INVALID []string
-
+	demoURL         string
+	mockAgent       string
+	mockHTML        string
+	mockHTML2       string
+	mockHTML3       string
+	mockHTML4       string
+	mockHTML5       string
+	mockJSON        string
+	mockJSONescaped string
+	mockNow         int64
+	mockQueryString string
+	mockURL         string
+	mockURLSdenied  []string
+	mockURLSinvalid []string
 }
 
 type Article struct {
-	Title string `json:"Title"`
-	Desc string `json:"desc"`
+	Title   string `json:"Title"`
+	Desc    string `json:"desc"`
 	Content string `json:"content"`
 }
 
@@ -53,45 +52,44 @@ func (h *Helper) MockCustomApp() {
 }
 
 func NewTestHelper() *Helper {
-	newHelper := Helper {
-		DEMO_URL: "https://demo.resurface.io/ping",
+	newHelper := Helper{
+		demoURL: "https://demo.resurface.io/ping",
 
-		MOCK_AGENT: "helper.java",
+		mockAgent: "helper.java",
 
-		MOCK_HTML: "<html>Hello World!</html>",
+		mockHTML: "<html>Hello World!</html>",
 
-		MOCK_HTML2: "<html>Hola Mundo!</html>",
+		mockHTML2: "<html>Hola Mundo!</html>",
 
-		MOCK_HTML3: "<html>1 World 2 World Red World Blue World!</html>",
+		mockHTML3: "<html>1 World 2 World Red World Blue World!</html>",
 
-		MOCK_HTML4: "<html>1 World\n2 World\nRed World \nBlue World!\n</html>",
+		mockHTML4: "<html>1 World\n2 World\nRed World \nBlue World!\n</html>",
 
-		MOCK_HTML5: `<html>\n
+		mockHTML5: `<html>\n
 		<input type=\"hidden\">SENSITIVE</input>\n
 		<input class='foo' type=\"hidden\">\n
 		SENSITIVE\n
 		</input>\n
 		</html>`,
 
-		MOCK_JSON: "{ \"hello\" : \"world\" }",
+		mockJSON: "{ \"hello\" : \"world\" }",
 
-		MOCK_JSON_ESCAPED: "{ \\'hello\\' : \\'world\\' }",
+		mockJSONescaped: "{ \\'hello\\' : \\'world\\' }",
 
-		MOCK_NOW: 1455908640173,
+		mockNow: 1455908640173,
 
-		MOCK_QUERY_STRING: "foo=bar",
+		mockQueryString: "foo=bar",
 
-		MOCK_URL: "http://something.com:3000/index.html",
+		mockURL: "http://something.com:3000/index.html",
 
-		MOCK_URLS_DENIED: []string{ "https://demo.resurface.io/ping",
+		mockURLSdenied: []string{"https://demo.resurface.io/ping",
 			"/noway3is5this1valid2",
 			"https://www.noway3is5this1valid2.com/"},
 
-		MOCK_URLS_INVALID: []string{"",
+		mockURLSinvalid: []string{"",
 			"noway3is5this1valid2",
 			"ftp:\\www.noway3is5this1valid2.com/",
 			"urn:ISSN:1535–3613"},
-
 	}
 
 	return &newHelper

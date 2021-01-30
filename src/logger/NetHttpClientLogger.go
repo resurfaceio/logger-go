@@ -8,25 +8,25 @@ import (
 	"os"
 )
 
-type BaseClientLogger struct {
+type netHttpClientLogger struct {
 	http.Client
-	LOG_FLAG bool
+	LOGFLAG bool
 }
 
-func (bcl *BaseClientLogger) Get(url string) (resp *http.Response, err error) {
+func (bcl *netHttpClientLogger) Get(url string) (resp *http.Response, err error) {
 	// capture the response or error
 	getResp, getErr := bcl.Client.Get(url)
 
 	ioWriter := os.Stdout
 
 	// create or open a file to log to
-	if bcl.LOG_FLAG {
+	if bcl.LOGFLAG {
 		ioWriter, err = os.OpenFile("./get.log",
 			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	}
 
 	// create a log.Logger to direct output of logging
-	logger := log.New(ioWriter,"", log.LstdFlags)
+	logger := log.New(ioWriter, "", log.LstdFlags)
 
 	// logging conditions
 	if err != nil {
@@ -46,12 +46,12 @@ func (bcl *BaseClientLogger) Get(url string) (resp *http.Response, err error) {
 	return getResp, getErr
 }
 
-func NewLogger() BaseClientLogger {
-	return BaseClientLogger{
-		LOG_FLAG: true,
+func newLogger() netHttpClientLogger {
+	return netHttpClientLogger{
+		LOGFLAG: true,
 	}
 }
 
-func (bcl *BaseClientLogger) SetLogFlag(flag bool) {
-	bcl.LOG_FLAG = flag
+func (bcl *netHttpClientLogger) SetLogFlag(flag bool) {
+	bcl.LOGFLAG = flag
 }
