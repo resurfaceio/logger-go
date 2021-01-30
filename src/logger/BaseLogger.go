@@ -11,6 +11,8 @@ import (
 type baseClientLogger struct {
 	http.Client
 	LOGFLAG bool
+	// enableable bool
+	// url        string
 }
 
 func (bcl *baseClientLogger) Get(url string) (resp *http.Response, err error) {
