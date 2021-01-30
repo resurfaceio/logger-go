@@ -70,11 +70,7 @@ func (h *Helper) MockCustomApp() {
 
 func NewTestHelper() *Helper {
 	newHelper := Helper{
-<<<<<<< HEAD:src/logger/helper.go
 		demoURL: "https://demo.resurface.io/ping",
-=======
-		DEMO_URL: "https://demo.resurface.io/ping",
->>>>>>> 7c6f55721f57030eaff4cd21234ba3cece9a0c17:test/helper.go
 
 		mockAgent: "helper.java",
 
@@ -103,11 +99,7 @@ func NewTestHelper() *Helper {
 
 		mockURL: "http://something.com:3000/index.html",
 
-<<<<<<< HEAD:src/logger/helper.go
 		mockURLSdenied: []string{"https://demo.resurface.io/ping",
-=======
-		MOCK_URLS_DENIED: []string{"https://demo.resurface.io/ping",
->>>>>>> 7c6f55721f57030eaff4cd21234ba3cece9a0c17:test/helper.go
 			"/noway3is5this1valid2",
 			"https://www.noway3is5this1valid2.com/"},
 
