@@ -8,6 +8,7 @@ import (
 )
 
 type Helper struct {
+<<<<<<< HEAD:src/logger/helper.go
 	demoURL         string
 	mockAgent       string
 	mockHTML        string
@@ -22,6 +23,22 @@ type Helper struct {
 	mockURL         string
 	mockURLSdenied  []string
 	mockURLSinvalid []string
+=======
+	DEMO_URL          string
+	MOCK_AGENT        string
+	MOCK_HTML         string
+	MOCK_HTML2        string
+	MOCK_HTML3        string
+	MOCK_HTML4        string
+	MOCK_HTML5        string
+	MOCK_JSON         string
+	MOCK_JSON_ESCAPED string
+	MOCK_NOW          int64
+	MOCK_QUERY_STRING string
+	MOCK_URL          string
+	MOCK_URLS_DENIED  []string
+	MOCK_URLS_INVALID []string
+>>>>>>> 7c6f55721f57030eaff4cd21234ba3cece9a0c17:test/helper.go
 }
 
 type Article struct {
@@ -53,7 +70,11 @@ func (h *Helper) MockCustomApp() {
 
 func NewTestHelper() *Helper {
 	newHelper := Helper{
+<<<<<<< HEAD:src/logger/helper.go
 		demoURL: "https://demo.resurface.io/ping",
+=======
+		DEMO_URL: "https://demo.resurface.io/ping",
+>>>>>>> 7c6f55721f57030eaff4cd21234ba3cece9a0c17:test/helper.go
 
 		mockAgent: "helper.java",
 
@@ -82,7 +103,11 @@ func NewTestHelper() *Helper {
 
 		mockURL: "http://something.com:3000/index.html",
 
+<<<<<<< HEAD:src/logger/helper.go
 		mockURLSdenied: []string{"https://demo.resurface.io/ping",
+=======
+		MOCK_URLS_DENIED: []string{"https://demo.resurface.io/ping",
+>>>>>>> 7c6f55721f57030eaff4cd21234ba3cece9a0c17:test/helper.go
 			"/noway3is5this1valid2",
 			"https://www.noway3is5this1valid2.com/"},
 
