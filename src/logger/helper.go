@@ -38,7 +38,10 @@ func allArticles(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println("Endpoint Hit: All Articles Endpoint")
-	json.NewEncoder(w).Encode(articles)
+	err := json.NewEncoder(w).Encode(articles)
+	if err != nil {
+		fmt.Println("Helper json encoding failed")
+	}
 }
 
 func homePage(w http.ResponseWriter, r *http.Request) {
