@@ -5,6 +5,9 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   lint:
@@ -22,3 +25,4 @@ jobs:
           sh -s -- -b $(go env GOPATH)/bin v1.32.0
 
           golangci-lint run
+
