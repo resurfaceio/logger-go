@@ -8,12 +8,13 @@ import (
 	"os"
 )
 
-type netHttpClientLogger struct {
+type NetHttpClientLogger struct {
 	http.Client
-	LOGFLAG bool
+	LOGFLAG   bool
+	isEnabled bool
 }
 
-func (bcl *netHttpClientLogger) Get(url string) (resp *http.Response, err error) {
+func (bcl *NetHttpClientLogger) Get(url string) (resp *http.Response, err error) {
 	// capture the response or error
 	getResp, getErr := bcl.Client.Get(url)
 
@@ -46,12 +47,13 @@ func (bcl *netHttpClientLogger) Get(url string) (resp *http.Response, err error)
 	return getResp, getErr
 }
 
-func newLogger() netHttpClientLogger {
-	return netHttpClientLogger{
-		LOGFLAG: true,
+func newLogger() NetHttpClientLogger {
+	return NetHttpClientLogger{
+		LOGFLAG:   true,
+		isEnabled: true,
 	}
 }
 
-func (bcl *netHttpClientLogger) SetLogFlag(flag bool) {
+func (bcl *NetHttpClientLogger) SetLogFlag(flag bool) {
 	bcl.LOGFLAG = flag
 }
