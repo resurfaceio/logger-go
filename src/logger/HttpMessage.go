@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 /*
@@ -47,19 +48,37 @@ func buildNetHttpClientMessage(logger *NetHttpClientLogger, resp *http.Response)
 * Adds response headers to message.
  */
 func appendResponseHeaders(message [][]string, resp *http.Response) {
-
+	respHeader := resp.Header
+	for headerName, headerValues := range respHeader {
+		name := "response_header:" + strings.ToLower(headerName)
+		for _, value := range headerValues {
+			message = append(message, []string{name, value})
+		}
+	}
 }
 
 /*
 * Adds request params to message.
  */
 func appendRequestParams(message [][]string, req *http.Request) {
-
+	reqParams := req.Form
+	for paramName, params := range reqParams {
+		name := "request_param:" + strings.ToLower(paramName)
+		for _, param := range params {
+			message = append(message, []string{name, param})
+		}
+	}
 }
 
 /*
 * Adds request headers to message.
  */
 func appendRequestHeaders(message [][]string, req *http.Request) {
-
+	reqHeaders := req.Header
+	for headerName, headerValues := range reqHeaders {
+		name := "request_header:" + strings.ToLower(headerName)
+		for _, value := range headerValues {
+			message = append(message, []string{name, value})
+		}
+	}
 }
