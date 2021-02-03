@@ -8,6 +8,13 @@ import (
 )
 
 /*
+* Submits request and response through logger.
+ */
+func sendNetHttpClientMessage(logger *HttpLogger, resp *http.Response, now int64, interval float64) {
+
+}
+
+/*
 * Builds list of key/value pairs for HTTP request and response.
  */
 func buildNetHttpClientMessage(logger *NetHttpClientLogger, resp *http.Response) {
@@ -40,6 +47,8 @@ func buildNetHttpClientMessage(logger *NetHttpClientLogger, resp *http.Response)
 
 	if err != nil {
 		message = append(message, []string{"response_body", string(respBodyBytes)})
+	} else {
+		message = append(message, []string{"response_body", "ISO-8859-1"})
 	}
 
 }
