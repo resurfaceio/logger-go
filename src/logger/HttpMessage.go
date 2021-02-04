@@ -4,18 +4,16 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 	"strings"
+	"time"
 )
-
-// just for testing
-type HttpLogger struct {
-	enabled bool
-}
 
 /*
 * Submits request and response through logger.
  */
 func sendNetHttpClientMessage(logger *HttpLogger, resp *http.Response, now int64, interval float64) {
+	request := resp.Request
 
 	if !logger.enabled {
 		return
@@ -24,10 +22,41 @@ func sendNetHttpClientMessage(logger *HttpLogger, resp *http.Response, now int64
 	// copy details from request & response
 	message := buildNetHttpClientMessage(resp)
 
-	// copy data from session if configured
-	if len(logger.rules.copySessionField) != 0 {
+	copySessionField := logger.rules.copySessionField
 
+	// copy data from session if configured
+	if len(copySessionField) != 0 {
+		sessionCookies := request.Cookies()
+		if len(sessionCookies) != 0 {
+			for _, r := range copySessionField {
+				for _, cookie := range sessionCookies {
+					name := cookie.Name
+					matched, err = regexp.MatchString(r.param1, name)
+					if err == nil && matched == true {
+						cookieVal := cookie.Value
+						message = append(message,
+							[]string{"session_field:" + name, cookieVal})
+					}
+				}
+			}
+		}
 	}
+
+	// add timing details
+	if now == 0 {
+		timeNow := time.Now()
+		unixNano := timeNow.UnixNano()
+		umillisec := unixNano / int64(time.Millisecond)
+
+		now = umillisec
+	}
+	message = append(message, []string{"now", string(now)})
+
+	if interval != 0 {
+		message = append(message, []string{"interval", fmt.Sprint(interval)})
+	}
+
+	logger.submitIfPassing(message)
 
 }
 
