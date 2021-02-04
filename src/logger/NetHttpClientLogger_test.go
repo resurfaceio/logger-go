@@ -5,14 +5,14 @@ import (
 	"testing"
 )
 
-func TestBaseLogger(t *testing.T) {
+func TestNetHttpClientLogger(t *testing.T) {
 	testHelper := NewTestHelper()
 
 	testLogger := newLogger()
 
 	testLogger.SetLogFlag(false)
 
-	_, err := testLogger.Get(testHelper.DEMO_URL)
+	_, err := testLogger.Get(testHelper.demoURL)
 	if err == nil {
 		fmt.Println("Get request success")
 	}
