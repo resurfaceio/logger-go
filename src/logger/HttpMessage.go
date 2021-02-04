@@ -7,22 +7,35 @@ import (
 	"strings"
 )
 
+// just for testing
+type HttpLogger struct {
+	enabled bool
+}
+
 /*
 * Submits request and response through logger.
  */
 func sendNetHttpClientMessage(logger *HttpLogger, resp *http.Response, now int64, interval float64) {
+
+	if !logger.enabled {
+		return
+	}
+
+	// copy details from request & response
+	message := buildNetHttpClientMessage(resp)
+
+	// copy data from session if configured
+	if len(logger.rules.copySessionField) != 0 {
+
+	}
 
 }
 
 /*
 * Builds list of key/value pairs for HTTP request and response.
  */
-func buildNetHttpClientMessage(logger *NetHttpClientLogger, resp *http.Response) {
+func buildNetHttpClientMessage(resp *http.Response) [][]string {
 	request := resp.Request
-
-	if !logger.isEnabled {
-		return
-	}
 
 	var message [][]string
 
@@ -50,6 +63,8 @@ func buildNetHttpClientMessage(logger *NetHttpClientLogger, resp *http.Response)
 	} else {
 		message = append(message, []string{"response_body", "ISO-8859-1"})
 	}
+
+	return message
 
 }
 
