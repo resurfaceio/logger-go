@@ -15,7 +15,7 @@ import (
 func sendNetHttpClientMessage(logger *HttpLogger, resp *http.Response, now int64, interval float64) {
 	request := resp.Request
 
-	if !logger.enabled {
+	if !logger.isEnabled() {
 		return
 	}
 
