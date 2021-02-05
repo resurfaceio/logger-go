@@ -7,27 +7,45 @@ import (
 )
 
 func TestChangesDefaultRules(t *testing.T) {
-	testRules := NewHttpRules()
-	assert.Equal(t, testRules.strictRules, testRules.defaultRules,
-		"When initialized default rules should equal strict rules")
+	httpRules := GetHttpRules()
+	for {
+		if !assert.Equal(t, newHttpRules("").strictRules, httpRules.GetDefaultRules()) {
+			break
+		}
 
-	testRules.SetDefaultRules("")
-	assert.Equal(t, "", testRules.defaultRules,
-		"Rules should be empty after initialized with empty string")
+		httpRules.SetDefaultRules("")
+		if !assert.Equal(t, "", httpRules.defaultRules) {
+			break
+		}
+		if !assert.Equal(t, 0, newHttpRules(httpRules.GetDefaultRules()).size) {
+			break
+		}
 
-	testRules.SetDefaultRules(" include default")
-	assert.Equal(t, "", testRules.defaultRules, "")
+		httpRules.SetDefaultRules(" include default")
+		if !assert.Equal(t, "", httpRules.GetDefaultRules()) {
+			break
+		}
 
-	testRules.SetDefaultRules("include default\n")
-	assert.Equal(t, "", testRules.defaultRules, "")
+		httpRules.SetDefaultRules("include default\n")
+		if !assert.Equal(t, "", httpRules.GetDefaultRules()) {
+			break
+		}
 
-	testRules.SetDefaultRules("include default\ninclude default\n")
-	assert.Equal(t, 0, testRules.size, "")
+		httpRules.SetDefaultRules("include default\ninclude default\n")
+		if !assert.Equal(t, 0, newHttpRules(httpRules.GetDefaultRules()).size) {
+			break
+		}
 
-	testRules.SetDefaultRules("include default\ninclude default\nsample 42")
-	testRules2 := NewHttpRules()
-	testRules2.SetDefaultRules(testRules.defaultRules)
-	assert.Equal(t, 1, testRules2.size, "")
-	assert.Equal(t, 1, testRules2.sample.size, "")
+		httpRules.SetDefaultRules("include default\ninclude default\nsample 42")
+		rules := newHttpRules(httpRules.GetDefaultRules())
+		if !assert.Equal(t, 1, rules.size) {
+			break
+		}
+		if !assert.Equal(t, 1, len(rules.sample)) {
+			break
+		}
+	}
+
+	httpRules.SetDefaultRules(httpRules.GetStrictRules())
 
 }
