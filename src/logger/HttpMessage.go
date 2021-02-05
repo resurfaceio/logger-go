@@ -31,7 +31,7 @@ func sendNetHttpClientMessage(logger *HttpLogger, resp *http.Response, now int64
 			for _, r := range copySessionField {
 				for _, cookie := range sessionCookies {
 					name := cookie.Name
-					matched, err = regexp.MatchString(r.param1, name)
+					matched, err := regexp.MatchString(r.param1, name)
 					if err == nil && matched == true {
 						cookieVal := cookie.Value
 						message = append(message,
@@ -76,19 +76,20 @@ func buildNetHttpClientMessage(resp *http.Response) [][]string {
 	message = append(message, []string{"request_url", request.URL.RequestURI()})
 	message = append(message, []string{"response_code", fmt.Sprint(resp.StatusCode)})
 
-	appendRequestHeaders(message, request)
-	appendRequestParams(message, request)
-	appendResponseHeaders(message, resp)
+	appendRequestHeaders(&message, request)
+	appendRequestParams(&message, request)
+	appendResponseHeaders(&message, resp)
 
 	reqBodyBytes, err := ioutil.ReadAll(request.Body)
-	if err != nil {
-		message = append(message, []string{"request_body", string(reqBodyBytes)})
+	reqBody := string(reqBodyBytes)
+	if err != nil && reqBody != "" {
+		message = append(message, []string{"request_body", reqBody})
 	}
 
 	respBodyBytes, err := ioutil.ReadAll(resp.Body)
-
-	if err != nil {
-		message = append(message, []string{"response_body", string(respBodyBytes)})
+	respBody := string(respBodyBytes)
+	if err != nil && respBody != "" {
+		message = append(message, []string{"response_body", respBody})
 	} else {
 		message = append(message, []string{"response_body", "ISO-8859-1"})
 	}
@@ -100,12 +101,12 @@ func buildNetHttpClientMessage(resp *http.Response) [][]string {
 /*
 * Adds response headers to message.
  */
-func appendResponseHeaders(message [][]string, resp *http.Response) {
+func appendResponseHeaders(message *[][]string, resp *http.Response) {
 	respHeader := resp.Header
 	for headerName, headerValues := range respHeader {
 		name := "response_header:" + strings.ToLower(headerName)
 		for _, value := range headerValues {
-			message = append(message, []string{name, value})
+			*message = append(*message, []string{name, value})
 		}
 	}
 }
@@ -113,12 +114,12 @@ func appendResponseHeaders(message [][]string, resp *http.Response) {
 /*
 * Adds request params to message.
  */
-func appendRequestParams(message [][]string, req *http.Request) {
+func appendRequestParams(message *[][]string, req *http.Request) {
 	reqParams := req.Form
 	for paramName, params := range reqParams {
 		name := "request_param:" + strings.ToLower(paramName)
 		for _, param := range params {
-			message = append(message, []string{name, param})
+			*message = append(*message, []string{name, param})
 		}
 	}
 }
@@ -126,12 +127,12 @@ func appendRequestParams(message [][]string, req *http.Request) {
 /*
 * Adds request headers to message.
  */
-func appendRequestHeaders(message [][]string, req *http.Request) {
+func appendRequestHeaders(message *[][]string, req *http.Request) {
 	reqHeaders := req.Header
 	for headerName, headerValues := range reqHeaders {
 		name := "request_header:" + strings.ToLower(headerName)
 		for _, value := range headerValues {
-			message = append(message, []string{name, value})
+			*message = append(*message, []string{name, value})
 		}
 	}
 }
