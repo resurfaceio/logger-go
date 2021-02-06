@@ -7,7 +7,7 @@ import (
 )
 
 func TestIncludeDebugRules(t *testing.T) {
-	rules := newHttpRules()
+	rules := newHttpRules("include debug")
 	assert.Equal(t, 2, rules.Size)
 	assert.True(t, rules.AllowHttpUrl)
 	assert.Equal(t, 1, len(rules.CopySessionField))
