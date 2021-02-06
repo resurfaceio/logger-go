@@ -17,7 +17,7 @@ func TestChangesDefaultRules(t *testing.T) {
 		if !assert.Equal(t, "", httpRules.DefaultRules()) {
 			break
 		}
-		if !assert.Equal(t, 0, newHttpRules(httpRules.DefaultRules()).size) {
+		if !assert.Equal(t, 0, newHttpRules(httpRules.DefaultRules()).Size) {
 			break
 		}
 
@@ -32,16 +32,16 @@ func TestChangesDefaultRules(t *testing.T) {
 		}
 
 		httpRules.SetDefaultRules("include default\ninclude default\n")
-		if !assert.Equal(t, 0, newHttpRules(httpRules.DefaultRules()).size) {
+		if !assert.Equal(t, 0, newHttpRules(httpRules.DefaultRules()).Size) {
 			break
 		}
 
 		httpRules.SetDefaultRules("include default\ninclude default\nsample 42")
 		rules := newHttpRules(httpRules.DefaultRules())
-		if !assert.Equal(t, 1, rules.size) {
+		if !assert.Equal(t, 1, rules.Size) {
 			break
 		}
-		if !assert.Equal(t, 1, len(rules.sample)) {
+		if !assert.Equal(t, 1, len(rules.Sample)) {
 			break
 		}
 		break
