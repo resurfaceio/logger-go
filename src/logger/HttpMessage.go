@@ -22,7 +22,7 @@ func sendNetHttpClientMessage(logger *HttpLogger, resp *http.Response, now int64
 	// copy details from request & response
 	message := buildNetHttpClientMessage(resp)
 
-	copySessionField := logger.rules.copySessionField
+	copySessionField := logger.rules.CopySessionField
 
 	// copy data from session if configured
 	if len(copySessionField) != 0 {
@@ -30,7 +30,7 @@ func sendNetHttpClientMessage(logger *HttpLogger, resp *http.Response, now int64
 		if len(sessionCookies) != 0 {
 			for _, r := range copySessionField {
 				for _, cookie := range sessionCookies {
-					name := cookie.Name
+					name := strings.ToLower(cookie.Name)
 					matched, err := regexp.MatchString(r.param1, name)
 					if err == nil && matched == true {
 						cookieVal := cookie.Value
@@ -87,11 +87,13 @@ func buildNetHttpClientMessage(resp *http.Response) [][]string {
 	}
 
 	respBodyBytes, err := ioutil.ReadAll(resp.Body)
-	respBody := string(respBodyBytes)
-	if err != nil && respBody != "" {
+	var respBody string
+	if err != nil {
+		respBody := string(respBodyBytes)
+	}
+
+	if respBody != "" {
 		message = append(message, []string{"response_body", respBody})
-	} else {
-		message = append(message, []string{"response_body", "ISO-8859-1"})
 	}
 
 	return message
