@@ -130,3 +130,63 @@ func TestIncludeStandardRules(t *testing.T) {
 
 	httpRules.SetDefaultRules(httpRules.StrictRules())
 }
+
+func TestIncludeStrictRules(t *testing.T) {
+	rules := newHttpRules("include strict")
+	assert.Equal(t, 2, rules.Size())
+	assert.Equal(t, 1, len(rules.Remove()))
+	assert.Equal(t, 1, len(rules.Replace()))
+
+	rules = newHttpRules("include strict\n")
+	assert.Equal(t, 2, rules.Size())
+	rules = newHttpRules("include strict\nsample 50")
+	assert.Equal(t, 3, rules.Size())
+	assert.Equal(t, 1, len(rules.Sample()))
+
+	rules = newHttpRules(" include strict\ninclude strict")
+	assert.Equal(t, 4, rules.Size())
+	rules = newHttpRules(" include strict\nsample 50\ninclude strict")
+	assert.Equal(t, 5, rules.Size())
+
+	httpRules := GetHttpRules()
+	assert.Equal(t, httpRules.GetStrictRules(), httpRules.GetDefaultRules())
+	for {
+		httpRules.SetDefaultRules("include strict")
+		rules = newHttpRules("")
+		if !assert.Equal(t, 2, rules.Size()) {
+			break
+		}
+
+		if !assert.Equal(t, 1, len(rules.Remove())) {
+			break
+		}
+
+		if !assert.Equal(t, 1, len(rules.Replace())) {
+			break
+		}
+
+		break
+	}
+
+	httpRules.SetDefaultRules(httpRules.StrictRules())
+}
+
+func TestLoadsRulesFromFile(t *testing.T) {
+	rules := newHttpRules("file://./test/rules1.txt")
+	assert.Equal(t, 1, rules.Size())
+	assert.Equal(t, 1, len(rules.Sample()))
+	assert.Equal(t, 55, rules.Sample()[0].Param1())
+
+	rules = newHttpRules("file://./test/rules2.txt")
+	assert.Equal(t, 3, rules.Size())
+	assert.True(t, rules.AllowHttpUrl())
+	assert.Equal(t, 1, len(rules.CopySessionField()))
+	assert.Equal(t, 1, len(rules.Sample()))
+	assert.Equal(t, 56, rules.Sample()[0].Param1())
+
+	rules = newHttpRules("file://./test/rules3.txt ")
+	assert.Equal(t, 3, rules.Size())
+	assert.Equal(t, 1, len(rules.Replace()))
+	assert.Equal(t, 1, len(rules.Sample))
+	assert.Equal(t, 57, rules.Sample()[0].Param1())
+}
