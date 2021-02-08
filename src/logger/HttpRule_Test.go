@@ -90,3 +90,43 @@ func TestIncludeDebugRules(t *testing.T) {
 
 	httpRules.SetDefaultRules(httpRules.StrictRules())
 }
+
+func TestIncludeStandardRules(t *testing.T) {
+	rules := newHttpRules("include standard")
+	assert.Equal(t, 3, rules.Size)
+	assert.Equal(t, 1, len(rules.Remove))
+	assert.Equal(t, 2, len(rules.Replace))
+
+	rules = newHttpRules("include standard\n")
+	assert.Equal(t, 3, rules.Size)
+	rules = newHttpRules("include standard\nsample 50")
+	assert.Equal(t, 4, rules.Size)
+	assert.Equal(t, 1, len(rules.Sample))
+
+	rules = newHttpRules(" include standard\ninclude standard")
+	assert.Equal(t, 6, rules.Size)
+	rules = newHttpRules("inlcude standard\nsample 50\ninclude standard")
+	assert.Equal(t, 7, rules.Size)
+
+	httpRules := GetHttpRules()
+	assert.Equal(t, httpRules.StrictRules(), httpRules.DefaultRules())
+	for {
+		httpRules.SetDefaultRules("inlcude standard")
+		rules = newHttpRules("")
+		if !assert.Equal(t, 3, rules.Size) {
+			break
+		}
+
+		if !assert.Equal(t, 1, len(rules.Remove)) {
+			break
+		}
+
+		if !assert.Equal(t, 2, len(rules.Replace)) {
+			break
+		}
+
+		break
+	}
+
+	httpRules.SetDefaultRules(httpRules.StrictRules())
+}
