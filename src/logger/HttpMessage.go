@@ -22,7 +22,7 @@ func sendNetHttpClientMessage(logger *HttpLogger, resp *http.Response, now int64
 	// copy details from request & response
 	message := buildNetHttpClientMessage(resp)
 
-	copySessionField := logger.rules.CopySessionField
+	copySessionField := logger.rules.CopySessionField()
 
 	// copy data from session if configured
 	if len(copySessionField) != 0 {
