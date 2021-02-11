@@ -190,3 +190,4 @@ func TestLoadsRulesFromFile(t *testing.T) {
 	assert.Equal(t, 1, len(rules.Sample))
 	assert.Equal(t, 57, rules.Sample()[0].Param1())
 }
+
