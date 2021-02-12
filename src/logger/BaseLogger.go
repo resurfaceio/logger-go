@@ -14,14 +14,21 @@ const (
  * Initialize enabled logger using default url.
  */
 func NewBaseLoggerAgent(_agent string) *BaseLogger {
-	return &BaseLogger{agent: _agent, enableable: true}
+	return NewBaseLogger(_agent, "", true)
 }
 
 /**
  * Initialize enabled/disabled logger using default url.
  */
-func NewBaseLoggerAgentEnabled(_agent string, _enabled bool) *BaseLogger {
-	return &BaseLogger{agent: _agent, enableable: true}
+func NewBaseLoggerEnabledUrl(_agent string, _enabled bool) *BaseLogger {
+	return NewBaseLogger(_agent, "", _enabled)
+}
+
+/**
+ * Initialize enabled logger using url.
+ */
+func NewBaseLoggerUrl(_agent string, _url string) *BaseLogger {
+	return NewBaseLogger(_agent, _url, true)
 }
 
 //
@@ -29,7 +36,9 @@ func NewBaseLoggerAgentEnabled(_agent string, _enabled bool) *BaseLogger {
 /**
  * Initialize enabled/disabled logger using url.
  */
-func NewBaseLogger(_agent string, _url string, _enabled bool) (*BaseLogger, error) {
+
+//use two return values to handle errors, ie (*baselogger, error)
+func NewBaseLogger(_agent string, _url string, _enabled bool) *BaseLogger {
 	baselogger := &BaseLogger{}
 	baselogger.agent = _agent
 	baselogger.host = "please implement host_lookup()"
@@ -55,7 +64,53 @@ func NewBaseLogger(_agent string, _url string, _enabled bool) (*BaseLogger, erro
 		baselogger.url_parsed = baselogger.url + ";parsed"
 		//the rest is throwing errors
 	}
+	baselogger.enableable = (baselogger.url != "")
+
+	return baselogger
 }
+
+//TODO: constructor using queue
+
+//TODO: constructor using queue and enabled/diabled
+
+//TODO: Enable/disable?
+
+//Getters and Setters
+
+func (obj BaseLogger) getAgent() string         { return obj.agent }
+func (obj BaseLogger) getHost() string          { return obj.host }
+func (obj BaseLogger) getQueue() []string       { return obj.queue }
+func (obj BaseLogger) getSkipCompression() bool { return obj.skip_compression }
+func (obj BaseLogger) getSkipSubmission() bool  { return obj.skip_submission }
+func (obj BaseLogger) getUrl() string           { return obj.url }
+func (obj BaseLogger) getVersion() string       { return obj.version }
+func (obj BaseLogger) getEnableable() bool      { return obj.enableable }
+func (obj BaseLogger) getEnableabled() bool     { return obj.enabled }
+func (obj BaseLogger) getSubmitFailues() int    { return obj.submit_failures }
+func (obj BaseLogger) getSubmitSuccesses() int  { return obj.submit_successes }
+
+func (obj BaseLogger) setSkipCompression(_skip_compresssion bool) {
+	obj.skip_compression = _skip_compresssion
+}
+func (obj BaseLogger) setSkipSubmission(_skip_submission bool) {
+	obj.skip_submission = _skip_submission
+}
+
+//End Getters and Setters
+
+//TODO: Host Lookup func
+
+/**
+ * Submits JSON message to intended destination.
+ */
+func submit(msg string) {
+	//woah congrats you submitted the message
+	//TODO: implement submit func
+}
+
+//the java version uses a getter function to access this
+//it isn't used anywhere else
+const version string = "0.0.0.wehaventstartedityet"
 
 type BaseLogger struct {
 	agent            string
