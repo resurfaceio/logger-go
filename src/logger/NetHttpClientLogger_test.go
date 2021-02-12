@@ -51,4 +51,14 @@ func TestNetHttpClientLogger(t *testing.T) {
 	assert.Nil(t, logger3.GetURL)
 	assert.Equal(t, testHelper.demoURL, logger3.GetURL)
 
+
+	//Has Valid Agent Test
+	agent := logger.AGENT
+	assert.Greater(t, len(agent),0)
+	assert.Equal(t, ".go",agent[len(agent)-3:])
+	assert.False(t, assert.Contains(t, agent, "\\" ))
+	assert.False(t, assert.Contains(t, agent, "\"" ))
+	assert.False(t, assert.Contains(t, agent, "'" ))
+	assert.Equal(t, agent, newLogger().AGENT)
+
 }
