@@ -95,6 +95,10 @@ func TestUsesAllowHttpUrlRules(t *testing.T) {
 
 // test uses remove rules
 
+func TestUsesRemoveRules(t *testing.T) {
+
+}
+
 // test uses remove if rules
 
 // test uses remove if found rules
