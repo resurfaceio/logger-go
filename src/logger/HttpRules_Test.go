@@ -193,37 +193,33 @@ func TestLoadsRulesFromFile(t *testing.T) {
 
 func parseFail(t *testing.T, line string) {
 	httpRules := GetHttpRules()
-	err := httpRules.ParseRule(line)
-	if err != nil {
-		return
-	}
-
-	assert.True(t, false)
+	HttpRule, err := httpRules.ParseRule(line)
+	assert.NotNil(t, err)
 }
 
-func parseOk(t *testing.T, verb string, scope string,
-	param1 interface{}, param2 interface{}) {
+func parseOk(t *testing.T, line string, verb string, 
+	scope string, param1 interface{}, param2 interface{}) {
 
 	httpRules := GetHttpRules()
-	rule := httpRules.ParseRul(line)
+	rule := httpRules.ParseRule(line)
 	assert.Equal(t, verb, rule.Verb())
 	
 	if rule.Scope() == nil {
 		assert.Nil(t, scope)
 	} else {
-		//not sure if this is right
-		assert.Equal(t, scope, regexp.Compile(rule.Scope()))
+		// this may need to change
+		assert.Equal(t, scope, rule.Scope().String())
 	}
 
-	rParam1 := rule.Param1()
-	_, isPattern := rParam1.(regexp.Regexp)
+	ruleParam1 := rule.Param1()
+	_, isPattern := ruleParam1.(regexp.Regexp)
 	if rule.Param1() == nil {
 		assert.Nil(t, param1)
 	} else if !isPattern {
 		assert
 	}
 
-        if (rule.param1 == null) {
+        if (rule.Param1() == null) {
             expect(param1).toBeNull();
         } else if (rule.param1 instanceof Pattern) {
             expect(param1).toEqual(((Pattern) (rule.param1)).pattern());
