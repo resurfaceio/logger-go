@@ -1,14 +1,10 @@
 package logger
 
-//why does this not work???????
+//this doesn't resolve, don't know why
+//not super important
 // import (
 // 	"net/url"
 // )
-
-//to be defined in UsageLoggers or something of the sort
-const (
-	urlByDefault = ""
-)
 
 /**
  * Initialize enabled logger using default url.
@@ -49,7 +45,7 @@ func NewBaseLogger(_agent string, _url string, _enabled bool) *BaseLogger {
 	baselogger.enabled = _enabled
 	//I believe comparing with an empty string should be the same as comparing with nil
 	if _url == "" {
-		baselogger.url = urlByDefault
+		baselogger.url = "urlByDefault, in the java version this is defined in UsageLoggers"
 		if baselogger.url == "" {
 			baselogger.enabled = false
 		} else {
@@ -98,7 +94,18 @@ func (obj BaseLogger) setSkipSubmission(_skip_submission bool) {
 
 //End Getters and Setters
 
-//TODO: Host Lookup func
+/**
+ * Returns host identifier for this logger.
+ */
+func host_lookup() string {
+	dyno := "this is what System.getenv(dyno) will return"
+	if dyno == "" {
+		return dyno
+	}
+	//TODO: implement try/catch style error return
+	//Implement whatever this host code is
+	return "InetAddress.getLocalHost().getHostName()"
+}
 
 /**
  * Submits JSON message to intended destination.
@@ -110,7 +117,9 @@ func submit(msg string) {
 
 //the java version uses a getter function to access this
 //it isn't used anywhere else
-const version string = "0.0.0.wehaventstartedityet"
+//could use this const version instead
+//const version string = "0.0.0.wehaventstartedityet"
+func version_lookup() string { return "0.0.0.wehaventstartedityet" }
 
 type BaseLogger struct {
 	agent            string

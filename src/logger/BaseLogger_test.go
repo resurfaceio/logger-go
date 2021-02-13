@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"strings"
 )
 
 func TestBaseLogger(t *testing.T) {
@@ -27,11 +29,24 @@ func TestCreatesMultipleInstances(t *testing.T) {
 }
 
 func TestHasValidHost(t *testing.T) {
-	//TODO
+	host := host_lookup()
+	assert.NotNil(t, host)
+	assert.Greater(t, len(host), 0)
+	assert.Contains(t, host, "unknown")
+	assert.Equal(t, host, NewBaseLoggerAgent(MOCK_AGENT).getHost())
 }
 
 func TestHasValidVersion(t *testing.T) {
-	//TODO
+	version := version_lookup()
+	assert.NotNil(t, version)
+	assert.Greater(t, len(version), 0)
+	//replacement of the java "startswith" assertion
+	//won't work rn since version is a dummy string
+	assert.Equal(t, strings.Index(version, "2.0."), 0)
+	assert.NotContains(t,version,"\\")
+	assert.NotContains(t,version,"\"")
+	assert.NotContains(t,version,"'")
+	assert.Equal(t,NewBaseLoggerAgent(MOCK_AGENT).getVersion(),version)
 }
 
 func TestPerformsEnablingWhenExpected(t *testing.T) {
