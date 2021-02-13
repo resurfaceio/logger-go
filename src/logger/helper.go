@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-type Helper struct {
+type helper struct {
 	demoURL         string
 	mockAgent       string
 	mockHTML        string
@@ -23,14 +23,6 @@ type Helper struct {
 	mockURLSdenied  []string
 	mockURLSinvalid []string
 }
-
-type Article struct {
-	Title   string `json:"Title"`
-	Desc    string `json:"desc"`
-	Content string `json:"content"`
-}
-
-type Articles []Article
 
 func allArticles(w http.ResponseWriter, r *http.Request) {
 	articles := Articles{
@@ -48,52 +40,56 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Homepage Enpoint Hit")
 }
 
-func (h *Helper) MockCustomApp() {
+func (h *helper) MockCustomApp() {
 	http.HandleFunc("/", homePage)
 	http.HandleFunc("/articles", allArticles)
 	log.Fatal(http.ListenAndServe(":8081", nil))
 }
 
-func NewTestHelper() *Helper {
-	newHelper := Helper{
-		demoURL: "https://demo.resurface.io/ping",
+var testHelper *helper
 
-		mockAgent: "helper.java",
+func NewTestHelper() *helper {
+	if testHelper == nil {
+		testHelper = &helper{
+			demoURL: "https://demo.resurface.io/ping",
 
-		mockHTML: "<html>Hello World!</html>",
+			mockAgent: "helper.java",
 
-		mockHTML2: "<html>Hola Mundo!</html>",
+			mockHTML: "<html>Hello World!</html>",
 
-		mockHTML3: "<html>1 World 2 World Red World Blue World!</html>",
+			mockHTML2: "<html>Hola Mundo!</html>",
 
-		mockHTML4: "<html>1 World\n2 World\nRed World \nBlue World!\n</html>",
+			mockHTML3: "<html>1 World 2 World Red World Blue World!</html>",
 
-		mockHTML5: `<html>\n
-		<input type=\"hidden\">SENSITIVE</input>\n
-		<input class='foo' type=\"hidden\">\n
-		SENSITIVE\n
-		</input>\n
-		</html>`,
+			mockHTML4: "<html>1 World\n2 World\nRed World \nBlue World!\n</html>",
 
-		mockJSON: "{ \"hello\" : \"world\" }",
+			mockHTML5: `<html>\n
+			<input type=\"hidden\">SENSITIVE</input>\n
+			<input class='foo' type=\"hidden\">\n
+			SENSITIVE\n
+			</input>\n
+			</html>`,
 
-		mockJSONescaped: "{ \\'hello\\' : \\'world\\' }",
+			mockJSON: "{ \"hello\" : \"world\" }",
 
-		mockNow: 1455908640173,
+			mockJSONescaped: "{ \\'hello\\' : \\'world\\' }",
 
-		mockQueryString: "foo=bar",
+			mockNow: 1455908640173,
 
-		mockURL: "http://something.com:3000/index.html",
+			mockQueryString: "foo=bar",
 
-		mockURLSdenied: []string{"https://demo.resurface.io/ping",
-			"/noway3is5this1valid2",
-			"https://www.noway3is5this1valid2.com/"},
+			mockURL: "http://something.com:3000/index.html",
 
-		mockURLSinvalid: []string{"",
-			"noway3is5this1valid2",
-			"ftp:\\www.noway3is5this1valid2.com/",
-			"urn:ISSN:1535–3613"},
+			mockURLSdenied: []string{"https://demo.resurface.io/ping",
+				"/noway3is5this1valid2",
+				"https://www.noway3is5this1valid2.com/"},
+
+			mockURLSinvalid: []string{"",
+				"noway3is5this1valid2",
+				"ftp:\\www.noway3is5this1valid2.com/",
+				"urn:ISSN:1535–3613"},
+		}
 	}
 
-	return &newHelper
+	return testHelper
 }
