@@ -19,7 +19,7 @@ type helper struct {
 
 var testHelper *helper
 
-func NewTestHelper() *helper {
+func GetTestHelper() *helper {
 	if testHelper == nil {
 		testHelper = &helper{
 			demoURL: "https://demo.resurface.io/ping",
