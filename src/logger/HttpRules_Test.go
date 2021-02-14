@@ -1,8 +1,9 @@
 package logger
 
 import (
-	"testing"
 	"regexp"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -193,17 +194,17 @@ func TestLoadsRulesFromFile(t *testing.T) {
 
 func parseFail(t *testing.T, line string) {
 	httpRules := GetHttpRules()
-	HttpRule, err := httpRules.ParseRule(line)
+	httpRule, err := httpRules.ParseRule(line)
 	assert.NotNil(t, err)
 }
 
-func parseOk(t *testing.T, line string, verb string, 
+func parseOk(t *testing.T, line string, verb string,
 	scope string, param1 interface{}, param2 interface{}) {
 
 	httpRules := GetHttpRules()
 	rule := httpRules.ParseRule(line)
 	assert.Equal(t, verb, rule.Verb())
-	
+
 	if rule.Scope() == nil {
 		assert.Nil(t, scope)
 	} else {
@@ -212,27 +213,22 @@ func parseOk(t *testing.T, line string, verb string,
 	}
 
 	ruleParam1 := rule.Param1()
-	_, isPattern := ruleParam1.(regexp.Regexp)
-	if rule.Param1() == nil {
+	_, notRegexp := ruleParam1.(regexp.Regexp)
+	if ruleParam1 == nil {
 		assert.Nil(t, param1)
-	} else if !isPattern {
-		assert
+	} else if !notRegexp {
+		assert.Equal(t, ruleParam1.(regexp.Regexp).String(), param1)
+	} else {
+		assert.Equal(t, ruleParam1, param1)
 	}
 
-        if (rule.Param1() == null) {
-            expect(param1).toBeNull();
-        } else if (rule.param1 instanceof Pattern) {
-            expect(param1).toEqual(((Pattern) (rule.param1)).pattern());
-        } else {
-            expect(param1).toEqual(rule.param1);
-        }
-
-        if (rule.param2 == null) {
-            expect(param2).toBeNull();
-        } else if (rule.param2 instanceof Pattern) {
-            expect(param2).toEqual(((Pattern) (rule.param2)).pattern());
-        } else {
-            expect(param2).toEqual(rule.param2);
-        }
-
+	ruleParam2 := rule.Param2()
+	_, notRegexp = ruleParam2.(regexp.Regexp)
+	if ruleParam2 == nil {
+		assert.Nil(t, param2)
+	} else if !notRegexp {
+		assert.Equal(t, ruleParam2.(regexp.Regexp).String(), param2)
+	} else {
+		assert.Equal(t, ruleParam2, param2)
+	}
 }
