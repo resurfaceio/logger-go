@@ -1,7 +1,7 @@
 package logger
 
 //this doesn't resolve, don't know why
-//not super important
+//not super important right now
 // import (
 // 	"net/url"
 // )
@@ -10,36 +10,44 @@ package logger
  * Initialize enabled logger using default url.
  */
 func NewBaseLoggerAgent(_agent string) *BaseLogger {
-	return NewBaseLogger(_agent, "", true)
+	return NewBaseLogger(_agent, "insert default url here", true, nil)
 }
 
 /**
  * Initialize enabled/disabled logger using default url.
  */
-func NewBaseLoggerEnabledUrl(_agent string, _enabled bool) *BaseLogger {
-	return NewBaseLogger(_agent, "", _enabled)
+func NewBaseLoggerAgentEnabled(_agent string, _enabled bool) *BaseLogger {
+	return NewBaseLogger(_agent, "insert default url here", _enabled, nil)
 }
 
 /**
  * Initialize enabled logger using url.
  */
-func NewBaseLoggerUrl(_agent string, _url string) *BaseLogger {
-	return NewBaseLogger(_agent, _url, true)
+func NewBaseLoggerAgentUrl(_agent string, _url string) *BaseLogger {
+	return NewBaseLogger(_agent, _url, true, nil)
 }
 
-//
+/**
+ * Initialize enabled logger using queue.
+ */
+func NewBaseLoggerAgentQueue(_agent string, _queue []string) *BaseLogger {
+	return NewBaseLogger(_agent, "insert default url here", true, nil)
+}
 
 /**
- * Initialize enabled/disabled logger using url.
+* Initialize enabled/disabled logger using queue.
  */
+func NewBaseLoggerAgentQueueEnabled(_agent string, _queue []string, _enabled bool) *BaseLogger {
+	return NewBaseLogger(_agent, "insert default url here", _enabled, nil)
+}
 
-//use two return values to handle errors, ie (*baselogger, error)
-func NewBaseLogger(_agent string, _url string, _enabled bool) *BaseLogger {
+//main constructor
+func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *BaseLogger {
 	baselogger := &BaseLogger{}
 	baselogger.agent = _agent
 	baselogger.host = "please implement host_lookup()"
 	baselogger.version = "please implement version_lookup()"
-	//baselogger.queue is nil by default
+	baselogger.queue = _queue
 
 	//set options in priority order
 	baselogger.enabled = _enabled
@@ -65,11 +73,13 @@ func NewBaseLogger(_agent string, _url string, _enabled bool) *BaseLogger {
 	return baselogger
 }
 
-//TODO: constructor using queue
+func (obj BaseLogger) enable() {
+	obj.enabled = true
+}
 
-//TODO: constructor using queue and enabled/diabled
-
-//TODO: Enable/disable?
+func (obj BaseLogger) disable() {
+	obj.enabled = false
+}
 
 //Getters and Setters
 
@@ -81,7 +91,7 @@ func (obj BaseLogger) getSkipSubmission() bool  { return obj.skip_submission }
 func (obj BaseLogger) getUrl() string           { return obj.url }
 func (obj BaseLogger) getVersion() string       { return obj.version }
 func (obj BaseLogger) getEnableable() bool      { return obj.enableable }
-func (obj BaseLogger) getEnableabled() bool     { return obj.enabled }
+func (obj BaseLogger) getEnabled() bool         { return obj.enabled }
 func (obj BaseLogger) getSubmitFailues() int    { return obj.submit_failures }
 func (obj BaseLogger) getSubmitSuccesses() int  { return obj.submit_successes }
 
@@ -110,22 +120,18 @@ func host_lookup() string {
 /**
  * Submits JSON message to intended destination.
  */
-func submit(msg string) {
+func (obj BaseLogger) submit(msg string) {
 	//woah congrats you submitted the message
 	//TODO: implement submit func
 }
-
-//the java version uses a getter function to access this
-//it isn't used anywhere else
-//could use this const version instead
-//const version string = "0.0.0.wehaventstartedityet"
 func version_lookup() string { return "0.0.0.wehaventstartedityet" }
 
 type BaseLogger struct {
-	agent            string
-	enableable       bool
-	enabled          bool
-	host             string
+	agent      string
+	enableable bool
+	enabled    bool
+	host       string
+	//easiest to implement a queue in go by using slices, need enqueue and dequque methods
 	queue            []string
 	skip_compression bool
 	skip_submission  bool
