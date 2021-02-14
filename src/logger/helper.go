@@ -1,13 +1,6 @@
 package logger
 
-import (
-	"encoding/json"
-	"fmt"
-	"log"
-	"net/http"
-)
-
-type helper struct {
+type Helper struct {
 	demoURL         string
 	mockAgent       string
 	mockHTML        string
@@ -22,28 +15,6 @@ type helper struct {
 	mockURL         string
 	mockURLSdenied  []string
 	mockURLSinvalid []string
-}
-
-func allArticles(w http.ResponseWriter, r *http.Request) {
-	articles := Articles{
-		Article{Title: "Test Title", Desc: "Test Description", Content: "<html>Hello World!</html>"},
-	}
-
-	fmt.Println("Endpoint Hit: All Articles Endpoint")
-	err := json.NewEncoder(w).Encode(articles)
-	if err != nil {
-		fmt.Println("Helper json encoding failed")
-	}
-}
-
-func homePage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Homepage Enpoint Hit")
-}
-
-func (h *helper) MockCustomApp() {
-	http.HandleFunc("/", homePage)
-	http.HandleFunc("/articles", allArticles)
-	log.Fatal(http.ListenAndServe(":8081", nil))
 }
 
 var testHelper *helper
