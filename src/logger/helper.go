@@ -1,6 +1,6 @@
 package logger
 
-type Helper struct {
+type helper struct {
 	demoURL         string
 	mockAgent       string
 	mockHTML        string
