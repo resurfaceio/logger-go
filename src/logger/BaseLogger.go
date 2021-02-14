@@ -10,14 +10,14 @@ package logger
  * Initialize enabled logger using default url.
  */
 func NewBaseLoggerAgent(_agent string) *BaseLogger {
-	return NewBaseLogger(_agent, "insert default url here", true, nil)
+	return NewBaseLogger(_agent, "UsageLoggers.urlByDefault()", true, nil)
 }
 
 /**
  * Initialize enabled/disabled logger using default url.
  */
 func NewBaseLoggerAgentEnabled(_agent string, _enabled bool) *BaseLogger {
-	return NewBaseLogger(_agent, "insert default url here", _enabled, nil)
+	return NewBaseLogger(_agent, "UsageLoggers.urlByDefault()", _enabled, nil)
 }
 
 /**
@@ -31,75 +31,56 @@ func NewBaseLoggerAgentUrl(_agent string, _url string) *BaseLogger {
  * Initialize enabled logger using queue.
  */
 func NewBaseLoggerAgentQueue(_agent string, _queue []string) *BaseLogger {
-	return NewBaseLogger(_agent, "insert default url here", true, nil)
+	return NewBaseLogger(_agent, "UsageLoggers.urlByDefault()", true, _queue)
 }
 
 /**
 * Initialize enabled/disabled logger using queue.
  */
 func NewBaseLoggerAgentQueueEnabled(_agent string, _queue []string, _enabled bool) *BaseLogger {
-	return NewBaseLogger(_agent, "insert default url here", _enabled, nil)
+	return NewBaseLogger(_agent, "UsageLoggers.urlByDefault()", _enabled, _queue)
 }
 
 //main constructor
 func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *BaseLogger {
-	baselogger := &BaseLogger{}
-	baselogger.agent = _agent
-	baselogger.host = "please implement host_lookup()"
-	baselogger.version = "please implement version_lookup()"
-	baselogger.queue = _queue
+	baseLogger := &BaseLogger{}
+	baseLogger.Agent = _agent
+	baseLogger.Host = "please implement host_lookup()"
+	baseLogger.Version = "please implement version_lookup()"
+	baseLogger.Queue = _queue
 
 	//set options in priority order
-	baselogger.enabled = _enabled
+	baseLogger.Enabled = _enabled
 	//I believe comparing with an empty string should be the same as comparing with nil
 	if _url == "" {
-		baselogger.url = "urlByDefault, in the java version this is defined in UsageLoggers"
-		if baselogger.url == "" {
-			baselogger.enabled = false
+		baseLogger.Url = "urlByDefault, in the java version this is defined in UsageLoggers"
+		if baseLogger.Url == "" {
+			baseLogger.Enabled = false
 		} else {
-			baselogger.url = _url
+			baseLogger.Url = _url
 		}
 	}
 
 	//validate url when present
-	if baselogger.url != "" {
+	if baseLogger.Url != "" {
 		//I'm replacing the try catch statement with the error return
 		//but I'll implement that later, this line is a dummy
-		baselogger.url_parsed = baselogger.url + ";parsed"
+		baseLogger.UrlParsed = baseLogger.Url + ";parsed"
 		//the rest is throwing errors
 	}
-	baselogger.enableable = (baselogger.url != "")
+	baseLogger.Enableable = (baseLogger.Url != "")
 
-	return baselogger
+	return baseLogger
 }
 
-func (obj BaseLogger) enable() {
-	obj.enabled = true
+//these functions could be redundant, basically setters
+//in the java version these use generics, asking rob if there's any functionality needed
+func (obj BaseLogger) Enable() {
+	obj.Enabled = true
 }
 
-func (obj BaseLogger) disable() {
-	obj.enabled = false
-}
-
-//Getters and Setters
-
-func (obj BaseLogger) getAgent() string         { return obj.agent }
-func (obj BaseLogger) getHost() string          { return obj.host }
-func (obj BaseLogger) getQueue() []string       { return obj.queue }
-func (obj BaseLogger) getSkipCompression() bool { return obj.skip_compression }
-func (obj BaseLogger) getSkipSubmission() bool  { return obj.skip_submission }
-func (obj BaseLogger) getUrl() string           { return obj.url }
-func (obj BaseLogger) getVersion() string       { return obj.version }
-func (obj BaseLogger) getEnableable() bool      { return obj.enableable }
-func (obj BaseLogger) getEnabled() bool         { return obj.enabled }
-func (obj BaseLogger) getSubmitFailues() int    { return obj.submit_failures }
-func (obj BaseLogger) getSubmitSuccesses() int  { return obj.submit_successes }
-
-func (obj BaseLogger) setSkipCompression(_skip_compresssion bool) {
-	obj.skip_compression = _skip_compresssion
-}
-func (obj BaseLogger) setSkipSubmission(_skip_submission bool) {
-	obj.skip_submission = _skip_submission
+func (obj BaseLogger) Disable() {
+	obj.Enabled = false
 }
 
 //End Getters and Setters
@@ -107,7 +88,7 @@ func (obj BaseLogger) setSkipSubmission(_skip_submission bool) {
 /**
  * Returns host identifier for this logger.
  */
-func host_lookup() string {
+func (obj BaseLogger) hostLookup() string {
 	dyno := "this is what System.getenv(dyno) will return"
 	if dyno == "" {
 		return dyno
@@ -120,25 +101,25 @@ func host_lookup() string {
 /**
  * Submits JSON message to intended destination.
  */
-func (obj BaseLogger) submit(msg string) {
+func (obj BaseLogger) Submit(msg string) {
 	//woah congrats you submitted the message
 	//TODO: implement submit func
 }
-func version_lookup() string { return "0.0.0.wehaventstartedityet" }
+func (obj BaseLogger) versionLookup() string { return "0.0.0.wehaventstartedityet" }
 
 type BaseLogger struct {
-	agent      string
-	enableable bool
-	enabled    bool
-	host       string
+	Agent      string
+	Enableable bool
+	Enabled    bool
+	Host       string
 	//easiest to implement a queue in go by using slices, need enqueue and dequque methods
-	queue            []string
-	skip_compression bool
-	skip_submission  bool
-	submit_failures  int
-	submit_successes int
-	url              string
+	Queue           []string
+	SkipCompression bool
+	SkipSubmission  bool
+	SubmitFailures  int
+	SubmitSuccesses int
+	Url             string
 	//url parsed should be of type URL, but I can't get the package to import
-	url_parsed string
-	version    string
+	UrlParsed string
+	Version   string
 }
