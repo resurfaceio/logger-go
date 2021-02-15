@@ -62,9 +62,9 @@ func TestHasValidAgent(T *testing.T){
 	agent := logger.AGENT
 	assert.Greater(t, len(agent),0)
 	assert.Equal(t, ".go",agent[len(agent)-3:])
-	assert.False(t, assert.Contains(t, agent, "\\" ))
-	assert.False(t, assert.Contains(t, agent, "\"" ))
-	assert.False(t, assert.Contains(t, agent, "'" ))
+	assert.NotContains(t, agent, "\\" )
+	assert.NotContains(t, agent, "\"" )
+	assert.NotContains(t, agent, "'" )
 	assert.Equal(t, agent, newLogger().AGENT)
 
 }
