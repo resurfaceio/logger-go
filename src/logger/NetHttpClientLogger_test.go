@@ -34,6 +34,7 @@ func TestLogsHtml(t *testing.T) {
 func TestlogJson(t *testing.T) {
 	helper := NewTestHelper()
 	queue := []string{}
+	filter := newLogger(queue, "includes standard")
 	filter.init(nil)
 	filter.doFilter(helper.mockRequest(), helper.mockResponse(), helper.mockJsonApp())
 	assert.Equal(t, 1, len(queue))
@@ -70,6 +71,7 @@ func TestLogsJsonPost(t *testing.T) {
 func TestJsonPostWithHeaders(t *testing.T) {
 	helper := NewTestHelper()
 	queue := []string{}
+	filter := newLogger(queue, "includes standard")
 	filter.init(nil)
 	filter.doFilter(helper.mockRequest(), helper.mockResponse(), helper.mockJsonApp())
 	assert.Equal(t, 1, len(queue))
@@ -87,4 +89,20 @@ func TestJsonPostWithHeaders(t *testing.T) {
 	assert.Contains(t, msg, "[\"response_code\",\"200\"]")
 	assert.Contains(t, msg, "[\"response_header:a\",\"Z\"]")
 	assert.Contains(t, msg, "[\"response_header:content-type\",\"text/html\"]")
+}
+
+//need to figure out what these exceptions are doing
+//as they can't be easily replicated in go
+//so this is a bit of a fummy function
+func TestSkipsException(t *testing.T) {
+	queue := []string{}
+	filter := newLogger(queue, "includes standard")
+	filter.init(nil)
+	//try {
+	filter.doFilter(mockRequest(), mockResponse(), mockExceptionApp())
+	//} catch (UnsupportedEncodingException uee) {
+	assert.Equal(t, 0, len(queue))
+	// } catch (Exception e) {
+	// 	fail("Unexpected exception type");
+	// }
 }
