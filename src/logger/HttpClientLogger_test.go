@@ -13,7 +13,7 @@ func TestCreateInstance(t *testing.T) {
 	logger := newLogger()
 
 	assert.NotNil(t, logger)
-	assert.Equal(t, netHttpClientLogger.AGENT, logger.AGENT)
+	assert.Equal(t, HttpLogger.AGENT, logger.AGENT)
 	assert.False(t, logger.isEnableable)
 	assert.False(t, logger.LOGFLAG)
 	assert.Nil(t, logger.GetQueue)
