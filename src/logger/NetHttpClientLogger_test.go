@@ -19,8 +19,8 @@ func TestLogsHtml(t *testing.T) {
 	msg := queue[0]
 	assert.True(t, parsable(msg))
 	assert.Contains(t, msg, "[\"request_method\",\"GET\"]")
-	assert.Contains(t, msg, "[\"request_url\",\"" + helper.mockURL + "\"]")
-	assert.Contains(t, msg, "[\"response_body\",\"" + helper.mockHTML + "\"]")
+	assert.Contains(t, msg, "[\"request_url\",\""+helper.mockURL+"\"]")
+	assert.Contains(t, msg, "[\"response_body\",\""+helper.mockHTML+"\"]")
 	assert.Contains(t, msg, "[\"response_code\",\"200\"]")
 	assert.Contains(t, msg, "[\"response_header:a\",\"Z\"]")
 	assert.Contains(t, msg, "[\"response_header:content-type\",\"text/html\"]")
@@ -34,14 +34,12 @@ func TestLogsHtml(t *testing.T) {
 func TestlogJson(t *testing.T) {
 	helper := NewTestHelper()
 	queue := []string{}
-	//do filter
-	//this block will do the actual logging
-	//but we don't know how this works yet
-	//make filter, initialize, do filter
+	filter.init(nil)
+	filter.doFilter(helper.mockRequest(), helper.mockResponse(), helper.mockJsonApp())
 	assert.Equal(t, 1, len(queue))
 	msg := queue[0]
-	//must implement parsable function
-	assert.True(t,parsable(msg))
+	assert.True(t, parseable(msg))
+	assert.True(t, parsable(msg))
 	assert.Contains(t, msg, "[\"request_method\",\"GET\"]")
 	assert.Contains(t, msg, "[\"response_body\",\""+helper.mockJSONescaped+"\"]")
 	assert.Contains(t, msg, "[\"response_code\",\"200\"]")
@@ -51,7 +49,7 @@ func TestlogJson(t *testing.T) {
 	assert.NotContains(t, msg, "request_param")
 }
 
-func TestLogsJsonPost(t *testing.T){
+func TestLogsJsonPost(t *testing.T) {
 	queue := []string{}
 	filter := newLogger(queue, "includes standard")
 	helper := NewTestHelper()
@@ -62,9 +60,31 @@ func TestLogsJsonPost(t *testing.T){
 	assert.True(t, parsable(msg))
 	assert.Contains(t, msg, "[\"request_header:content-type\",\"Application/JSON\"]")
 	assert.Contains(t, msg, "[\"request_method\",\"POST\"]")
-	assert.Contains(t, msg, "[\"request_param:message\",\"" + helper.mockJSONescaped + "\"]")
-	assert.Contains(t, msg, "[\"request_url\",\"" + helper.mockURL + "?" + helper.mockQueryString + "\"]")
-	assert.Contains(t, msg, "[\"response_body\",\"" + helper.mockJSONescaped + "\"]")
+	assert.Contains(t, msg, "[\"request_param:message\",\""+helper.mockJSONescaped+"\"]")
+	assert.Contains(t, msg, "[\"request_url\",\""+helper.mockURL+"?"+helper.mockQueryString+"\"]")
+	assert.Contains(t, msg, "[\"response_body\",\""+helper.mockJSONescaped+"\"]")
 	assert.Contains(t, msg, "[\"response_code\",\"200\"]")
 	assert.Contains(t, msg, "[\"response_header:content-type\",\"application/json; charset=utf-8\"]")
+}
+
+func TestJsonPostWithHeaders(t *testing.T) {
+	helper := NewTestHelper()
+	queue := []string{}
+	filter.init(nil)
+	filter.doFilter(helper.mockRequest(), helper.mockResponse(), helper.mockJsonApp())
+	assert.Equal(t, 1, len(queue))
+	msg := queue[0]
+	assert.True(t, parseable(msg))
+	assert.Contains(t, msg, "[\"request_header:a\",\"1\"]")
+	assert.Contains(t, msg, "[\"request_header:a\",\"2\"]")
+	assert.Contains(t, msg, "[\"request_header:content-type\",\"Application/JSON\"]")
+	assert.Contains(t, msg, "[\"request_method\",\"POST\"]")
+	assert.Contains(t, msg, "[\"request_param:abc\",\"123\"]")
+	assert.Contains(t, msg, "[\"request_param:abc\",\"234\"]")
+	assert.Contains(t, msg, "[\"request_param:message\",\""+helper.mockJSONescaped+"\"]")
+	assert.Contains(t, msg, "[\"request_url\",\""+helper.mockURL+"?"+helper.mockQueryString+"\"]")
+	assert.Contains(t, msg, "[\"response_body\",\""+helper.mockHTML+"\"]")
+	assert.Contains(t, msg, "[\"response_code\",\"200\"]")
+	assert.Contains(t, msg, "[\"response_header:a\",\"Z\"]")
+	assert.Contains(t, msg, "[\"response_header:content-type\",\"text/html\"]")
 }
