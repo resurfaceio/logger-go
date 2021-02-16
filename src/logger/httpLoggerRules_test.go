@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"strings"
 )
 
 // test override default rules
@@ -93,9 +95,29 @@ func TestUsesAllowHttpUrlRules(t *testing.T) {
 
 // test uses copy session field rules test
 
-// func TestUsesCopySessionFieldRules(t *testing.T) {
+func TestUsesCopySessionFieldRules(t *testing.T) {
+	// helper for function tests
+	helper := NewTestHelper()
+	// requests used for all tests in function
+	request := NewMockRequestWithJson2()
+	request.Session().SetAttribute("butterfly", "poison")
+	request.Session().SetAttribute("session_id", "asdf1234")
+	// tests copy all of session field
+	queue := make([]string, 0)
+	logger := NewHttpLoggerQueueRules(queue, "copy_session_field /.*/")
+	httpMessage.Send(logger, request, MockResponseWithHTML(), helper.mockHTML, helper.mockJSON)
+	assert.Equal(t, 1, len(queue), "queue length is not 1, rule failed")
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:butterfly\",\"poison\"]"), "queue did not contain expected values")
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "queue did not contain expected values")
+	// tests copy specifically session_id
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "copy_session_field /session_id/")
+	httpMessage.Send(logger, request, MockResponseWithHTML(), helper.mockHTML, helper.mockJSON)
+	assert.Equal(t, 1, len(queue), "queue length is not 1, rule failed")
+	assert.Equal(t, false, strings.Contains(queue[0], "[\"session_field:butterfly\",\"poison\"]"), "queue contained unexpected values")
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "queue did not contain expected values")
 
-// }
+}
 
 // test uses copy session field and remove rules test
 
