@@ -106,17 +106,29 @@ func TestUsesCopySessionFieldRules(t *testing.T) {
 	queue := make([]string, 0)
 	logger := NewHttpLoggerQueueRules(queue, "copy_session_field /.*/")
 	httpMessage.Send(logger, request, MockResponseWithHTML(), helper.mockHTML, helper.mockJSON)
-	assert.Equal(t, 1, len(queue), "queue length is not 1, rule failed")
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:butterfly\",\"poison\"]"), "queue did not contain expected values")
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "queue did not contain expected values")
 	// tests copy specifically session_id
 	queue = make([]string, 0)
 	logger = NewHttpLoggerQueueRules(queue, "copy_session_field /session_id/")
 	httpMessage.Send(logger, request, MockResponseWithHTML(), helper.mockHTML, helper.mockJSON)
-	assert.Equal(t, 1, len(queue), "queue length is not 1, rule failed")
-	assert.Equal(t, false, strings.Contains(queue[0], "[\"session_field:butterfly\",\"poison\"]"), "queue contained unexpected values")
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+	assert.Equal(t, false, strings.Contains(queue[0], "[\"session_field:butterfly\",\"poison\"]"), "queue contains unexpected value")
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "queue did not contain expected values")
-
+	// tests copy non matching term
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "copy_session_field /blah/")
+	httpMessage.Send(logger, request, MockResponseWithHTML(), helper.mockHTML, helper.mockJSON)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+	assert.Equal(t, false, strings.Contains(queue[0], "[\"session_field:"), "queue contains unexpected value")
+	// tests copy 2 specific values
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "copy_session_field /butterfly/\ncopy_session_field /session_id/")
+	httpMessage.Send(logger, request, MockResponseWithHTML(), helper.mockHTML, helper.mockJSON)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:butterfly\",\"poison\"]"), "queue did not contain expected values")
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "queue did not contain expected values")
 }
 
 // test uses copy session field and remove rules test
