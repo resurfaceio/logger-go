@@ -1,13 +1,6 @@
 package logger
 
-import (
-	"encoding/json"
-	"fmt"
-	"log"
-	"net/http"
-)
-
-type Helper struct {
+type helper struct {
 	demoURL         string
 	mockAgent       string
 	mockHTML        string
@@ -24,76 +17,50 @@ type Helper struct {
 	mockURLSinvalid []string
 }
 
-type Article struct {
-	Title   string `json:"Title"`
-	Desc    string `json:"desc"`
-	Content string `json:"content"`
-}
+var testHelper *helper
 
-type Articles []Article
+func GetTestHelper() *helper {
+	if testHelper == nil {
+		testHelper = &helper{
+			demoURL: "https://demo.resurface.io/ping",
 
-func allArticles(w http.ResponseWriter, r *http.Request) {
-	articles := Articles{
-		Article{Title: "Test Title", Desc: "Test Description", Content: "<html>Hello World!</html>"},
+			mockAgent: "helper.java",
+
+			mockHTML: "<html>Hello World!</html>",
+
+			mockHTML2: "<html>Hola Mundo!</html>",
+
+			mockHTML3: "<html>1 World 2 World Red World Blue World!</html>",
+
+			mockHTML4: "<html>1 World\n2 World\nRed World \nBlue World!\n</html>",
+
+			mockHTML5: `<html>\n
+			<input type=\"hidden\">SENSITIVE</input>\n
+			<input class='foo' type=\"hidden\">\n
+			SENSITIVE\n
+			</input>\n
+			</html>`,
+
+			mockJSON: "{ \"hello\" : \"world\" }",
+
+			mockJSONescaped: "{ \\'hello\\' : \\'world\\' }",
+
+			mockNow: 1455908640173,
+
+			mockQueryString: "foo=bar",
+
+			mockURL: "http://something.com:3000/index.html",
+
+			mockURLSdenied: []string{"https://demo.resurface.io/ping",
+				"/noway3is5this1valid2",
+				"https://www.noway3is5this1valid2.com/"},
+
+			mockURLSinvalid: []string{"",
+				"noway3is5this1valid2",
+				"ftp:\\www.noway3is5this1valid2.com/",
+				"urn:ISSN:1535–3613"},
+		}
 	}
 
-	fmt.Println("Endpoint Hit: All Articles Endpoint")
-	err := json.NewEncoder(w).Encode(articles)
-	if err != nil {
-		fmt.Println("Helper json encoding failed")
-	}
-}
-
-func homePage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Homepage Enpoint Hit")
-}
-
-func (h *Helper) MockCustomApp() {
-	http.HandleFunc("/", homePage)
-	http.HandleFunc("/articles", allArticles)
-	log.Fatal(http.ListenAndServe(":8081", nil))
-}
-
-func NewTestHelper() *Helper {
-	newHelper := Helper{
-		demoURL: "https://demo.resurface.io/ping",
-
-		mockAgent: "helper.java",
-
-		mockHTML: "<html>Hello World!</html>",
-
-		mockHTML2: "<html>Hola Mundo!</html>",
-
-		mockHTML3: "<html>1 World 2 World Red World Blue World!</html>",
-
-		mockHTML4: "<html>1 World\n2 World\nRed World \nBlue World!\n</html>",
-
-		mockHTML5: `<html>\n
-		<input type=\"hidden\">SENSITIVE</input>\n
-		<input class='foo' type=\"hidden\">\n
-		SENSITIVE\n
-		</input>\n
-		</html>`,
-
-		mockJSON: "{ \"hello\" : \"world\" }",
-
-		mockJSONescaped: "{ \\'hello\\' : \\'world\\' }",
-
-		mockNow: 1455908640173,
-
-		mockQueryString: "foo=bar",
-
-		mockURL: "http://something.com:3000/index.html",
-
-		mockURLSdenied: []string{"https://demo.resurface.io/ping",
-			"/noway3is5this1valid2",
-			"https://www.noway3is5this1valid2.com/"},
-
-		mockURLSinvalid: []string{"",
-			"noway3is5this1valid2",
-			"ftp:\\www.noway3is5this1valid2.com/",
-			"urn:ISSN:1535–3613"},
-	}
-
-	return &newHelper
+	return testHelper
 }
