@@ -196,6 +196,23 @@ func TestUsesCopySessionFieldAndStopRules(t *testing.T) {
 
 // test uses remove rules
 
+func TestUsesRemoveRules(t *testing.T) {
+	//helper for function
+	helper := NewTestHelper()
+
+	queue := make([]string, 0)
+	logger := NewHttpLoggerQueueRules(queue, "!.*! remove")
+	httpMessage.Send(logger, MockRequestWithJson2(), MockResponseWithHtml(), helper.mockHTML, helper.mockJSON)
+	assert.Equal(t, 0, len(queue), "queue is not empty")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!request_body! remove")
+	httpMessage.Send(logger, MockRequestWithJson2(), MockResponseWithHtml(), helper.mockHTML, helper.mockJSON)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+	assert.Equal(t, false, strings.Contains(queue[0], "[\"request_body\","), "request_body was not removed")
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"response_body\","), "response_body not found")
+}
+
 // test uses remove if rules
 
 // test uses remove if found rules
