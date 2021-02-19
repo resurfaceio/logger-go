@@ -20,6 +20,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="64b73bec-d964-4948-9cf5-7b6bebfa5ce8" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/client-logger-go.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/client-logger-go.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/logger/HttpClientLogger_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/logger/HttpClientLogger_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -37,10 +40,23 @@
   </component>
   <component name="GOROOT" url="file://$USER_HOME$/sdk/go1.15" />
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GoLibraries">
+    <option name="urls">
+      <list>
+        <option value="file://$USER_HOME$/go" />
+      </list>
+    </option>
     <option name="useGoPathFromSystemEnvironment" value="false" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedIndex" value="1" />
   </component>
   <component name="ProjectId" id="1k23YH7Axol58Jo5ldiSzlarKhY" />
   <component name="ProjectViewState">
@@ -50,6 +66,7 @@
   <component name="PropertiesComponent">
     <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="DefaultGoTemplateProperty" value="Go File" />
+    <property name="Git.Branch.Popup.ShowAllRemotes" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
@@ -66,7 +83,7 @@
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
-    <property name="settings.editor.selected.configurable" value="go.sdk" />
+    <property name="settings.editor.selected.configurable" value="com.goide.configuration.GoLibrariesConfigurableProvider" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -89,6 +106,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Test.BaseLogger_test.go" />
         <item itemvalue="Go Test.BaseLogger_test.go" />
       </list>
     </recent_temporary>
