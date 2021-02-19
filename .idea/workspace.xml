@@ -20,18 +20,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="64b73bec-d964-4948-9cf5-7b6bebfa5ce8" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/test/base_logger_test.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-<<<<<<< HEAD
-      <change beforePath="$PROJECT_DIR$/test/base_logger_spec.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/helper.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/helper.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/helperTest.go" beforeDir="false" afterPath="$PROJECT_DIR$/test/helper_test.go" afterDir="false" />
-=======
       <change beforePath="$PROJECT_DIR$/src/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/BaseLogger_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/logger/BaseLogger_test.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/helper.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/logger/helper.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/helper_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/src/logger/helper_test.go" afterDir="false" />
->>>>>>> 01ef590dd55730b09b2a795b7677ef5d6cc3782c
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,7 +39,7 @@
       </list>
     </option>
   </component>
-  <component name="GOROOT" path="$USER_HOME$/sdk/go1.15.5" />
+  <component name="GOROOT" path="/usr/local/go" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -54,9 +47,6 @@
     <option name="useGoPathFromSystemEnvironment" value="false" />
   </component>
   <component name="ProjectId" id="1k23YH7Axol58Jo5ldiSzlarKhY" />
-  <component name="ProjectLevelVcsManager">
-    <ConfirmationsSetting value="1" id="Add" />
-  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -68,11 +58,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="configurable.Global.GOPATH.is.expanded" value="true" />
-<<<<<<< HEAD
-    <property name="configurable.Module.GOPATH.is.expanded" value="false" />
-=======
     <property name="configurable.Module.GOPATH.is.expanded" value="true" />
->>>>>>> 01ef590dd55730b09b2a795b7677ef5d6cc3782c
     <property name="configurable.Project.GOPATH.is.expanded" value="true" />
     <property name="go.import.settings.migrated" value="true" />
     <property name="go.sdk.automatically.set" value="true" />
@@ -128,21 +114,6 @@
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
-<<<<<<< HEAD
-  <component name="WindowStateProjectService">
-    <state x="640" y="190" key="#GOPATH" timestamp="1605304019646">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state x="640" y="190" key="#GOPATH/0.0.1680.1050@0.0.1680.1050" timestamp="1605304019646" />
-    <state x="640" y="462" key="#GOROOT" timestamp="1605303994391">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state x="640" y="462" key="#GOROOT/0.0.1680.1050@0.0.1680.1050" timestamp="1605303994391" />
-    <state x="304" y="187" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1605303980738">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state x="304" y="187" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1680.1050@0.0.1680.1050" timestamp="1605303980738" />
-=======
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
   </component>
@@ -178,6 +149,5 @@
     <state x="141" y="23" key="SettingsEditor/0.23.1280.713@0.23.1280.713" timestamp="1606234869375" />
     <state x="141" y="23" width="997" height="715" key="SettingsEditor/0.23.1280.715@0.23.1280.715" timestamp="1606234521076" />
     <state x="148" y="23" width="997" height="721" key="SettingsEditor/0.23.1280.721@0.23.1280.721" timestamp="1606752342485" />
->>>>>>> 01ef590dd55730b09b2a795b7677ef5d6cc3782c
   </component>
 </project>
