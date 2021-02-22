@@ -2,13 +2,14 @@ package logger
 
 import (
 	"regexp"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestChangesDefaultRules(t *testing.T) {
-	httpRules := GetHttpRules()
+	httpRules, _ := GetHttpRules()
 	for {
 		if !assert.Equal(t, newHttpRules("").StrictRules(), httpRules.DefaultRules()) {
 			break
@@ -69,7 +70,7 @@ func TestIncludeDebugRules(t *testing.T) {
 	rules = newHttpRules("include debug\nsample 50\ninclude debug")
 	assert.Equal(t, 5, rules.Size())
 
-	httpRules := GetHttpRules()
+	httpRules, _ := GetHttpRules()
 	assert.Equal(t, httpRules.StrictRules(), httpRules.DefaultRules())
 	httpRules.SetDefaultRules("include debug")
 	rules = newHttpRules("")
@@ -109,7 +110,7 @@ func TestIncludeStandardRules(t *testing.T) {
 	rules = newHttpRules("inlcude standard\nsample 50\ninclude standard")
 	assert.Equal(t, 7, rules.Size())
 
-	httpRules := GetHttpRules()
+	httpRules, _ := GetHttpRules()
 	assert.Equal(t, httpRules.StrictRules(), httpRules.DefaultRules())
 	for {
 		httpRules.SetDefaultRules("inlcude standard")
@@ -149,7 +150,7 @@ func TestIncludeStrictRules(t *testing.T) {
 	rules = newHttpRules(" include strict\nsample 50\ninclude strict")
 	assert.Equal(t, 5, rules.Size())
 
-	httpRules := GetHttpRules()
+	httpRules, _ := GetHttpRules()
 	assert.Equal(t, httpRules.GetStrictRules(), httpRules.GetDefaultRules())
 	for {
 		httpRules.SetDefaultRules("include strict")
@@ -193,7 +194,7 @@ func TestLoadsRulesFromFile(t *testing.T) {
 }
 
 func parseFail(t *testing.T, line string) {
-	httpRules := GetHttpRules()
+	httpRules, _ := GetHttpRules()
 	httpRule, err := httpRules.ParseRule(line)
 	assert.NotNil(t, err)
 }
@@ -201,7 +202,7 @@ func parseFail(t *testing.T, line string) {
 func parseOk(t *testing.T, line string, verb string,
 	scope string, param1 interface{}, param2 interface{}) {
 
-	httpRules := GetHttpRules()
+	httpRules, _ := GetHttpRules()
 	rule := httpRules.ParseRule(line)
 	assert.Equal(t, verb, rule.Verb())
 
@@ -240,7 +241,7 @@ func TestParsesEmptyRules(t *testing.T) {
 	assert.Equal(t, 2, newHttpRules("\t").Size())
 	assert.Equal(t, 2, newHttpRules("\n").Size())
 
-	httpRules := GetHttpRules()
+	httpRules, _ := GetHttpRules()
 	assert.Nil(t, httpRules.ParseRule(nil))
 	assert.Nil(t, httpRules.ParseRule(""))
 	assert.Nil(t, httpRules.ParseRule(" "))
@@ -908,4 +909,51 @@ func TestParsesStopUnlessFoundRules(t *testing.T) {
 		"stop_unless_found", "^request_body|response_body$", "<!--DO_LOGGING-->|<!-NOSKIP-->|pipe|", nil)
 	parseOk(t, "/request_body\\/response_body/ stop_unless_found |<!--DO_LOGGING-->\\|<!-NOSKIP-->\\|pipe\\||",
 		"stop_unless_found", "^request_body/response_body$", "<!--DO_LOGGING-->|<!-NOSKIP-->|pipe|", nil)
+}
+
+func TestReturnsExpectedErrors(t *testing.T) {
+
+	_, err := GetHttpRules("file://~/bleepblorpbleepblorp12345")
+	assert.Equal(t, "Failed to load rules: ~/bleepblorpbleepblorp12345", err.Error())
+
+	/*
+		set once to new instance of sync.Once so
+		it can create a new instance of httpRules
+	*/
+	once = sync.Once{}
+	_, err = GetHttpRules("/*! stop")
+	assert.Equal(t, "Invalid expression (/*!) in rule: /*! stop", err.Error())
+
+	/*
+		set once to new instance of sync.Once so
+		it can create a new instance of httpRules
+	*/
+	once = sync.Once{}
+	_, err = GetHttpRules("/*/ stop")
+	assert.Equal(t, "Invalid expression (/*!) in rule: /*! stop", err.Error())
+
+	/*
+		set once to new instance of sync.Once so
+		it can create a new instance of httpRules
+	*/
+	once = sync.Once{}
+	_, err = GetHttpRules("/boo")
+	assert.Equal(t, "Invalid rule: /boo", err.Error())
+
+	/*
+		set once to new instance of sync.Once so
+		it can create a new instance of httpRules
+	*/
+	once = sync.Once{}
+	_, err = GetHttpRules("sample 123")
+	assert.Equal(t, "Invalid sample percent: 123", err.Error())
+
+	/*
+		set once to new instance of sync.Once so
+		it can create a new instance of httpRules
+	*/
+	once = sync.Once{}
+	_, err = GetHttpRules("!!! stop")
+	assert.Equal(t, "Unescaped separator (!) in rule: !!! stop", err.Error())
+
 }
