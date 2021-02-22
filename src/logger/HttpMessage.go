@@ -12,7 +12,7 @@ import (
 /*
 * Submits request and response through logger.
  */
-func sendNetHttpClientMessage(logger *HttpLogger, resp *http.Response, start int64) {
+func sendNetHttpClientMessage(logger *HttpLogger, resp *http.Response, start int64) /* maybe return error */ {
 	request := resp.Request
 
 	if !logger.isEnabled() {
