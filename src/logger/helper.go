@@ -1,5 +1,9 @@
 package logger
 
+import "sync"
+
+var once sync.Once
+
 type helper struct {
 	demoURL         string
 	mockAgent       string
@@ -20,7 +24,7 @@ type helper struct {
 var testHelper *helper
 
 func GetTestHelper() *helper {
-	if testHelper == nil {
+	once.Do(func() {
 		testHelper = &helper{
 			demoURL: "https://demo.resurface.io/ping",
 
@@ -60,7 +64,7 @@ func GetTestHelper() *helper {
 				"ftp:\\www.noway3is5this1valid2.com/",
 				"urn:ISSN:1535–3613"},
 		}
-	}
+	})
 
 	return testHelper
 }
