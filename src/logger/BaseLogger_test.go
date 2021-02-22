@@ -70,7 +70,7 @@ func TestHasValidHost(t *testing.T) {
 func TestHasValidVersion(t *testing.T) {
 	helper := NewTestHelper()
 	baseLogger := NewBaseLoggerAgent(helper.mockAgent)
-	version := baseLogger.versionLookup()
+	version := versionLookup()
 	assert.NotNil(t, version)
 	assert.Greater(t, len(version), 0)
 	//replacement of the java "startswith" assertion
@@ -79,7 +79,7 @@ func TestHasValidVersion(t *testing.T) {
 	assert.NotContains(t, version, "\\")
 	assert.NotContains(t, version, "\"")
 	assert.NotContains(t, version, "'")
-	assert.Equal(t, version, baseLogger.Version())
+	assert.Equal(t, baseLogger.Version(), version)
 }
 
 func TestPerformsEnablingWhenExpected(t *testing.T) {
@@ -117,7 +117,7 @@ func TestSkipsEnablingForInvalidUrls(t *testing.T) {
 	}
 }
 
-func TestSkipsEnablingForNullUrls(t *testing.T) {
+func TestSkipsEnablingForNullUrl(t *testing.T) {
 	url := ""
 	helper := NewTestHelper()
 	logger := NewBaseLoggerAgentUrl(helper.mockAgent, url)
@@ -185,7 +185,7 @@ func TestSubmitsToDemoUrlWihoutCompression(t *testing.T) {
 
 func TestSubmitsToDeniedUrl(t *testing.T) {
 	helper := NewTestHelper()
-	for _, url := range helper.mockURLSinvalid {
+	for _, url := range helper.mockURLSdenied {
 		logger := NewBaseLoggerAgentUrl(helper.mockAgent, url)
 		assert.True(t, logger.Enableable())
 		assert.True(t, logger.Enabled())

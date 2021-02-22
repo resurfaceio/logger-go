@@ -2,13 +2,14 @@ package logger
 
 import (
 	"net/url"
+	"sync/atomic"
 )
 
 /**
  * Initialize enabled logger using default url.
  */
 func NewBaseLoggerAgent(_agent string) *BaseLogger {
-	return NewBaseLogger(_agent, "UsageLoggers.urlByDefault()", true, nil)
+	return NewBaseLogger(_agent, UsageLoggers.urlByDefault(), true, nil)
 }
 
 /**
@@ -54,17 +55,14 @@ func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *
 	var parsingError error
 	//validate url when present
 	if _url != "" {
-		//I'm replacing the try catch statement with the error return
-		//but I'll implement that later, this line is a dummy
 		_urlParsed, parsingError = url.Parse(_url)
 		if parsingError != nil {
 			_url = ""
 			_urlParsed = nil
 			_enabled = false
 		}
-		//the rest is throwing errors
 	}
-	_enableable := (baseLogger.url != "")
+	_enableable := (_url != "")
 
 	constructedBaseLogger := &BaseLogger{
 		agent:      _agent,
@@ -72,6 +70,8 @@ func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *
 		enabled:    _enabled,
 		host:       hostLookup(),
 		queue:      _queue,
+		skipCompression: false,
+		skipSubmission: false,
 		url:        _url,
 		urlParsed:  _urlParsed,
 		version:    versionLookup(),
@@ -79,7 +79,6 @@ func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *
 	return constructedBaseLogger
 }
 
-//these functions could be redundant, basically setters
 func (obj BaseLogger) Enable() {
 	obj.enabled = true
 }
