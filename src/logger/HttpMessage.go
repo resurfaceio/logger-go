@@ -12,7 +12,7 @@ import (
 /*
 * Submits request and response through logger.
  */
-func sendNetHttpClientMessage(logger *HttpLogger, resp *http.Response, now int64, interval float64) {
+func sendNetHttpClientMessage(logger *HttpLogger, resp *http.Response, start int64) {
 	request := resp.Request
 
 	if !logger.isEnabled() {
@@ -43,21 +43,21 @@ func sendNetHttpClientMessage(logger *HttpLogger, resp *http.Response, now int64
 	}
 
 	// add timing details
-	if now == 0 {
-		timeNow := time.Now()
-		unixNano := timeNow.UnixNano()
-		umillisec := unixNano / int64(time.Millisecond)
+	// if now == 0 {
+	// 	now = time.Now().UnixNano() / int64(time.Millisecond)
+	// }
 
-		now = umillisec
-	}
+	// if interval != 0 {
+	// 	message = append(message, []string{"interval", fmt.Sprint(interval)})
+	// }
+
+	now := time.Now().UnixNano() / int64(time.Millisecond)
 	message = append(message, []string{"now", string(now)})
 
-	if interval != 0 {
-		message = append(message, []string{"interval", fmt.Sprint(interval)})
-	}
+	interval := now - start
+	message = append(message, []string{"interval", fmt.Sprint(interval)})
 
 	logger.submitIfPassing(message)
-
 }
 
 /*
@@ -89,7 +89,7 @@ func buildNetHttpClientMessage(resp *http.Response) [][]string {
 	respBodyBytes, err := ioutil.ReadAll(resp.Body)
 	var respBody string
 	if err != nil {
-		respBody := string(respBodyBytes)
+		respBody = string(respBodyBytes)
 	}
 
 	if respBody != "" {
