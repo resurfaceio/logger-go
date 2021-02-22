@@ -65,16 +65,16 @@ func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *
 	_enableable := (_url != "")
 
 	constructedBaseLogger := &BaseLogger{
-		agent:      _agent,
-		enableable: _enableable,
-		enabled:    _enabled,
-		host:       hostLookup(),
-		queue:      _queue,
+		agent:           _agent,
+		enableable:      _enableable,
+		enabled:         _enabled,
+		host:            hostLookup(),
+		queue:           _queue,
 		skipCompression: false,
-		skipSubmission: false,
-		url:        _url,
-		urlParsed:  _urlParsed,
-		version:    versionLookup(),
+		skipSubmission:  false,
+		url:             _url,
+		urlParsed:       _urlParsed,
+		version:         versionLookup(),
 	}
 	return constructedBaseLogger
 }
@@ -93,6 +93,26 @@ func (obj BaseLogger) Disable() {
 func (obj BaseLogger) Submit(msg string) {
 	//woah congrats you submitted the message
 	//TODO: implement submit func
+	if msg == "" || obj.SkipSubmission() || !obj.Enabled() {
+		//do nothing
+	} else if obj.queue != nil {
+		queue.add(msg)
+		obj.submitSuccesses.increment()
+	} else {
+		// HttpURLConnection url_connection = (HttpURLConnection) this.url_parsed.openConnection();
+		// url_connection.setConnectTimeout(5000);
+		// url_connection.setReadTimeout(1000);
+		// url_connection.setRequestMethod("POST");
+		// url_connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+		// url_connection.setRequestProperty("User-Agent", "Resurface/" + version + " (" + agent + ")");
+		// url_connection.setDoOutput(true);
+		if obj.SkipCompression() {
+			url_connection.setRequestProperty("Content-Encoding", "deflated")
+		} else {
+
+		}
+
+	}
 }
 
 /**
@@ -137,8 +157,8 @@ type BaseLogger struct {
 	queue           []string
 	skipCompression bool
 	skipSubmission  bool
-	submitFailures  int
-	submitSuccesses int
+	submitFailures  atomic.Value
+	submitSuccesses atomic.Value
 	url             string
 	urlParsed       *url.URL
 	version         string

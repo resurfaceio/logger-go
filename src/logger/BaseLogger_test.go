@@ -6,10 +6,12 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"strings"
+
+	"encoding/json"
 )
 
 func TestCreatesInstance(t *testing.T) {
-	helper := NewTestHelper()
+	helper := GetTestHelper()
 	logger := NewBaseLoggerAgent(helper.mockAgent)
 	assert.NotNil(t, logger)
 	assert.Equal(t, helper.mockAgent, logger.Agent)
@@ -25,7 +27,7 @@ func TestCreatesMultipleInstances(t *testing.T) {
 	agent3 := "agent3"
 	url1 := "https://resuface.io"
 	url2 := "https://whatever.com"
-	helper := NewTestHelper()
+	helper := GetTestHelper()
 	logger1 := NewBaseLoggerAgentUrl(agent1, url1)
 	logger2 := NewBaseLoggerAgentUrl(agent2, url2)
 	logger3 := NewBaseLoggerAgentUrl(agent3, helper.demoURL)
@@ -59,7 +61,7 @@ func TestCreatesMultipleInstances(t *testing.T) {
 }
 
 func TestHasValidHost(t *testing.T) {
-	helper := NewTestHelper()
+	helper := GetTestHelper()
 	baseLogger := NewBaseLoggerAgent(helper.mockAgent)
 	host := baseLogger.hostLookup()
 	assert.NotNil(t, host)
@@ -68,7 +70,7 @@ func TestHasValidHost(t *testing.T) {
 }
 
 func TestHasValidVersion(t *testing.T) {
-	helper := NewTestHelper()
+	helper := GetTestHelper()
 	baseLogger := NewBaseLoggerAgent(helper.mockAgent)
 	version := versionLookup()
 	assert.NotNil(t, version)
@@ -83,7 +85,7 @@ func TestHasValidVersion(t *testing.T) {
 }
 
 func TestPerformsEnablingWhenExpected(t *testing.T) {
-	helper := NewTestHelper()
+	helper := GetTestHelper()
 	logger := NewBaseLogger(helper.mockAgent, helper.demoURL, false, nil)
 	assert.True(t, logger.Enableable())
 	assert.False(t, logger.Enabled())
@@ -104,7 +106,7 @@ func TestPerformsEnablingWhenExpected(t *testing.T) {
 
 //needs some more stuff in the baselogger class for this to compile
 func TestSkipsEnablingForInvalidUrls(t *testing.T) {
-	helper := NewTestHelper()
+	helper := GetTestHelper()
 	for _, url := range helper.mockURLSinvalid {
 		logger := NewBaseLogger(helper.mockAgent, url, false, nil)
 		assert.False(t, logger.Enableable())
@@ -119,7 +121,7 @@ func TestSkipsEnablingForInvalidUrls(t *testing.T) {
 
 func TestSkipsEnablingForNullUrl(t *testing.T) {
 	url := ""
-	helper := NewTestHelper()
+	helper := GetTestHelper()
 	logger := NewBaseLoggerAgentUrl(helper.mockAgent, url)
 	assert.False(t, logger.Enableable())
 	assert.False(t, logger.Enabled())
@@ -129,24 +131,22 @@ func TestSkipsEnablingForNullUrl(t *testing.T) {
 }
 
 func TestSubmitsToDemoUrl(t *testing.T) {
-	helper := NewTestHelper()
+	helper := GetTestHelper()
 	logger := NewBaseLoggerAgentUrl(helper.mockAgent, helper.demoURL)
 	message := [][]string{}
 	message = append(message, []string{"agent", logger.Agent()})
 	message = append(message, []string{"version", logger.Version()})
 	message = append(message, []string{"now", string(helper.mockNow)})
 	message = append(message, []string{"protocol", "https"})
-	//TODO: toimplement stringify method
-	msg := "Json.stringify(message)"
-	//TODO: implement parsable method
-	assert.True(t, "parsable(msg)")
-	logger.Submit(msg)
+	msg, err := json.Marshal(message)
+	assert.True(t, err == nil)
+	logger.Submit(string(msg))
 	assert.Equal(t, 0, logger.SubmitFailures())
 	assert.Equal(t, 1, logger.SubmitSuccesses())
 }
 
 func TestSubmitsToDemoUrlViaHttp(t *testing.T) {
-	helper := NewTestHelper()
+	helper := GetTestHelper()
 	logger := NewBaseLoggerAgentUrl(helper.mockAgent, strings.Replace(helper.demoURL, "https://", "http://", 1))
 	assert.Equal(t, 0, strings.Index(logger.Url(), "http://"))
 	message := [][]string{}
@@ -154,17 +154,15 @@ func TestSubmitsToDemoUrlViaHttp(t *testing.T) {
 	message = append(message, []string{"version", logger.Version()})
 	message = append(message, []string{"now", string(helper.mockNow)})
 	message = append(message, []string{"protocol", "http"})
-	//TODO: toimplement stringify method
-	msg := "Json.stringify(message)"
-	//TODO: implement parsable method
-	assert.True(t, "parsable(msg)")
-	logger.Submit(msg)
+	msg, err := json.Marshal(message)
+	assert.True(t, err == nil)
+	logger.Submit(string(msg))
 	assert.Equal(t, 0, logger.SubmitFailures())
 	assert.Equal(t, 1, logger.SubmitSuccesses())
 }
 
 func TestSubmitsToDemoUrlWihoutCompression(t *testing.T) {
-	helper := NewTestHelper()
+	helper := GetTestHelper()
 	logger := NewBaseLoggerAgentUrl(helper.mockAgent, helper.demoURL)
 	logger.SetSkipCompression(true)
 	assert.True(t, logger.SkipCompression())
@@ -174,17 +172,15 @@ func TestSubmitsToDemoUrlWihoutCompression(t *testing.T) {
 	message = append(message, []string{"now", string(helper.mockNow)})
 	message = append(message, []string{"protocol", "https"})
 	message = append(message, []string{"skip_compression", "true"})
-	//TODO: toimplement stringify method
-	msg := "Json.stringify(message)"
-	//TODO: implement parsable method
-	assert.True(t, "parsable(msg)")
-	logger.Submit(msg)
+	msg, err := json.Marshal(message)
+	assert.True(t, err == nil)
+	logger.Submit(string(msg))
 	assert.Equal(t, 0, logger.SubmitFailures)
 	assert.Equal(t, 1, logger.SubmitSuccesses)
 }
 
 func TestSubmitsToDeniedUrl(t *testing.T) {
-	helper := NewTestHelper()
+	helper := GetTestHelper()
 	for _, url := range helper.mockURLSdenied {
 		logger := NewBaseLoggerAgentUrl(helper.mockAgent, url)
 		assert.True(t, logger.Enableable())
@@ -196,7 +192,7 @@ func TestSubmitsToDeniedUrl(t *testing.T) {
 }
 
 func TestSubmitsToQueue(t *testing.T) {
-	helper := NewTestHelper()
+	helper := GetTestHelper()
 	queue := []string{}
 	logger := NewBaseLoggerAgentQueue(helper.mockAgent, queue)
 	assert.Equal(t, queue, logger.Queue())
@@ -213,7 +209,7 @@ func TestSubmitsToQueue(t *testing.T) {
 }
 
 func TestUsesSkipOptions(t *testing.T) {
-	helper := NewTestHelper()
+	helper := GetTestHelper()
 	logger := NewBaseLoggerAgentUrl(helper.mockAgent, helper.demoURL)
 	assert.False(t, logger.SkipCompression())
 	assert.False(t, logger.SkipSubmission())
