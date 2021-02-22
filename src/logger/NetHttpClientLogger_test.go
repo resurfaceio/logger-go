@@ -8,101 +8,69 @@ import (
 
 //Testing NET HTTP Logger
 
-func TestLogsHtml(t *testing.T) {
+func TestLogsGet(t *testing.T) {
 
-	queue := []string{}
-	filter := newLogger(queue, "includes standard")
+	netLogger := newLogger()
 	helper := NewTestHelper()
-	filter.init(nil)
-	filter.doFilter(helper.mockRequest(), helper.mockResponse(), helper.mockJsonApp())
-	assert.Equal(t, 1, len(queue))
-	msg := queue[0]
-	assert.True(t, parsable(msg))
-	assert.Contains(t, msg, "[\"request_method\",\"GET\"]")
-	assert.Contains(t, msg, "[\"request_url\",\""+helper.mockURL+"\"]")
-	assert.Contains(t, msg, "[\"response_body\",\""+helper.mockHTML+"\"]")
-	assert.Contains(t, msg, "[\"response_code\",\"200\"]")
-	assert.Contains(t, msg, "[\"response_header:a\",\"Z\"]")
-	assert.Contains(t, msg, "[\"response_header:content-type\",\"text/html\"]")
-	assert.Contains(t, msg, "[\"now\",\"")
-	assert.Contains(t, msg, "[\"interval\",\"")
-	assert.NotContains(t, msg, "request_body")
-	assert.NotContains(t, msg, "request_header")
-	assert.NotContains(t, msg, "request_param")
+	netLogger.SetLogFlag(true)
+	resp, err := netLogger.Get(helper.demoURL)
+	//Don't think we will need this
+	//assert.True(t, parsable(resp))
+	assert.Contains(t, resp, "[\"request_method\",\"GET\"]")
+	assert.Contains(t, resp, "[\"request_url\",\""+helper.mockURL+"\"]")
+	assert.Contains(t, resp, "[\"response_body\",\""+helper.mockHTML+"\"]")
+	assert.Contains(t, resp, "[\"response_code\",\"200\"]")
+	assert.Contains(t, resp, "[\"response_header:a\",\"Z\"]")
+	assert.Contains(t, resp, "[\"response_header:content-type\",\"text/html\"]")
+	assert.Contains(t, resp, "[\"now\",\"")
+	assert.Contains(t, resp, "[\"interval\",\"")
+	assert.NotContains(t, resp, "request_body")
+	assert.NotContains(t, resp, "request_header")
+	assert.NotContains(t, resp, "request_param")
 }
 
-func TestlogJson(t *testing.T) {
+func TestLogsPost(t *testing.T) {
+	netLogger := newLogger()
 	helper := NewTestHelper()
-	queue := []string{}
-	filter := newLogger(queue, "includes standard")
-	filter.init(nil)
-	filter.doFilter(helper.mockRequest(), helper.mockResponse(), helper.mockJsonApp())
-	assert.Equal(t, 1, len(queue))
-	msg := queue[0]
-	assert.True(t, parseable(msg))
-	assert.True(t, parsable(msg))
-	assert.Contains(t, msg, "[\"request_method\",\"GET\"]")
-	assert.Contains(t, msg, "[\"response_body\",\""+helper.mockJSONescaped+"\"]")
-	assert.Contains(t, msg, "[\"response_code\",\"200\"]")
-	assert.Contains(t, msg, "[\"response_header:content-type\",\"application/json; charset=utf-8\"]")
-	assert.NotContains(t, msg, "request_body")
-	assert.NotContains(t, msg, "request_header")
-	assert.NotContains(t, msg, "request_param")
+	netLogger.SetLogFlag(true)
+	resp, err := netLogger.Post(helper.demoURL)
+	//Don't think we will need this
+	//assert.True(t, parsable(resp))
+	assert.Contains(t, resp, "[\"request_header:content-type\",\"Application/JSON\"]")
+	assert.Contains(t, resp, "[\"request_method\",\"POST\"]")
+	assert.Contains(t, resp, "[\"request_param:message\",\""+helper.mockJSONescaped+"\"]")
+	assert.Contains(t, resp, "[\"request_url\",\""+helper.mockURL+"?"+helper.mockQueryString+"\"]")
+	assert.Contains(t, resp, "[\"response_body\",\""+helper.mockJSONescaped+"\"]")
+	assert.Contains(t, resp, "[\"response_code\",\"200\"]")
+	assert.Contains(t, resp, "[\"response_header:content-type\",\"application/json; charset=utf-8\"]")
 }
 
-func TestLogsJsonPost(t *testing.T) {
-	queue := []string{}
-	filter := newLogger(queue, "includes standard")
+func TestLogsDelete(t *testing.T) {
+	netLogger := newLogger()
 	helper := NewTestHelper()
-	filter.init(nil)
-	filter.doFilter(helper.mockRequestWithJson(), helper.mockResponse(), helper.mockJsonApp())
-	assert.Equal(t, 1, len(queue))
-	msg := queue[0]
-	assert.True(t, parsable(msg))
-	assert.Contains(t, msg, "[\"request_header:content-type\",\"Application/JSON\"]")
-	assert.Contains(t, msg, "[\"request_method\",\"POST\"]")
-	assert.Contains(t, msg, "[\"request_param:message\",\""+helper.mockJSONescaped+"\"]")
-	assert.Contains(t, msg, "[\"request_url\",\""+helper.mockURL+"?"+helper.mockQueryString+"\"]")
-	assert.Contains(t, msg, "[\"response_body\",\""+helper.mockJSONescaped+"\"]")
-	assert.Contains(t, msg, "[\"response_code\",\"200\"]")
-	assert.Contains(t, msg, "[\"response_header:content-type\",\"application/json; charset=utf-8\"]")
+	netLogger.SetLogFlag(true)
+	resp, err := netLogger.Delete(helper.demoURL)
+	//Don't think we will need this
+	//assert.True(t, parsable(resp))
+	assert.Contains(t, resp, "[\"request_method\",\"Delete\"]")
+	assert.Contains(t, resp, "[\"response_body\",\""+helper.mockJSONescaped+"\"]")
+	assert.Contains(t, resp, "[\"response_code\",\"200\"]")
+	assert.Contains(t, resp, "[\"response_header:content-type\",\"application/json; charset=utf-8\"]")
+	assert.NotContains(t, resp, "request_body")
+	assert.NotContains(t, resp, "request_header")
+	assert.NotContains(t, resp, "request_param")
 }
 
-func TestJsonPostWithHeaders(t *testing.T) {
+func TestLogsPut(t *testing.T) {
+	netLogger := newLogger()
 	helper := NewTestHelper()
-	queue := []string{}
-	filter := newLogger(queue, "includes standard")
-	filter.init(nil)
-	filter.doFilter(helper.mockRequest(), helper.mockResponse(), helper.mockJsonApp())
-	assert.Equal(t, 1, len(queue))
-	msg := queue[0]
-	assert.True(t, parseable(msg))
-	assert.Contains(t, msg, "[\"request_header:a\",\"1\"]")
-	assert.Contains(t, msg, "[\"request_header:a\",\"2\"]")
-	assert.Contains(t, msg, "[\"request_header:content-type\",\"Application/JSON\"]")
-	assert.Contains(t, msg, "[\"request_method\",\"POST\"]")
-	assert.Contains(t, msg, "[\"request_param:abc\",\"123\"]")
-	assert.Contains(t, msg, "[\"request_param:abc\",\"234\"]")
-	assert.Contains(t, msg, "[\"request_param:message\",\""+helper.mockJSONescaped+"\"]")
-	assert.Contains(t, msg, "[\"request_url\",\""+helper.mockURL+"?"+helper.mockQueryString+"\"]")
-	assert.Contains(t, msg, "[\"response_body\",\""+helper.mockHTML+"\"]")
-	assert.Contains(t, msg, "[\"response_code\",\"200\"]")
-	assert.Contains(t, msg, "[\"response_header:a\",\"Z\"]")
-	assert.Contains(t, msg, "[\"response_header:content-type\",\"text/html\"]")
+	netLogger.SetLogFlag(true)
+	resp, err := netLogger.Put(helper.demoURL)
 }
 
-//need to figure out what these exceptions are doing
-//as they can't be easily replicated in go
-//so this is a bit of a fummy function
-func TestSkipsException(t *testing.T) {
-	queue := []string{}
-	filter := newLogger(queue, "includes standard")
-	filter.init(nil)
-	//try {
-	filter.doFilter(mockRequest(), mockResponse(), mockExceptionApp())
-	//} catch (UnsupportedEncodingException uee) {
-	assert.Equal(t, 0, len(queue))
-	// } catch (Exception e) {
-	// 	fail("Unexpected exception type");
-	// }
+func TestLogsPatch(t *testing.T) {
+	netLogger := newLogger()
+	helper := NewTestHelper()
+	netLogger.SetLogFlag(true)
+	resp, err := netLogger.Patch(helper.demoURL)
 }
