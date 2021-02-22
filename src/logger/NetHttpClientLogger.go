@@ -33,6 +33,8 @@ func (clientLogger *NetHttpClientLogger) Get(url string) (resp *http.Response, e
 		return resp, err
 	}
 
+	// before sending should we first check "if (status < 300 || status === 302)"?
+
 	// now = time.Now().UnixNano() / int64(time.Millisecond)
 	sendNetHttpClientMessage(logger, resp, start)
 

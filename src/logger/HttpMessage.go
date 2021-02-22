@@ -20,7 +20,7 @@ func sendNetHttpClientMessage(logger *HttpLogger, resp *http.Response, start int
 	}
 
 	// copy details from request & response
-	message := buildNetHttpClientMessage(resp)
+	message := buildNetHttpClientMessage(request, resp)
 
 	copySessionField := logger.rules.CopySessionField()
 
@@ -63,9 +63,7 @@ func sendNetHttpClientMessage(logger *HttpLogger, resp *http.Response, start int
 /*
 * Builds list of key/value pairs for HTTP request and response.
  */
-func buildNetHttpClientMessage(resp *http.Response) [][]string {
-	request := resp.Request
-
+func buildNetHttpClientMessage(req *http.Request, resp *http.Response) [][]string {
 	var message [][]string
 
 	method := resp.Request.Method
@@ -73,14 +71,14 @@ func buildNetHttpClientMessage(resp *http.Response) [][]string {
 		message = append(message, []string{"request_method", method})
 	}
 
-	message = append(message, []string{"request_url", request.URL.RequestURI()})
+	message = append(message, []string{"request_url", req.URL.RequestURI()})
 	message = append(message, []string{"response_code", fmt.Sprint(resp.StatusCode)})
 
-	appendRequestHeaders(&message, request)
-	appendRequestParams(&message, request)
+	appendRequestHeaders(&message, req)
+	appendRequestParams(&message, req)
 	appendResponseHeaders(&message, resp)
 
-	reqBodyBytes, err := ioutil.ReadAll(request.Body)
+	reqBodyBytes, err := ioutil.ReadAll(req.Body)
 	reqBody := string(reqBodyBytes)
 	if err != nil && reqBody != "" {
 		message = append(message, []string{"request_body", reqBody})
