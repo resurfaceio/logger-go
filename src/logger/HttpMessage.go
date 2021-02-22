@@ -42,18 +42,11 @@ func sendNetHttpClientMessage(logger *HttpLogger, resp *http.Response, start int
 		}
 	}
 
-	// add timing details
-	// if now == 0 {
-	// 	now = time.Now().UnixNano() / int64(time.Millisecond)
-	// }
-
-	// if interval != 0 {
-	// 	message = append(message, []string{"interval", fmt.Sprint(interval)})
-	// }
-
+	// append time of logging
 	now := time.Now().UnixNano() / int64(time.Millisecond)
 	message = append(message, []string{"now", string(now)})
 
+	// append interval noting the time it took to log
 	interval := now - start
 	message = append(message, []string{"interval", fmt.Sprint(interval)})
 
