@@ -10,7 +10,7 @@ import (
 
 type netHttpClientLogger struct {
 	http.Client
-	LOGFLAG bool
+	LOGFLAG      bool
 	isEnableable bool
 }
 
@@ -184,4 +184,3 @@ func newLogger() netHttpClientLogger {
 func (bcl *netHttpClientLogger) SetLogFlag(flag bool) {
 	bcl.LOGFLAG = flag
 }
-

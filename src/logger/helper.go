@@ -56,7 +56,7 @@ func (h *Helper) MockCustomApp() {
 
 func NewTestHelper() *Helper {
 	newHelper := Helper{
-		demoURL: "https://demo.resurface.io/ping",
+		demoURL: "https://resurface.io",
 
 		mockAgent: "helper.java",
 

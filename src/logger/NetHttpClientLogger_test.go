@@ -16,11 +16,11 @@ func TestLogsGet(t *testing.T) {
 	netLogger.SetLogFlag(true)
 	resp, err := netLogger.Get(helper.demoURL)
 	fmt.Println(resp)
-	fmt.Println(err)
+	fmt.Println(&err)
 	//Don't think we will need this
 	//assert.True(t, parsable(resp))
 	assert.Contains(t, resp, "[\"request_method\",\"GET\"]")
-	assert.Contains(t, resp, "[\"request_url\",\""+helper.mockURL+"\"]")
+	assert.Contains(t, resp, "[\"request_url\",\""+helper.demoURL+"\"]")
 	assert.Contains(t, resp, "[\"response_body\",\""+helper.mockHTML+"\"]")
 	assert.Contains(t, resp, "[\"response_code\",\"200\"]")
 	assert.Contains(t, resp, "[\"response_header:a\",\"Z\"]")
