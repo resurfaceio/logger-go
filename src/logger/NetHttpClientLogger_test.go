@@ -11,9 +11,8 @@ import (
 
 func TestLogsGet(t *testing.T) {
 
-	netLogger := newLogger()
-	helper := NewTestHelper()
-	netLogger.SetLogFlag(true)
+	netLogger := NewNetHttpClientLogger()
+	helper := GetTestHelper()
 	resp, err := netLogger.Get(helper.demoURL)
 	fmt.Println(resp)
 	fmt.Println(err)
@@ -33,9 +32,8 @@ func TestLogsGet(t *testing.T) {
 }
 
 func TestLogsPost(t *testing.T) {
-	netLogger := newLogger()
-	helper := NewTestHelper()
-	netLogger.SetLogFlag(true)
+	netLogger := NewNetHttpClientLogger()
+	helper := GetTestHelper()
 	resp, err := netLogger.Post(helper.demoURL)
 	fmt.Println(resp)
 	fmt.Println(err)
@@ -50,38 +48,18 @@ func TestLogsPost(t *testing.T) {
 	assert.Contains(t, resp, "[\"response_header:content-type\",\"application/json; charset=utf-8\"]")
 }
 
-func TestLogsDelete(t *testing.T) {
-	netLogger := newLogger()
-	helper := NewTestHelper()
-	netLogger.SetLogFlag(true)
-	resp, err := netLogger.Delete(helper.demoURL)
-	fmt.Println(resp)
-	fmt.Println(err)
-	//Don't think we will need this
-	//assert.True(t, parsable(resp))
-	assert.Contains(t, resp, "[\"request_method\",\"Delete\"]")
-	assert.Contains(t, resp, "[\"response_body\",\""+helper.mockJSONescaped+"\"]")
-	assert.Contains(t, resp, "[\"response_code\",\"200\"]")
-	assert.Contains(t, resp, "[\"response_header:content-type\",\"application/json; charset=utf-8\"]")
-	assert.NotContains(t, resp, "request_body")
-	assert.NotContains(t, resp, "request_header")
-	assert.NotContains(t, resp, "request_param")
-}
-
-func TestLogsPut(t *testing.T) {
-	netLogger := newLogger()
-	helper := NewTestHelper()
-	netLogger.SetLogFlag(true)
-	resp, err := netLogger.Put(helper.demoURL)
+func TestLogsHead(t *testing.T) {
+	netLogger := NewNetHttpClientLogger()
+	helper := GetTestHelper()
+	resp, err := netLogger.Head(helper.demoURL)
 	fmt.Println(resp)
 	fmt.Println(err)
 }
 
-func TestLogsPatch(t *testing.T) {
-	netLogger := newLogger()
-	helper := NewTestHelper()
-	netLogger.SetLogFlag(true)
-	resp, err := netLogger.Patch(helper.demoURL)
+func TestLogsPostForm(t *testing.T) {
+	netLogger := NewNetHttpClientLogger()
+	helper := GetTestHelper()
+	resp, err := netLogger.PostForm(helper.demoURL)
 	fmt.Println(resp)
 	fmt.Println(err)
 }
