@@ -11,7 +11,7 @@ import (
 
 func TestLogsGet(t *testing.T) {
 
-	netLogger := NewNetHttpClientLogger()
+	netLogger := NewNetHttpClientLogger(nil)
 	helper := GetTestHelper()
 	resp, err := netLogger.Get(helper.demoURL)
 	fmt.Println(resp)
@@ -32,9 +32,9 @@ func TestLogsGet(t *testing.T) {
 }
 
 func TestLogsPost(t *testing.T) {
-	netLogger := NewNetHttpClientLogger()
+	netLogger := NewNetHttpClientLogger(nil)
 	helper := GetTestHelper()
-	resp, err := netLogger.Post(helper.demoURL)
+	resp, err := netLogger.Post(helper.demoURL, "text/html" /*Need IO reader format for body*/)
 	fmt.Println(resp)
 	fmt.Println(err)
 	//Don't think we will need this
@@ -49,7 +49,7 @@ func TestLogsPost(t *testing.T) {
 }
 
 func TestLogsHead(t *testing.T) {
-	netLogger := NewNetHttpClientLogger()
+	netLogger := NewNetHttpClientLogger(nil)
 	helper := GetTestHelper()
 	resp, err := netLogger.Head(helper.demoURL)
 	fmt.Println(resp)
@@ -57,9 +57,9 @@ func TestLogsHead(t *testing.T) {
 }
 
 func TestLogsPostForm(t *testing.T) {
-	netLogger := NewNetHttpClientLogger()
+	netLogger := NewNetHttpClientLogger(nil)
 	helper := GetTestHelper()
-	resp, err := netLogger.PostForm(helper.demoURL)
+	resp, err := netLogger.PostForm(helper.demoURL /*data url.values*/)
 	fmt.Println(resp)
 	fmt.Println(err)
 }
