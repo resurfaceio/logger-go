@@ -100,12 +100,12 @@ func TestUsesCopySessionFieldRules(t *testing.T) {
 	helper := NewTestHelper()
 	// requests used for all tests in function
 	request := NewMockRequestWithJson2()
-	request.Session().SetAttribute("butterfly", "poison") //getting session and setting an attribute of it
+	request.Session().SetAttribute("butterfly", "poison") //Will use go Net package Http request!!!!
 	request.Session().SetAttribute("session_id", "asdf1234")
 	// tests copy all of session field
 	queue := make([]string, 0)
 	logger := NewHttpLoggerQueueRules(queue, "copy_session_field /.*/")
-	httpMessage.Send(logger, request, MockResponseWithHTML(), helper.mockHTML, helper.mockJSON)
+	httpMessage.Send(logger, request, MockResponseWithHTML(), helper.mockHTML, helper.mockJSON) //See Slack for new send function call
 	assert.Equal(t, 1, len(queue), "queue length is not 1")
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:butterfly\",\"poison\"]"), "queue did not contain expected values")
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "queue did not contain expected values")
