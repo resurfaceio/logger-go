@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,6 +15,8 @@ func TestLogsGet(t *testing.T) {
 	helper := NewTestHelper()
 	netLogger.SetLogFlag(true)
 	resp, err := netLogger.Get(helper.demoURL)
+	fmt.Println(resp)
+	fmt.Println(err)
 	//Don't think we will need this
 	//assert.True(t, parsable(resp))
 	assert.Contains(t, resp, "[\"request_method\",\"GET\"]")
@@ -34,6 +37,8 @@ func TestLogsPost(t *testing.T) {
 	helper := NewTestHelper()
 	netLogger.SetLogFlag(true)
 	resp, err := netLogger.Post(helper.demoURL)
+	fmt.Println(resp)
+	fmt.Println(err)
 	//Don't think we will need this
 	//assert.True(t, parsable(resp))
 	assert.Contains(t, resp, "[\"request_header:content-type\",\"Application/JSON\"]")
@@ -50,6 +55,8 @@ func TestLogsDelete(t *testing.T) {
 	helper := NewTestHelper()
 	netLogger.SetLogFlag(true)
 	resp, err := netLogger.Delete(helper.demoURL)
+	fmt.Println(resp)
+	fmt.Println(err)
 	//Don't think we will need this
 	//assert.True(t, parsable(resp))
 	assert.Contains(t, resp, "[\"request_method\",\"Delete\"]")
@@ -66,6 +73,8 @@ func TestLogsPut(t *testing.T) {
 	helper := NewTestHelper()
 	netLogger.SetLogFlag(true)
 	resp, err := netLogger.Put(helper.demoURL)
+	fmt.Println(resp)
+	fmt.Println(err)
 }
 
 func TestLogsPatch(t *testing.T) {
@@ -73,4 +82,6 @@ func TestLogsPatch(t *testing.T) {
 	helper := NewTestHelper()
 	netLogger.SetLogFlag(true)
 	resp, err := netLogger.Patch(helper.demoURL)
+	fmt.Println(resp)
+	fmt.Println(err)
 }

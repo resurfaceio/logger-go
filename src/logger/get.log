@@ -1,0 +1,18 @@
+2021/02/22 10:22:07 SUCCESS: GET Request
+2021/02/22 10:22:07 URL: https://demo.resurface.io/ping
+2021/02/22 10:22:07 RESPONSE: <!DOCTYPE html><html lang="en"><head><meta name="viewport" content="width=device-width"/><meta charSet="utf-8"/><title>404: This page could not be found</title><meta name="next-head-count" content="3"/><link rel="preload" href="/_next/static/css/d60a94f66811b2674209.css" as="style"/><link rel="stylesheet" href="/_next/static/css/d60a94f66811b2674209.css" data-n-g=""/><noscript data-n-css=""></noscript><link rel="preload" href="/_next/static/chunks/main-5a44d890df6f50dfdbca.js" as="script"/><link rel="preload" href="/_next/static/chunks/webpack-50bee04d1dc61f8adf5b.js" as="script"/><link rel="preload" href="/_next/static/chunks/framework.64c08973ae123710aa81.js" as="script"/><link rel="preload" href="/_next/static/chunks/commons.3ae34742abc2c647acde.js" as="script"/><link rel="preload" href="/_next/static/chunks/pages/_app-fb36683aa194161a1d17.js" as="script"/><link rel="preload" href="/_next/static/chunks/pages/_error-fc351afde24f0dca14c0.js" as="script"/><!-- Matomo -->
+<script type="text/javascript">
+  var _paq = window._paq || [];
+  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="https://stats.webriq.com/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', 'www.resurface.io']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<!-- End Matomo Code -->
+</head><body><div id="__next"><div style="color:#000;background:#fff;font-family:-apple-system, BlinkMacSystemFont, Roboto, &quot;Segoe UI&quot;, &quot;Fira Sans&quot;, Avenir, &quot;Helvetica Neue&quot;, &quot;Lucida Grande&quot;, sans-serif;height:100vh;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center"><div><style>body { margin: 0 }</style><h1 style="display:inline-block;border-right:1px solid rgba(0, 0, 0,.3);margin:0;margin-right:20px;padding:10px 23px 10px 0;font-size:24px;font-weight:500;vertical-align:top">404</h1><div style="display:inline-block;text-align:left;line-height:49px;height:49px;vertical-align:middle"><h2 style="font-size:14px;font-weight:normal;line-height:inherit;margin:0;padding:0">This page could not be found<!-- -->.</h2></div></div></div></div><script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{"statusCode":404}},"page":"/_error","query":{},"buildId":"5IdaBKRaaY6yHhIEKJfrm","runtimeConfig":{},"nextExport":true,"isFallback":false,"gip":true}</script><script nomodule="" src="/_next/static/chunks/polyfills-b7b042dafc30d210a3d4.js"></script><script src="/_next/static/chunks/main-5a44d890df6f50dfdbca.js" async=""></script><script src="/_next/static/chunks/webpack-50bee04d1dc61f8adf5b.js" async=""></script><script src="/_next/static/chunks/framework.64c08973ae123710aa81.js" async=""></script><script src="/_next/static/chunks/commons.3ae34742abc2c647acde.js" async=""></script><script src="/_next/static/chunks/pages/_app-fb36683aa194161a1d17.js" async=""></script><script src="/_next/static/chunks/pages/_error-fc351afde24f0dca14c0.js" async=""></script><script src="/_next/static/5IdaBKRaaY6yHhIEKJfrm/_buildManifest.js" async=""></script><script src="/_next/static/5IdaBKRaaY6yHhIEKJfrm/_ssgManifest.js" async=""></script></body></html>
