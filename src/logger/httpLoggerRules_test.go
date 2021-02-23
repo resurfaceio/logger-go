@@ -6,6 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"strings"
+
+	"net/http"
 )
 
 // test override default rules
@@ -97,35 +99,40 @@ func TestUsesAllowHttpUrlRules(t *testing.T) {
 
 func TestUsesCopySessionFieldRules(t *testing.T) {
 	// helper for function tests
-	helper := NewTestHelper()
+	helper := GetTestHelper()
 	// requests used for all tests in function
-	request := NewMockRequestWithJson2()
-	request.Session().SetAttribute("butterfly", "poison") //Will use go Net package Http request!!!!
-	request.Session().SetAttribute("session_id", "asdf1234")
+	request := http.Request{}
+
+	var c1 *http.Cookie = &http.Cookie{Name: "butterfly", Value: "poison"}
+	var c2 *http.Cookie = &http.Cookie{Name: "session_id", Value: "asdf1234"}
+	request.AddCookie(c1)
+	request.AddCookie(c2)
+	mockResponse := http.Response{Request: &request}
+
 	// tests copy all of session field
 	queue := make([]string, 0)
 	logger := NewHttpLoggerQueueRules(queue, "copy_session_field /.*/")
-	httpMessage.Send(logger, request, MockResponseWithHTML(), helper.mockHTML, helper.mockJSON) //See Slack for new send function call
+	httpMessage.sendHttpRequestResponseMessage(logger, mockResponse, 0, 0)
 	assert.Equal(t, 1, len(queue), "queue length is not 1")
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:butterfly\",\"poison\"]"), "queue did not contain expected values")
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "queue did not contain expected values")
 	// tests copy specifically session_id
 	queue = make([]string, 0)
 	logger = NewHttpLoggerQueueRules(queue, "copy_session_field /session_id/")
-	httpMessage.Send(logger, request, MockResponseWithHTML(), helper.mockHTML, helper.mockJSON)
+	httpMessage.sendHttpRequestResponseMessage(logger, mockResponse, 0, 0)
 	assert.Equal(t, 1, len(queue), "queue length is not 1")
 	assert.Equal(t, false, strings.Contains(queue[0], "[\"session_field:butterfly\",\"poison\"]"), "queue contains unexpected value")
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "queue did not contain expected values")
 	// tests copy non matching term
 	queue = make([]string, 0)
 	logger = NewHttpLoggerQueueRules(queue, "copy_session_field /blah/")
-	httpMessage.Send(logger, request, MockResponseWithHTML(), helper.mockHTML, helper.mockJSON)
+	httpMessage.sendHttpRequestResponseMessage(logger, mockResponse, 0, 0)
 	assert.Equal(t, 1, len(queue), "queue length is not 1")
 	assert.Equal(t, false, strings.Contains(queue[0], "[\"session_field:"), "queue contains unexpected value")
 	// tests copy 2 specific values
 	queue = make([]string, 0)
 	logger = NewHttpLoggerQueueRules(queue, "copy_session_field /butterfly/\ncopy_session_field /session_id/")
-	httpMessage.Send(logger, request, MockResponseWithHTML(), helper.mockHTML, helper.mockJSON)
+	httpMessage.sendHttpRequestResponseMessage(logger, mockResponse, 0, 0)
 	assert.Equal(t, 1, len(queue), "queue length is not 1")
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:butterfly\",\"poison\"]"), "queue did not contain expected values")
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "queue did not contain expected values")
@@ -135,7 +142,7 @@ func TestUsesCopySessionFieldRules(t *testing.T) {
 
 func TestUsesCopySessionFieldAndRemoveRules(t *testing.T) {
 	// helper for function tests
-	helper := NewTestHelper()
+	helper := GetTestHelper()
 	// requests used for all tests in function
 	request := NewMockRequestWithJson2()
 	request.Session().SetAttribute("butterfly", "poison")
@@ -143,27 +150,27 @@ func TestUsesCopySessionFieldAndRemoveRules(t *testing.T) {
 	//tests copy session field w/ remove
 	queue := make([]string, 0)
 	logger := NewHttpLoggerQueueRules(queue, "copy_session_field !.*!\n!session_field:.*! remove")
-	httpMessage.Send(logger, request, MockResponseWithHTML(), helper.mockHTML, helper.mockJSON)
+	httpMessage.sendHttpRequestResponseMessage(logger, mockResponse, 0, 0)
 	assert.Equal(t, 1, len(queue), "queue length is not 1")
 	assert.Equal(t, false, strings.Contains(queue[0], "[\"session_field:"), "queue did contains an unexpected value")
 	//
 	queue = make([]string, 0)
 	logger = NewHttpLoggerQueueRules(queue, "copy_session_field !.*!\n!session_field:butterfly! remove")
-	httpMessage.Send(logger, request, MockResponseWithHtml(), helper.mockHTML, helper.mockJSON)
+	httpMessage.sendHttpRequestResponseMessage(logger, mockResponse, 0, 0)
 	assert.Equal(t, 1, len(queue), "queue length is not 1")
 	assert.Equal(t, false, strings.Contains(queue[0], "[\"session_field:butterfly\","), "queue contains unexpected values")
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "queue did not contain expected value")
 
 	queue = make([]string, 0)
 	logger = NewHttpLoggerQueueRules(queue, "copy_session_field !.*!\n!session_field:.*! remove_if !poi.*!")
-	httpMessage.Send(logger, request, MockResponseWithHtml(), helper.mockHTML, helper.mockJSON)
+	httpMessage.sendHttpRequestResponseMessage(logger, mockResponse, 0, 0)
 	assert.Equal(t, 1, len(queue), "queue length is not 1")
 	assert.Equal(t, false, strings.Contains(queue[0], "[\"session_field:butterfly\","), "queue contains unexpected values")
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "queue did not contain expected value")
 
 	queue = make([]string, 0)
 	logger = NewHttpLoggerQueueRules(queue, "copy_session_field !.*!\n!session_field:.*! remove_unless !sugar!")
-	httpMessage.Send(logger, request, MockResponseWithHtml(), helper.mockHTML, helper.mockJSON)
+	httpMessage.sendHttpRequestResponseMessage(logger, mockResponse, 0, 0)
 	assert.Equal(t, 1, len(queue), "queue length is not 1")
 	assert.Equal(t, false, strings.Contains(queue[0], "[\"session_field:"), "queue contains unexpected value")
 }
@@ -172,7 +179,7 @@ func TestUsesCopySessionFieldAndRemoveRules(t *testing.T) {
 
 func TestUsesCopySessionFieldAndStopRules(t *testing.T) {
 	// helper for function tests
-	helper := NewTestHelper()
+	helper := GetTestHelper()
 	// requests used for all tests in function
 	request := NewMockRequestWithJson2()
 	request.Session().SetAttribute("butterfly", "poison")
@@ -180,17 +187,17 @@ func TestUsesCopySessionFieldAndStopRules(t *testing.T) {
 
 	queue := make([]string, 0)
 	logger := NewHttpLoggerQueueRules(queue, "copy_session_field !.*!\n!session_field:butterfly! stop")
-	httpMessage.Send(logger, request, MockResponseWithHtml(), helper.mockHTML, helper.mockJSON)
+	httpMessage.sendHttpRequestResponseMessage(logger, mockResponse, 0, 0)
 	assert.Equal(t, 0, len(queue), "queue is not empty")
 
 	queue = make([]string, 0)
 	logger = NewHttpLoggerQueueRules(queue, "copy_session_field !.*!\n!session_field:butterfly! stop_if !poi.*!")
-	httpMessage.Send(logger, request, MockResponseWithHtml(), helper.mockHTML, helper.mockJSON)
+	httpMessage.sendHttpRequestResponseMessage(logger, mockResponse, 0, 0)
 	assert.Equal(t, 0, len(queue), "queue is not empty")
 
 	queue = make([]string, 0)
 	logger = NewHttpLoggerQueueRules(queue, "copy_session_field !.*!\n!session_field:butterfly! stop_unless !sugar!")
-	httpMessage.Send(logger, request, MockResponseWithHtml(), helper.mockHTML, helper.mockJSON)
+	httpMessage.sendHttpRequestResponseMessage(logger, mockResponse, 0, 0)
 	assert.Equal(t, 0, len(queue), "queue is not empty")
 }
 
@@ -198,7 +205,7 @@ func TestUsesCopySessionFieldAndStopRules(t *testing.T) {
 
 func TestUsesRemoveRules(t *testing.T) {
 	//helper for function
-	helper := NewTestHelper()
+	helper := GetTestHelper()
 
 	queue := make([]string, 0)
 	logger := NewHttpLoggerQueueRules(queue, "!.*! remove")
