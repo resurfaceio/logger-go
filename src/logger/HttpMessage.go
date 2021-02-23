@@ -12,7 +12,7 @@ import (
 /*
 * Submits request and response through logger.
  */
-func sendNetHttpClientMessage(logger *HttpLogger, resp *http.Response, now int64, interval float64) {
+func sendNetHttpClientMessage(logger *HttpLogger, resp *http.Response, start int64) /* maybe return error */ {
 	request := resp.Request
 
 	if !logger.isEnabled() {
@@ -20,7 +20,7 @@ func sendNetHttpClientMessage(logger *HttpLogger, resp *http.Response, now int64
 	}
 
 	// copy details from request & response
-	message := buildNetHttpClientMessage(resp)
+	message := buildNetHttpClientMessage(request, resp)
 
 	copySessionField := logger.rules.CopySessionField()
 
@@ -42,30 +42,21 @@ func sendNetHttpClientMessage(logger *HttpLogger, resp *http.Response, now int64
 		}
 	}
 
-	// add timing details
-	if now == 0 {
-		timeNow := time.Now()
-		unixNano := timeNow.UnixNano()
-		umillisec := unixNano / int64(time.Millisecond)
-
-		now = umillisec
-	}
+	// append time of logging
+	now := time.Now().UnixNano() / int64(time.Millisecond)
 	message = append(message, []string{"now", string(now)})
 
-	if interval != 0 {
-		message = append(message, []string{"interval", fmt.Sprint(interval)})
-	}
+	// append interval noting the time it took to log
+	interval := now - start
+	message = append(message, []string{"interval", fmt.Sprint(interval)})
 
 	logger.submitIfPassing(message)
-
 }
 
 /*
 * Builds list of key/value pairs for HTTP request and response.
  */
-func buildNetHttpClientMessage(resp *http.Response) [][]string {
-	request := resp.Request
-
+func buildNetHttpClientMessage(req *http.Request, resp *http.Response) [][]string {
 	var message [][]string
 
 	method := resp.Request.Method
@@ -73,14 +64,14 @@ func buildNetHttpClientMessage(resp *http.Response) [][]string {
 		message = append(message, []string{"request_method", method})
 	}
 
-	message = append(message, []string{"request_url", request.URL.RequestURI()})
+	message = append(message, []string{"request_url", req.URL.RequestURI()})
 	message = append(message, []string{"response_code", fmt.Sprint(resp.StatusCode)})
 
-	appendRequestHeaders(&message, request)
-	appendRequestParams(&message, request)
+	appendRequestHeaders(&message, req)
+	appendRequestParams(&message, req)
 	appendResponseHeaders(&message, resp)
 
-	reqBodyBytes, err := ioutil.ReadAll(request.Body)
+	reqBodyBytes, err := ioutil.ReadAll(req.Body)
 	reqBody := string(reqBodyBytes)
 	if err != nil && reqBody != "" {
 		message = append(message, []string{"request_body", reqBody})
@@ -89,7 +80,7 @@ func buildNetHttpClientMessage(resp *http.Response) [][]string {
 	respBodyBytes, err := ioutil.ReadAll(resp.Body)
 	var respBody string
 	if err != nil {
-		respBody := string(respBodyBytes)
+		respBody = string(respBodyBytes)
 	}
 
 	if respBody != "" {
