@@ -144,9 +144,13 @@ func TestUsesCopySessionFieldAndRemoveRules(t *testing.T) {
 	// helper for function tests
 	helper := GetTestHelper()
 	// requests used for all tests in function
-	request := NewMockRequestWithJson2()
-	request.Session().SetAttribute("butterfly", "poison")
-	request.Session().SetAttribute("session_id", "asdf1234")
+	request := http.Request{}
+
+	var c1 *http.Cookie = &http.Cookie{Name: "butterfly", Value: "poison"}
+	var c2 *http.Cookie = &http.Cookie{Name: "session_id", Value: "asdf1234"}
+	request.AddCookie(c1)
+	request.AddCookie(c2)
+	mockResponse := http.Response{Request: &request}
 	//tests copy session field w/ remove
 	queue := make([]string, 0)
 	logger := NewHttpLoggerQueueRules(queue, "copy_session_field !.*!\n!session_field:.*! remove")
@@ -181,9 +185,13 @@ func TestUsesCopySessionFieldAndStopRules(t *testing.T) {
 	// helper for function tests
 	helper := GetTestHelper()
 	// requests used for all tests in function
-	request := NewMockRequestWithJson2()
-	request.Session().SetAttribute("butterfly", "poison")
-	request.Session().SetAttribute("session_id", "asdf1234")
+	request := http.Request{}
+
+	var c1 *http.Cookie = &http.Cookie{Name: "butterfly", Value: "poison"}
+	var c2 *http.Cookie = &http.Cookie{Name: "session_id", Value: "asdf1234"}
+	request.AddCookie(c1)
+	request.AddCookie(c2)
+	mockResponse := http.Response{Request: &request}
 
 	queue := make([]string, 0)
 	logger := NewHttpLoggerQueueRules(queue, "copy_session_field !.*!\n!session_field:butterfly! stop")
