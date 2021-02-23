@@ -15,8 +15,8 @@ func TestCreatesInstance(t *testing.T) {
 	logger := NewBaseLoggerAgent(helper.mockAgent)
 	assert.NotNil(t, logger)
 	assert.Equal(t, helper.mockAgent, logger.Agent)
-	assert.false(t, logger.Enableable())
-	assert.false(t, logger.Enabled())
+	assert.False(t, logger.Enableable())
+	assert.False(t, logger.Enabled())
 	assert.Nil(t, logger.Queue())
 	assert.Nil(t, logger.Url())
 }
@@ -215,8 +215,8 @@ func TestUsesSkipOptions(t *testing.T) {
 	assert.False(t, logger.SkipSubmission())
 
 	logger.SetSkipCompression(true)
-	assert.True(t, logger.SkipCompression)
-	assert.False(t, logger.SkipSubmission)
+	assert.True(t, logger.SkipCompression())
+	assert.False(t, logger.SkipSubmission())
 
 	logger.SetSkipCompression(false)
 	logger.SetSkipSubmission(true)
