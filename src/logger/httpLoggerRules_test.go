@@ -217,7 +217,7 @@ func TestUsesRemoveRules(t *testing.T) {
 
 	queue := make([]string, 0)
 	logger := NewHttpLoggerQueueRules(queue, "!.*! remove")
-	httpMessage.Send(logger, MockRequestWithJson2(), MockResponseWithHtml(), helper.mockHTML, helper.mockJSON)
+	httpMessage.sendHttpRequestResponseMessage(logger, mockResponse, 0, 0)
 	assert.Equal(t, 0, len(queue), "queue is not empty")
 
 	queue = make([]string, 0)
