@@ -285,27 +285,27 @@ func TestUsesRemoveRules(t *testing.T) {
 
 // test uses remove if rules
 
-// test uses remove if found ruls
+// test uses remove if found rules
 
 // test uses remove unless rules
 
-// test uses remove unlessfound rules
+// test uses remove unless found rules
 
 // test uses replace rules
 
-// test uses replace rule with complex expressions
+// test uses replace rules with complex expressions
 
 // test uses sample rules
 
-// test uses skip compression rule
+// test uses skip compression rules
 
-// test uses skip submision rules
+// test uses skip submission rules
 
 // test uses stop rules
 
 // test uses stop if rules
 
-// test uses stop if found ruls
+// test uses stop if found rules
 
 // test uses stop unless rules
 
