@@ -96,7 +96,6 @@ func TestUsesAllowHttpUrlRules(t *testing.T) {
 }
 
 // test uses copy session field rules test
-
 func TestUsesCopySessionFieldRules(t *testing.T) {
 	// helper for function tests
 	helper := GetTestHelper()
