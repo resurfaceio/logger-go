@@ -1,4 +1,6 @@
 # resurfaceio-logger-go
-Logging usage of Golang-based services, with user privacy by design.
+Easily log API requests and responses to your own <a href="https://resurface.io">system of record</a>.
 
-Visit <a href="https://resurface.io">resurface.io</a> for general information on usage logging.
+[![CodeFactor](https://www.codefactor.io/repository/github/resurfaceio/logger-go/badge)](https://www.codefactor.io/repository/github/resurfaceio/logger-go)
+[![License](https://img.shields.io/github/license/resurfaceio/logger-go)](https://github.com/resurfaceio/logger-go/blob/master/LICENSE)
+[![Contributing](https://img.shields.io/badge/contributions-welcome-green.svg)](https://github.com/resurfaceio/logger-go/blob/master/CONTRIBUTING.md)
