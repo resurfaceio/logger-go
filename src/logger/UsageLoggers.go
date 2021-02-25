@@ -1,16 +1,30 @@
 package logger
 
-func NewUsageLoggers() *UsageLoggers {
-	//TODO: impement functionality of "true".equals(System.getenv("USAGE_LOGGERS_DISABLE"))"
-	//in java bricked is final and both are static
-	//should probably think about why that's the case and how to translate that into go
-	//for now bricked is just set to false, this should change later
-	_bricked := false
-	constructedUsageLogger := &UsageLoggers{
-		bricked:  _bricked,
-		disabled: _bricked,
-	}
-	return constructedUsageLogger
+import "sync"
+
+//name change since helper uses the name "once"
+var onceUsageLoggers sync.Once
+
+type UsageLoggers struct {
+	bricked  bool
+	disabled bool
+}
+
+var usageLoggers *UsageLoggers
+
+func GetUsageLoggers() *UsageLoggers {
+	onceUsageLoggers.Do(func() {
+		//TODO: impement functionality of "true".equals(System.getenv("USAGE_LOGGERS_DISABLE"))"
+		//in java bricked is final and both are static
+		//should probably think about why that's the case and how to translate that into go
+		//for now bricked is just set to false, this should change later
+		_bricked := false
+		usageLoggers = &UsageLoggers{
+			bricked:  _bricked,
+			disabled: _bricked,
+		}
+	})
+	return usageLoggers
 }
 
 /**
@@ -37,7 +51,7 @@ func (obj UsageLoggers) IsEnabled() bool {
 /**
 * Returns url to use by default.
  */
-func urlByDefault() string {
+func (obj UsageLoggers) UrlByDefault() string {
 	//String url = System.getProperty("USAGE_LOGGERS_URL");
 	url := ""
 	if url == "" {
@@ -47,9 +61,4 @@ func urlByDefault() string {
 		return url
 	}
 
-}
-
-type UsageLoggers struct {
-	bricked  bool
-	disabled bool
 }
