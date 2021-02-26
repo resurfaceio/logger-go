@@ -663,11 +663,84 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 
 // test uses sample rules
 
+func TestUsesSampleRules(t *testing.T) {
+	helper := GetTestHelper()
+
+	request := helper.MockRequestWithJson2()
+	mockResponse := helper.MockResponseWithHtml()
+
+	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	mockResponse.Request = request
+	
+	queue := make([]string, 0)
+
+	logger, err := NewHttpLoggerQueueRules(queue, "sample 10\nsample 99")
+	if err != nil {
+		assert.Equal(t, "Multiple sample rules", err.message, "multiple sample rule error not correct") //This is what I came up with as Go has no Try & Catch functionality for errors
+	}
+	
+	logger = NewHttpLoggerQueueRules(queue, "sample 10")
+	for (i := 1; i <= 100; i++) {
+		httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	}
+	assert.Greater(t, len(queue), 2, "sample amount is less than specified 10")
+	assert.Less(t, len(queue), 20, "sample amount is greater than specified 10")
+}
+
 // test uses skip compression rules
+
+func TestUsesSkipCompressionRules(t *testing.T) {
+	logger := NewHttpLogger()
+	logger.SetUrl("http://mysite.com")
+	assert.Equal(t, false, logger.SkipCompression(), "Logger skipCompression flag should be set to false")
+
+	logger = NewHttpLogger()
+	logger.SetUrl("http://mysite.com")
+	logger.SetRules("")
+	assert.Equal(t, false, logger.SkipCompression(), "Logger skipCompression flag should be set to false")
+
+	logger = NewHttpLogger()
+	logger.SetUrl("http://mysite.com")
+	logger.SetRules("skip_compression")
+	assert.Equal(t, true, logger.SkipCompression(), "Logger skipCompression flag should be set to true")
+}
 
 // test uses skip submission rules
 
+func TestUsesSkipSubmission(t *testing.T) {
+	logger := NewHttpLogger()
+	logger.SetUrl("http://mysite.com")
+	assert.Equal(t, false, logger.SkipSubmission(), "Logger skipSubmission flag should be set to false")
+
+	logger = NewHttpLogger()
+	logger.SetUrl("http://mysite.com")
+	logger.SetRules("")
+	assert.Equal(t, false, logger.SkipSubmission(), "Logger skipSubmission flag should be set to false")
+
+	logger = NewHttpLogger()
+	logger.SetUrl("http://mysite.com")
+	logger.SetRules("skip_submission")
+	assert.Equal(t, true, logger.SkipSubmission(), "Logger skipSubmission flag should be set to true")
+}
+
 // test uses stop rules
+
+func TestUsesStopRules(t *testing.T) {
+	helper := GetTestHelper()
+
+	request := helper.MockRequestWithJson2()
+	mockResponse := helper.MockResponseWithHtml()
+
+	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson)) //not sure how to do null here
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	mockResponse.Request = request
+	
+	queue := make([]string, 0)
+	logger := NewHttpLoggerQueueRules(queue, "!response_header:blahblahblah! stop")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+}
 
 // test uses stop if rules
 
