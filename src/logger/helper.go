@@ -54,6 +54,29 @@ func (h *Helper) MockCustomApp() {
 	log.Fatal(http.ListenAndServe(":8081", nil))
 }
 
+//This is a rough outline.
+//I am thinking we need to cover the requests rather than the responses.
+//MockGetRequest covers a get request to compare against loggin.
+func (h *Helper) MockGetRequest(url, html) {
+
+}
+
+func (h *Helper) MockDoRequest() {
+
+}
+
+func (h *Helper) MockHeadRequest() {
+
+}
+
+func (h *Helper) MockPostRequest() {
+
+}
+
+func (h *Helper) MockPostFormRequest() {
+
+}
+
 func NewTestHelper() *Helper {
 	newHelper := Helper{
 		demoURL: "https://demo.resurface.io/ping",
