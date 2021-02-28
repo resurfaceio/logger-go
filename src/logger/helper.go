@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"log"
+	"github.com/gorilla/mux"
 )
 
 type Helper struct {
@@ -74,6 +76,19 @@ func (h *Helper) MockPostRequest() {
 }
 
 func (h *Helper) MockPostFormRequest() {
+
+}
+
+// https://github.com/gorilla/mux
+// This could be server side though only examples I can find for client
+// is if we initilize a struct http client
+func handleMockRequest(){
+	r := mux.NewRouter().StrictSlash(true)
+	r.HandleFunc("/", homePage)
+	r.HandleFunc("/articles", allArticles).
+		Host(url).
+		Methods("GET").
+		Schemes("http")
 
 }
 
