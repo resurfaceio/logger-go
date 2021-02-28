@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"log"
 	"github.com/gorilla/mux"
 )
 
