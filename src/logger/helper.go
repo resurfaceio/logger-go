@@ -1,12 +1,11 @@
 package logger
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"log"
-	"github.com/gorilla/mux"
 )
 
 type Helper struct {
@@ -24,6 +23,7 @@ type Helper struct {
 	mockURL         string
 	mockURLSdenied  []string
 	mockURLSinvalid []string
+	mockFormData    string
 }
 
 type Article struct {
@@ -59,38 +59,55 @@ func (h *Helper) MockCustomApp() {
 //This is a rough outline.
 //I am thinking we need to cover the requests rather than the responses.
 //MockGetRequest covers a get request to compare against loggin.
-func (h *Helper) MockGetRequest(url, html) {
-
+//https://appdividend.com/2019/12/02/golang-http-example-get-post-http-requests-in-golang/
+func MockGetRequest() http.Request {
+	helper := NewTestHelper()
+	resp, err := http.Get(helper.demoURL)
+	request := resp.Request
+	return *request
 }
 
-func (h *Helper) MockDoRequest() {
-
+func MockDoRequest() http.Request {
+	helper := NewTestHelper()
+	// No do method.
+	//resp, err := http.
+	request := resp.Request
+	return *request
 }
 
-func (h *Helper) MockHeadRequest() {
-
+func MockHeadRequest() http.Request {
+	helper := NewTestHelper()
+	resp, err := http.Head(helper.demoURL)
+	request := resp.Request
+	return *request
 }
 
-func (h *Helper) MockPostRequest() {
-
+func MockPostRequest() http.Request {
+	helper := NewTestHelper()
+	resp, err := http.Post(helper.demoURL, "html", bytes.NewBuffer([]byte(helper.mockJSON)))
+	request := resp.Request
+	return *request
 }
 
 func (h *Helper) MockPostFormRequest() {
-
+	helper := NewTestHelper()
+	resp, err := http.PostForm(helper.demoURL, helper.mockFormData)
+	request := resp.Request
+	return *request
 }
 
-// https://github.com/gorilla/mux
-// This could be server side though only examples I can find for client
-// is if we initilize a struct http client
-func handleMockRequest(){
-	r := mux.NewRouter().StrictSlash(true)
-	r.HandleFunc("/", homePage)
-	r.HandleFunc("/articles", allArticles).
-		Host(url).
-		Methods("GET").
-		Schemes("http")
+// // https://github.com/gorilla/mux
+// // This could be server side though only examples I can find for client
+// // is if we initilize a struct http client
+// func handleMockRequest() {
+// 	r := mux.NewRouter().StrictSlash(true)
+// 	r.HandleFunc("/", homePage)
+// 	r.HandleFunc("/articles", allArticles).
+// 		Host(url).
+// 		Methods("GET").
+// 		Schemes("http")
 
-}
+// }
 
 func NewTestHelper() *Helper {
 	newHelper := Helper{
@@ -131,6 +148,8 @@ func NewTestHelper() *Helper {
 			"noway3is5this1valid2",
 			"ftp:\\www.noway3is5this1valid2.com/",
 			"urn:ISSN:1535–3613"},
+
+		mockFormData: "\"username\": { \" ResurfaceIO \" ",
 	}
 
 	return &newHelper
