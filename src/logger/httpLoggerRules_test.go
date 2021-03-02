@@ -732,7 +732,7 @@ func TestUsesStopRules(t *testing.T) {
 	request := helper.MockRequestWithJson2()
 	mockResponse := helper.MockResponseWithHtml()
 
-	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson)) //not sure how to do null here
+	request.Body = nil
 	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
 	mockResponse.Request = request
 	
@@ -740,12 +740,208 @@ func TestUsesStopRules(t *testing.T) {
 	logger := NewHttpLoggerQueueRules(queue, "!response_header:blahblahblah! stop")
 	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
 	assert.Equal(t, 1, len(queue), "queue length is not 1")
+
+	request = helper.MockRequestWithJson2()
+	mockResponse = helper.MockResponseWithHtml()
+
+	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	mockResponse.Request = request
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!.*! stop")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 0, len(queue), "queue is not empty")
+
+	request = helper.MockRequestWithJson2()
+	mockResponse = helper.MockResponseWithHtml()
+
+	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
+	mockResponse.Body = nil
+	mockResponse.Request = request
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!request_body! stop")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 0, len(queue), "queue is not empty")
+
+	request := helper.MockRequestWithJson2()
+	mockResponse := helper.MockResponseWithHtml()
+
+	request.Body = nil
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	mockResponse.Request = request
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!response_body! stop")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 0, len(queue), "queue is not empty")
+
+	request = helper.MockRequestWithJson2()
+	mockResponse = helper.MockResponseWithHtml()
+
+	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
+	mockResponse.Body = nil
+	mockResponse.Request = request
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!request_body! stop\n!response_body! stop")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 0, len(queue), "queue is not empty")
 }
 
 // test uses stop if rules
 
+func TestUsesStopIfRules(t *testing.T) {
+	helper := GetTestHelper()
+
+	request := helper.MockRequestWithJson2()
+	mockResponse := helper.MockResponseWithHtml()
+
+	request.Body = nil
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	mockResponse.Request = request
+	
+	queue := make([]string, 0)
+	logger := NewHttpLoggerQueueRules(queue, "!response_header:blahblahblah! stop_if !.*!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+
+	request = helper.MockRequestWithJson2()
+	mockResponse = helper.MockResponseWithHtml()
+
+	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	mockResponse.Request = request
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!response_body! stop_if !.*!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 0, len(queue), "queue is not empty")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!response_body! stop_if !.*World.*!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 0, len(queue), "queue is not empty")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!response_body! stop_if !.*blahblahblah.*!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+}
+
 // test uses stop if found rules
+
+func TestUsesStopIfFoundRules(t *testing.T) {
+	helper := GetTestHelper()
+
+	request := helper.MockRequestWithJson2()
+	mockResponse := helper.MockResponseWithHtml()
+
+	request.Body = nil
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	mockResponse.Request = request
+	
+	queue := make([]string, 0)
+	logger := NewHttpLoggerQueueRules(queue, "!response_header:blahblahblah! stop_if_found !.*!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+
+	request = helper.MockRequestWithJson2()
+	mockResponse = helper.MockResponseWithHtml()
+
+	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	mockResponse.Request = request
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!response_body! stop_if_found !.*!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 0, len(queue), "queue is not empty")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!response_body! stop_if_found !World!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 0, len(queue), "queue is not empty")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!response_body! stop_if_found !.*World.*!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 0, len(queue), "queue is not empty")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!response_body! stop_if_found !blahblahblah!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+}
 
 // test uses stop unless rules
 
+func TestUsesStopUnlessRules(t *testing.T) {
+	helper := GetTestHelper()
+
+	request := helper.MockRequestWithJson2()
+	mockResponse := helper.MockResponseWithHtml()
+
+	request.Body = nil
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	mockResponse.Request = request
+	
+	queue := make([]string, 0)
+	logger := NewHttpLoggerQueueRules(queue, "!response_header:blahblahblah! stop_unless !.*!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 0, len(queue), "queue is not empty")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!response_body! stop_unless !.*!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!response_body! stop_unless !.*World.*!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!response_body! stop_unless !.*blahblahblah.*!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 0, len(queue), "queue is not empty")
+}
+
 // test uses stop unless found rules
+
+func TestUsesStopUnlessFoundRules(t *testing.T) {
+	helper := GetTestHelper()
+
+	request := helper.MockRequestWithJson2()
+	mockResponse := helper.MockResponseWithHtml()
+
+	request.Body = nil
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	mockResponse.Request = request
+	
+	queue := make([]string, 0)
+	logger := NewHttpLoggerQueueRules(queue, "!response_header:blahblahblah! stop_unless_found !.*!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 0, len(queue), "queue is not empty")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!response_body! stop_unless_found !.*!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!response_body! stop_unless_found !World!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!response_body! stop_unless_found !.*World.*!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!response_body! stop_unless_found !blahblahblah!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 0, len(queue), "queue is not empty")
+}
