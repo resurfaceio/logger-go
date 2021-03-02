@@ -103,7 +103,13 @@ func parseable(var msg string){
 		return false
 	}
 
-	defer json.Unmarshal([]byte(msg), )
+	var holder map[string]interface{}
+
+	if err := json.Unmarshal(msg, &holder); err == nil {
+		return true
+	}else{
+		return false
+	}
 
 }
 
