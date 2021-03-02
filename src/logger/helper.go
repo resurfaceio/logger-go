@@ -70,7 +70,7 @@ func MockGetRequest() http.Request {
 func MockDoRequest() http.Request {
 	helper := NewTestHelper()
 	// No do method.
-	//resp, err := http.
+	//resp, err := http.Do(helper.mockRequest)??
 	request := resp.Request
 	return *request
 }
@@ -96,18 +96,16 @@ func (h *Helper) MockPostFormRequest() {
 	return *request
 }
 
-// // https://github.com/gorilla/mux
-// // This could be server side though only examples I can find for client
-// // is if we initilize a struct http client
-// func handleMockRequest() {
-// 	r := mux.NewRouter().StrictSlash(true)
-// 	r.HandleFunc("/", homePage)
-// 	r.HandleFunc("/articles", allArticles).
-// 		Host(url).
-// 		Methods("GET").
-// 		Schemes("http")
+func parseable(var msg string){
+	if msg := nil || !msg.HasPrefix("[") || !msg.HasSuffix("]")
+	|| msg.Contains("[]") || (msg.Contains(",,"))
+	{
+		return false
+	}
 
-// }
+	defer json.Unmarshal([]byte(msg), )
+
+}
 
 func NewTestHelper() *Helper {
 	newHelper := Helper{
