@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,24 +12,22 @@ import (
 
 func TestLogsGet(t *testing.T) {
 
-	netLogger := NewNetHttpClientLogger(nil)
+	queue := make([]string, 0)
+	netLogger := NewHttpLoggerQueue(queue)
 	helper := GetTestHelper()
-	resp, err := netLogger.Get(helper.demoURL)
-	fmt.Println(resp)
-	fmt.Println(err)
 	//Don't think we will need this
 	//assert.True(t, parsable(resp))
-	assert.Contains(t, resp, "[\"request_method\",\"GET\"]")
-	assert.Contains(t, resp, "[\"request_url\",\""+helper.demoURL+"\"]")
-	assert.Contains(t, resp, "[\"response_body\",\""+helper.mockHTML+"\"]")
-	assert.Contains(t, resp, "[\"response_code\",\"200\"]")
-	assert.Contains(t, resp, "[\"response_header:a\",\"Z\"]")
-	assert.Contains(t, resp, "[\"response_header:content-type\",\"text/html\"]")
-	assert.Contains(t, resp, "[\"now\",\"")
-	assert.Contains(t, resp, "[\"interval\",\"")
-	assert.NotContains(t, resp, "request_body")
-	assert.NotContains(t, resp, "request_header")
-	assert.NotContains(t, resp, "request_param")
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_method\",\"GET\"]"))
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_url\",\""+helper.demoURL+"\"]"))
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"response_body\",\""+helper.mockHTML+"\"]"))
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"response_code\",\"200\"]"))
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"response_header:a\",\"Z\"]"))
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"response_header:content-type\",\"text/html\"]"))
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"now\",\""))
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"interval\",\""))
+	assert.NotEqual(t, true, strings.Contains(queue[0], "request_body"))
+	assert.NotEqual(t, true, strings.Contains(queue[0], "request_header"))
+	assert.NotEqual(t, true, strings.Contains(queue[0], "request_param"))
 }
 
 func TestLogsPost(t *testing.T) {
