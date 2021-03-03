@@ -96,7 +96,7 @@ func (obj BaseLogger) Submit(msg string) {
 	if msg == "" || obj.SkipSubmission() || !obj.Enabled() {
 		//do nothing
 	} else if obj.queue != nil {
-		queue.add(msg)
+		obj.queue.add(msg)
 		obj.submitSuccesses.increment()
 	} else {
 		// HttpURLConnection url_connection = (HttpURLConnection) this.url_parsed.openConnection();
