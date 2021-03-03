@@ -5,5 +5,31 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"github.com/gorilla/mux"
 )
+
+type HttpLogger struct{
+
+}
+
+func initialize(var rules string){
+
+	this.rules = new HttpRules(rules)
+
+	
+}
+
+func HttpRules getRules(){
+	return rules
+}
+
+func submitIfPassing(var details []string){
+	details = rules.apply(details)
+
+	if details == nil {
+		return
+	}
+
+	details = append(details, "")
+
+	submit()
+}
