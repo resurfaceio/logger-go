@@ -8,12 +8,20 @@ import (
 )
 
 type HttpLogger struct{
+	agent string
+	enabled bool
+	queue []string
+	skipCompression bool
+	skipSubmission bool
+	rules string
+	url string
+
 
 }
 
 func initialize(var rules string){
 
-	this.rules = new HttpRules(rules)
+	rules = new HttpRules(rules)
 
 	
 }
