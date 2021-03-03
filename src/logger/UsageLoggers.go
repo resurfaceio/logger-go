@@ -20,10 +20,6 @@ var usageLoggers *UsageLoggers
 
 func GetUsageLoggers() *UsageLoggers {
 	onceUsageLoggers.Do(func() {
-		//TODO: impement functionality of "true".equals(System.getenv("USAGE_LOGGERS_DISABLE"))"
-		//in java bricked is final and both are static
-		//should probably think about why that's the case and how to translate that into go
-		//for now bricked is just set to false, this should change later
 		envLookup, _ := os.LookupEnv("USAGE_LOGGERS_DISABLE")
 		_bricked, err := strconv.ParseBool(envLookup)
 		if err != nil {
@@ -62,17 +58,6 @@ func (obj UsageLoggers) IsEnabled() bool {
 * Returns url to use by default.
  */
 func (obj UsageLoggers) UrlByDefault() string {
-	//TODO: implement call functionality
-	//String url = System.getProperty("USAGE_LOGGERS_URL");
-	url := "dummy"
-	if url == "" {
-		//return url from env variables
-		envUrl, _ := os.LookupEnv("USAGE_LOGGERS_URL")
-		return envUrl
-	} else {
-		//this on the other hand should return the url from the system properties
-		//not sure if this idea translates over to Go
-		return url
-	}
-
+	url, _ := os.LookupEnv("USAGE_LOGGERS_URL")
+	return url
 }
