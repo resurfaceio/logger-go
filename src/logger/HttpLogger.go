@@ -10,6 +10,16 @@ import (
 
 //var AGENT string = "HttpLogger.go"
 
+//base HttpLogger definition
+type HttpLogger struct{
+	enabled bool
+	queue []string
+	skip_compression bool
+	skip_submission bool
+	rules string
+	url string
+}
+
 func NewHttpLogger(ex_url string, 
 				   ex_enabled bool, ex_queue []string, 
 				   ex_rules string) *HttpLogger { 
@@ -100,17 +110,6 @@ func NewHttpLoggerQueueEnabledRules(ex_queue []string, ex_enabled bool, ex_rules
 	return
 }
 
-//base HttpLogger definition
-type HttpLogger struct{
-	enabled bool
-	queue []string
-	skip_compression bool
-	skip_submission bool
-	rules string
-	url string
-
-}
-
 /**
 * Initialize a new logger.
 */
@@ -127,10 +126,10 @@ func initialize(ex_rules string){
 		ex_enableable = false; // NOT DEFINED in struct yet!!!!!!!!!!!
 		ex_enabled = false;
 	}
-
 	
 }
 
+// don't worry about yet
 func HttpRules getRules(){
 	return rules
 }
@@ -143,7 +142,7 @@ func submitIfPassing(var details []string){
 		return
 	}
 
-	details = append(details, "")
+	details = append(["host", host]) // where does host come from?
 
-	submit()
+	submit(json.Unmarshal([]byte(details), &value))// mmmmmm 
 }
