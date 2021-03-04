@@ -12,9 +12,8 @@ func TestCreateInstance(t *testing.T) {
 
 	//Creating a single instance
 	httpLogger := NewHttpLogger()
-	helper := GetTestHelper()
 	assert.NotNil(t, httpLogger)
-	assert.Equal(t, helper.mockAgent, httpLogger.Agent())
+	assert.Equal(t, HttpLogger.agent, httpLogger.Agent())
 	assert.False(t, httpLogger.Enablable())
 	assert.False(t, httpLogger.Enabled())
 	assert.Nil(t, httpLogger.Queue())
@@ -34,21 +33,21 @@ func TestCreateMultipleInstances(t *testing.T) {
 
 	//Logger 1
 	assert.NotNil(t, logger1)
-	assert.Equal(t, helper.mockAgent, logger1.AGENT())
+	assert.Equal(t, HttpLogger.agent, logger1.AGENT())
 	assert.True(t, logger1.Enablable())
 	assert.True(t, logger1.Enabled())
 	assert.Equal(t, url1, logger1.Url())
 
 	//Logger 2
 	assert.NotNil(t, logger2)
-	assert.Equal(t, helper.mockAgent, logger2.Agent())
+	assert.Equal(t, HttpLogger.agent, logger2.Agent())
 	assert.True(t, logger2.Enablable())
 	assert.True(t, logger2.Enabled())
 	assert.Equal(t, url2, logger2.Url())
 
 	//Logger 3
 	assert.NotNil(t, logger3)
-	assert.Equal(t, helper.mockAgent, logger3.Agent())
+	assert.Equal(t, HttpLogger.agent, logger3.Agent())
 	assert.True(t, logger3.Enablable())
 	assert.True(t, logger3.Enabled())
 	assert.Equal(t, helper.demoURL, logger3.Url())
