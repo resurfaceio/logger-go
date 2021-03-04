@@ -28,48 +28,56 @@ func TestCreateMultipleInstances(t *testing.T) {
 	url2 := "https://whatever.com"
 	helper := GetTestHelper()
 
-	logger1 := NewHttpLogger(url1)
-	logger2 := NewHttpLogger(url2)
-	logger3 := NewHttpLogger(helper.demoURL)
+	logger1 := NewHttpLoggerUrl(url1)
+	logger2 := NewHttpLoggerUrl(url2)
+	logger3 := NewHttpLoggerUrl(helper.demoURL)
 
 	//Logger 1
 	assert.NotNil(t, logger1)
 	assert.Equal(t, helper.mockAgent, logger1.AGENT())
-	assert.False(t, logger1.Enablable())
-	assert.False(t, logger1.Enabled())
-	assert.Nil(t, logger1.Queue())
+	assert.True(t, logger1.Enablable())
+	assert.True(t, logger1.Enabled())
 	assert.Equal(t, url1, logger1.Url())
 
 	//Logger 2
 	assert.NotNil(t, logger2)
 	assert.Equal(t, helper.mockAgent, logger2.Agent())
-	assert.False(t, logger2.Enablable())
-	assert.False(t, logger2.Enabled())
-	assert.Nil(t, logger2.Queue())
+	assert.True(t, logger2.Enablable())
+	assert.True(t, logger2.Enabled())
 	assert.Equal(t, url2, logger2.Url())
 
 	//Logger 3
 	assert.NotNil(t, logger3)
 	assert.Equal(t, helper.mockAgent, logger3.Agent())
-	assert.False(t, logger3.Enablable())
-	assert.False(t, logger3.Enabled())
-	assert.Nil(t, logger3.Queue())
-	assert.Nil(t, logger3.Url())
+	assert.True(t, logger3.Enablable())
+	assert.True(t, logger3.Enabled())
 	assert.Equal(t, helper.demoURL, logger3.Url())
 
+	//Testing Usage Logger
+	//Disable
+	UsageLoggers.disable()
+	assert.False(t, UsageLoggers.isEnabled())
+	assert.False(t, logger1.isEnabled())
+	assert.False(t, logger2.isEnabled())
+	assert.False(t, logger3.isEnabled())
+	//Enable
+	UsageLoggers.enable()
+	assert.True(t, UsageLoggers.isEnabled())
+	assert.True(t, logger1.isEnabled())
+	assert.True(t, logger2.isEnabled())
+	assert.True(t, logger3.isEnabled())
 }
 
 func TestHasValidAgent(t *testing.T) {
 	//Has Valid Agent Test
-	helper := GetTestHelper()
-	logger1 := NewHttpLogger()
+	httpLogger := NewHttpLogger()
 
-	agent := helper.mockAgent
+	agent := httpLogger.mockAgent
 	assert.Greater(t, len(agent), 0)
 	assert.Equal(t, ".go", agent[len(agent)-3:])
 	assert.NotContains(t, agent, "\\")
 	assert.NotContains(t, agent, "\"")
 	assert.NotContains(t, agent, "'")
-	assert.Equal(t, agent, logger1.Agent())
+	assert.Equal(t, agent, httpLogger.Agent())
 
 }
