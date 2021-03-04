@@ -19,8 +19,11 @@ type UsageLoggers struct {
 var usageLoggers *UsageLoggers
 
 func GetUsageLoggers() (*UsageLoggers, error) {
+	//var envError error
 	var parseError error
 	onceUsageLoggers.Do(func() {
+		//lookup returns a false bool is it fails, along with a nil value.
+		//We can ignore this because parsebool will throw an error anyway if this fails
 		envLookup, _ := os.LookupEnv("USAGE_LOGGERS_DISABLE")
 		_bricked, err := strconv.ParseBool(envLookup)
 		parseError = err
@@ -56,7 +59,7 @@ func (obj UsageLoggers) IsEnabled() bool {
 /**
 * Returns url to use by default.
  */
-func (obj UsageLoggers) UrlByDefault() string {
-	url, _ := os.LookupEnv("USAGE_LOGGERS_URL")
-	return url
+func (obj UsageLoggers) UrlByDefault() (string, bool) {
+	url, lookupSuccess := os.LookupEnv("USAGE_LOGGERS_URL")
+	return url, lookupSuccess
 }
