@@ -20,8 +20,8 @@ type HttpLogger struct{
 	url string
 }
 
-func NewHttpLogger(ex_url string, 
-				   ex_enabled bool, ex_queue []string, 
+// initialize HttpLogger either function?? parameters to pass
+func NewHttpLogger(ex_url string, ex_enabled bool, ex_queue []string, 
 				   ex_rules string) *HttpLogger { 
 
 exHttpLogger := &HttpLogger{
@@ -121,7 +121,7 @@ func initialize(ex_rules string){
 	rules = new HttpRules(rules)
 
 	// IS allow_http_url allowed in our golang implementation
-	if((ex_url != nil) && (ex_url.HasPrefix("http:") && ! ex_rules.allow_http_url)) {
+	if((ex_url != nil) && (ex_url.HasPrefix("http:") && !ex_rules.allow_http_url)) {
 		// WHERE DID enableable come from
 		ex_enableable = false; // NOT DEFINED in struct yet!!!!!!!!!!!
 		ex_enabled = false;
