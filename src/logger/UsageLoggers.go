@@ -18,10 +18,8 @@ type UsageLoggers struct {
 
 var usageLoggers *UsageLoggers
 
-//will not be null if env variables are not properly set up
-var parseError error
-
 func GetUsageLoggers() (*UsageLoggers, error) {
+	var parseError error
 	onceUsageLoggers.Do(func() {
 		envLookup, _ := os.LookupEnv("USAGE_LOGGERS_DISABLE")
 		_bricked, err := strconv.ParseBool(envLookup)
