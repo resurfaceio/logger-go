@@ -1,23 +1,12 @@
 package logger
 
-<<<<<<< HEAD
 import (
-	"encoding/json"
-	"fmt"
-	"log"
-	"net/http"
-	"log"
-	"github.com/gorilla/mux"
+	"sync"
 )
 
-type Helper struct {
-=======
-import "sync"
-
-var once sync.Once
+var helperOnce sync.Once
 
 type helper struct {
->>>>>>> test
 	demoURL         string
 	mockAgent       string
 	mockHTML        string
@@ -37,7 +26,7 @@ type helper struct {
 var testHelper *helper
 
 func GetTestHelper() *helper {
-	once.Do(func() {
+	helperOnce.Do(func() {
 		testHelper = &helper{
 			demoURL: "https://demo.resurface.io/ping",
 
