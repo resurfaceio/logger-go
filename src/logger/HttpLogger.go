@@ -8,64 +8,46 @@ import (
 	"strings"
 )
 
-var AGENT string = "HttpLogger.go"
+const loggerAgent string = "HttpLogger.go"
 
 //base HttpLogger definition
 type HttpLogger struct{
+	baseLogger BaseLogger
 	enabled bool
 	queue []string
 	skip_compression bool
 	skip_submission bool
 	rules string
 	url string
-	BaseLogger // HMMMM?
 }
-
-// initialize HttpLogger either function?? parameters to pass
-func NewHttpLogger(ex_url string, ex_enabled bool, ex_queue []string, 
-				   ex_rules string) *HttpLogger { 
-
-exHttpLogger := &HttpLogger{
-	enabled: 			ex_enabled,
-	queue: 				ex_queue,
-	skip_compression:	false,
-	skip_submission:	false,
-	rules:				ex_rules,
-	url:				ex_url
-	}
-	return exHttpLogger
-}
-
-// Some of them say initializing a logger using default url and rules but don't
-// actually pass those as parameters
 
  /**
  * Initialize logger using default url and default rules.
  */
-func NewNewHttpLogger() *HttpLogger {
-	initialize(nil)
-	return NewHttpLogger("", true, nil, "")
-
+func NewHttpLogger() *HttpLogger {
+	baseLogger := NewBaseLoggerAgent(loggerAgent)
+	return HttpLogger("", true, nil, "", baseLogger)
 }
 
 /**
 * Initialize enabled/disabled logger using default url and default rules.
 */
-func NewHttpLoggerEnabled(ex_enabled bool) *HttpLogger {
-	return NewHttpLogger()
+func NewHttpLoggerEnabled(enabled bool) *HttpLogger {
+	baseLogger := NewBaseLoggerAgentEnabled(loggerAgent, _enabled)
+	return HttpLogger()
 }
 
 /**
 * Initialize logger using specified url and default rules.
 */
-func NewHttpLoggerUrl(ex_url string) *HttpLogger {
+func HttpLoggerUrl(url string) *HttpLogger {
 	return
 }
 
 /**
 * Initialize logger using specified url and specified rules.
 */
-func NewHttpLoggerUrlRules(ex_url string, ex_rules string) *HttpLogger {
+func HttpLoggerUrlRules(url string, rules string) *HttpLogger {
 	return
 }
 
@@ -73,7 +55,7 @@ func NewHttpLoggerUrlRules(ex_url string, ex_rules string) *HttpLogger {
 * Initialize enabled/disabled logger using specified url and default rules.
 */
 
-func NewHttpLoggerUrlEnabled(ex_url string, ex_enabled bool) *HttpLogger {
+func NewHttpLoggerUrlEnabled(url string, enabled bool) *HttpLogger {
 	return
 }
 
@@ -81,41 +63,54 @@ func NewHttpLoggerUrlEnabled(ex_url string, ex_enabled bool) *HttpLogger {
 * Initialize enabled/disabled logger using specified url and specified rules.
 */
 
-func NewHttpLoggerUrlEnabledRules(ex_url string, ex_enabled bool, ex_rules string) *HttpLogger{
+func NewHttpLoggerUrlEnabledRules(url string, enabled bool, rules string) *HttpLogger{
 	return
 }
 
 /**
 * Initialize enabled logger using queue and default rules.
 */
-func NewHttpLoggerQueue(ex_queue []string) *HttpLogger {
+func NewHttpLoggerQueue(queue []string) *HttpLogger {
 	return
 } 
 
 /**
 * Initialize enabled logger using queue and specified rules.
 */
-func NewHttpLoggerQueueRules(ex_queue []string, ex_rules string) *HttpLogger {
+func NewHttpLoggerQueueRules(queue []string, rules string) *HttpLogger {
 	return
 }
 
 /**
 * Initialize enabled/disabled logger using queue and default rules.
 */
-func NewHttpLoggerQueueEnabled(ex_queue []string, ex_enabled bool) *HttpLogger {
+func NewHttpLoggerQueueEnabled(queue []string, enabled bool) *HttpLogger {
 	return
 }
 
 /**
 * Initialize enabled/disabled logger using queue and specified rules.
 */
-func NewHttpLoggerQueueEnabledRules(ex_queue []string, ex_enabled bool, ex_rules string) *HttpLogger {
+func NewHttpLoggerQueueEnabledRules(queue []string, enabled bool, rules string) *HttpLogger {
 	return
 }
 
-/**
-* Initialize a new logger.
-*/
+// initialize HttpLogger 
+func HttpLogger(_url string, _enabled bool, _queue []string, 
+	_rules string, _baseLogger BaseLogger) (*HttpLogger, error) { 
+
+	httpRules, err := NewHttpRules(_rules)
+
+	if err != nil {
+		return nil, err
+	}
+
+	exHttpLogger := &HttpLogger{
+		baseLogger: _baseLogger,
+		rules:	httpRules,
+	}
+	return exHttpLogger
+}
 
 //slightly confused on the implementation here
 func initialize(ex_rules string){
