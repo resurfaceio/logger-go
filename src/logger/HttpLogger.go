@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-//var AGENT string = "HttpLogger.go"
+var AGENT string = "HttpLogger.go"
 
 //base HttpLogger definition
 type HttpLogger struct{
@@ -18,6 +18,7 @@ type HttpLogger struct{
 	skip_submission bool
 	rules string
 	url string
+	BaseLogger // HMMMM?
 }
 
 // initialize HttpLogger either function?? parameters to pass
@@ -41,15 +42,17 @@ exHttpLogger := &HttpLogger{
  /**
  * Initialize logger using default url and default rules.
  */
-func NewHttpLogger() *HttpLogger {
-	return
+func NewNewHttpLogger() *HttpLogger {
+	initialize(nil)
+	return NewHttpLogger("", true, nil, "")
+
 }
 
 /**
 * Initialize enabled/disabled logger using default url and default rules.
 */
 func NewHttpLoggerEnabled(ex_enabled bool) *HttpLogger {
-	return
+	return NewHttpLogger()
 }
 
 /**

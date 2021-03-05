@@ -1,6 +1,5 @@
 package logger
 
-<<<<<<< HEAD
 import (
 	"encoding/json"
 	"fmt"
@@ -10,13 +9,6 @@ import (
 )
 
 type Helper struct {
-=======
-import "sync"
-
-var once sync.Once
-
-type helper struct {
->>>>>>> test
 	demoURL         string
 	mockAgent       string
 	mockHTML        string
@@ -35,7 +27,6 @@ type helper struct {
 
 var testHelper *helper
 
-<<<<<<< HEAD
 //This is a rough outline.
 //I am thinking we need to cover the requests rather than the responses.
 //MockGetRequest covers a get request to compare against loggin.
@@ -75,12 +66,6 @@ func handleMockRequest(){
 func NewTestHelper() *Helper {
 	newHelper := Helper{
 		demoURL: "https://demo.resurface.io/ping",
-=======
-func GetTestHelper() *helper {
-	once.Do(func() {
-		testHelper = &helper{
-			demoURL: "https://demo.resurface.io/ping",
->>>>>>> test
 
 			mockAgent: "helper.java",
 
