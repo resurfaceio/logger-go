@@ -90,7 +90,7 @@ func (obj BaseLogger) Disable() {
 /**
  * Submits JSON message to intended destination.
  */
-func (obj BaseLogger) Submit(msg string) {
+func (obj BaseLogger) submit(msg string) {
 	//woah congrats you submitted the message
 	//TODO: implement submit func
 	if msg == "" || obj.SkipSubmission() || !obj.Enabled() {
