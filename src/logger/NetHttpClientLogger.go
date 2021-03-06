@@ -13,7 +13,7 @@ type NetHttpClientLogger struct {
 }
 
 // construct new logger with given options struct{rules string, schema string}
-func NewNetHttpClientLoggerOptions(options interface{}) *NetHttpClientLogger {
+func NewNetHttpClientLoggerOptions(options loggerOptions) *NetHttpClientLogger {
 	return &NetHttpClientLogger{
 		httpLogger: NewHttpLogger(options),
 	}
