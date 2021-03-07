@@ -1,57 +1,136 @@
 package logger
 
 import (
-	"io/ioutil"
-	"log"
+	"io"
 	"net/http"
-	"net/http/httputil"
-	"os"
+	"net/url"
+	"time"
 )
 
-type netHttpClientLogger struct {
+type NetHttpClientLogger struct {
 	http.Client
-	LOGFLAG bool
+	httpLogger *HttpLogger
 }
 
-func (bcl *netHttpClientLogger) Get(url string) (resp *http.Response, err error) {
+// construct new logger with given options struct{rules string, schema string}
+func NewNetHttpClientLoggerOptions(options interface{}) *NetHttpClientLogger {
+	return &NetHttpClientLogger{
+		httpLogger: NewHttpLogger(options),
+	}
+}
+
+// construct new logger without options
+func NewNetHttpClientLogger() *NetHttpClientLogger {
+	return &NetHttpClientLogger{
+		httpLogger: NewHttpLogger(),
+	}
+}
+
+func (logger *NetHttpClientLogger) Logger() *HttpLogger {
+	return logger.httpLogger
+}
+
+// net.http.Client.CloseIdleConnections() wrapper
+func (clientLogger *NetHttpClientLogger) CloseIdleConnections() {
+	clientLogger.Client.CloseIdleConnections()
+}
+
+// net.http.Client.Do wrapper with logging
+func (clientLogger *NetHttpClientLogger) Do(req *http.Request) (resp *http.Response, err error) {
+	// start time for logging interval
+	start := time.Now().UnixNano() / int64(time.Millisecond)
+
+	logger := clientLogger.httpLogger
+
 	// capture the response or error
-	getResp, getErr := bcl.Client.Get(url)
+	resp, err = clientLogger.Client.Do(req)
 
-	ioWriter := os.Stdout
-
-	// create or open a file to log to
-	if bcl.LOGFLAG {
-		ioWriter, err = os.OpenFile("./get.log",
-			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	}
-
-	// create a log.Logger to direct output of logging
-	logger := log.New(ioWriter, "", log.LstdFlags)
-
-	// logging conditions
 	if err != nil {
-		logger.Println("FAILURE: GET Request")
-		req, _ := httputil.DumpRequest(getResp.Request, true)
-		logger.Println("URL: " + string(req))
-		logger.Println("ERROR: " + err.Error())
-		logger.Println("STATUS: " + getResp.Status)
-		//logger.Println("STATUS CODE: " + getResp.StatusCode)
-	} else {
-		bodyBytes, _ := ioutil.ReadAll(getResp.Body)
-		logger.Println("SUCCESS: GET Request")
-		logger.Println("URL: " + url)
-		logger.Println("RESPONSE: " + string(bodyBytes))
+		return resp, err
 	}
 
-	return getResp, getErr
+	// send logging message
+	sendNetHttpClientMessage(logger, resp, start)
+
+	return resp, err
 }
 
-func newLogger() netHttpClientLogger {
-	return netHttpClientLogger{
-		LOGFLAG: true,
+// net.http.Client.Get wrapper with logging
+func (clientLogger *NetHttpClientLogger) Get(url string) (resp *http.Response, err error) {
+	// start time for logging interval
+	start := time.Now().UnixNano() / int64(time.Millisecond)
+
+	logger := clientLogger.httpLogger
+
+	// capture the response or error
+	resp, err = clientLogger.Client.Get(url)
+
+	if err != nil {
+		return resp, err
 	}
+
+	// send logging message
+	sendNetHttpClientMessage(logger, resp, start)
+
+	return resp, err
 }
 
-func (bcl *netHttpClientLogger) SetLogFlag(flag bool) {
-	bcl.LOGFLAG = flag
+// net.http.Client.Head wrapper with logging
+func (clientLogger *NetHttpClientLogger) Head(url string) (resp *http.Response, err error) {
+	// start time for logging interval
+	start := time.Now().UnixNano() / int64(time.Millisecond)
+
+	logger := clientLogger.httpLogger
+
+	// capture the response or error
+	resp, err = clientLogger.Client.Head(url)
+
+	if err != nil {
+		return resp, err
+	}
+
+	// send logging message
+	sendNetHttpClientMessage(logger, resp, start)
+
+	return resp, err
+}
+
+// net.http.Client.Post wrapper with logging
+func (clientLogger *NetHttpClientLogger) Post(url string, contentType string, body io.Reader) (resp *http.Response, err error) {
+	// start time for logging interval
+	start := time.Now().UnixNano() / int64(time.Millisecond)
+
+	logger := clientLogger.httpLogger
+
+	// capture the response or error
+	resp, err = clientLogger.Client.Post(url, contentType, body)
+
+	if err != nil {
+		return resp, err
+	}
+
+	// send logging message
+	sendNetHttpClientMessage(logger, resp, start)
+
+	return resp, err
+}
+
+// net.http.Client.PostForm wrapper with logging
+func (clientLogger *NetHttpClientLogger) PostForm(url string, data url.Values) (resp *http.Response, err error) {
+	// start time for logging interval
+	start := time.Now().UnixNano() / int64(time.Millisecond)
+
+	logger := clientLogger.httpLogger
+
+	// capture the response or error
+	resp, err = clientLogger.Client.PostForm(url, data)
+
+	if err != nil {
+		return resp, err
+	}
+
+	// send logging message
+	sendNetHttpClientMessage(logger, resp, start)
+
+	return resp, err
 }
