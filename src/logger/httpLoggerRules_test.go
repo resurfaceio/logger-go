@@ -4,6 +4,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"strings"
+
+	"net/http"
+
+	"io/ioutil"
+
+	"bytes"
 )
 
 // test override default rules
@@ -93,21 +101,361 @@ func TestUsesAllowHttpUrlRules(t *testing.T) {
 
 // test uses copy session field rules test
 
-// func TestUsesCopySessionFieldRules(t *testing.T) {
+func TestUsesCopySessionFieldRules(t *testing.T) {
+	// helper for function tests
+	helper := GetTestHelper()
+	// requests used for all tests in function
+	request := helper.MockRequestWithJson2()
+	mockResponse := helper.MockResponseWithHtml()
 
-// }
+	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	mockResponse.Request = request
+
+	var c1 *http.Cookie = &http.Cookie{Name: "butterfly", Value: "poison"}
+	var c2 *http.Cookie = &http.Cookie{Name: "session_id", Value: "asdf1234"}
+	request.AddCookie(c1)
+	request.AddCookie(c2)
+
+	// tests copy all of session field
+	queue := make([]string, 0)
+	logger := NewHttpLoggerQueueRules(queue, "copy_session_field /.*/")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:butterfly\",\"poison\"]"), "queue did not contain expected values")
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "queue did not contain expected values")
+	// tests copy specifically session_id
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "copy_session_field /session_id/")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+	assert.Equal(t, false, strings.Contains(queue[0], "[\"session_field:butterfly\",\"poison\"]"), "queue contains unexpected value")
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "queue did not contain expected values")
+	// tests copy non matching term
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "copy_session_field /blah/")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+	assert.Equal(t, false, strings.Contains(queue[0], "[\"session_field:"), "queue contains unexpected value")
+	// tests copy 2 specific values
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "copy_session_field /butterfly/\ncopy_session_field /session_id/")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:butterfly\",\"poison\"]"), "queue did not contain expected values")
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "queue did not contain expected values")
+}
 
 // test uses copy session field and remove rules test
 
-// test uses copy session field and stop rules test
+func TestUsesCopySessionFieldAndRemoveRules(t *testing.T) {
+	// helper for function tests
+	helper := GetTestHelper()
+	// requests used for all tests in function
+	request := helper.MockRequestWithJson2()
+	mockResponse := helper.MockResponseWithHtml()
+
+	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	mockResponse.Request = request
+
+	var c1 *http.Cookie = &http.Cookie{Name: "butterfly", Value: "poison"}
+	var c2 *http.Cookie = &http.Cookie{Name: "session_id", Value: "asdf1234"}
+	request.AddCookie(c1)
+	request.AddCookie(c2)
+
+	//tests copy session field w/ remove
+	queue := make([]string, 0)
+	logger := NewHttpLoggerQueueRules(queue, "copy_session_field !.*!\n!session_field:.*! remove")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+	assert.Equal(t, false, strings.Contains(queue[0], "[\"session_field:"), "queue did contains an unexpected value")
+	//
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "copy_session_field !.*!\n!session_field:butterfly! remove")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+	assert.Equal(t, false, strings.Contains(queue[0], "[\"session_field:butterfly\","), "queue contains unexpected values")
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "queue did not contain expected value")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "copy_session_field !.*!\n!session_field:.*! remove_if !poi.*!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+	assert.Equal(t, false, strings.Contains(queue[0], "[\"session_field:butterfly\","), "queue contains unexpected values")
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "queue did not contain expected value")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "copy_session_field !.*!\n!session_field:.*! remove_unless !sugar!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+	assert.Equal(t, false, strings.Contains(queue[0], "[\"session_field:"), "queue contains unexpected value")
+}
+
+// test uses copy session field and stop rules
+
+func TestUsesCopySessionFieldAndStopRules(t *testing.T) {
+	// helper for function tests
+	helper := GetTestHelper()
+	// requests used for all tests in function
+	request := helper.MockRequestWithJson2()
+	mockResponse := helper.MockResponseWithHtml()
+
+	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	mockResponse.Request = request
+
+	var c1 *http.Cookie = &http.Cookie{Name: "butterfly", Value: "poison"}
+	var c2 *http.Cookie = &http.Cookie{Name: "session_id", Value: "asdf1234"}
+	request.AddCookie(c1)
+	request.AddCookie(c2)
+
+	queue := make([]string, 0)
+	logger := NewHttpLoggerQueueRules(queue, "copy_session_field !.*!\n!session_field:butterfly! stop")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 0, len(queue), "queue is not empty")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "copy_session_field !.*!\n!session_field:butterfly! stop_if !poi.*!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 0, len(queue), "queue is not empty")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "copy_session_field !.*!\n!session_field:butterfly! stop_unless !sugar!")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 0, len(queue), "queue is not empty")
+}
 
 // test uses remove rules
 
+func TestUsesRemoveRules(t *testing.T) {
+	//helper for function
+	helper := GetTestHelper()
+
+	request := helper.MockRequestWithJson2()
+	mockResponse := helper.MockResponseWithHtml()
+
+	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	mockResponse.Request = request
+
+	queue := make([]string, 0)
+	logger := NewHttpLoggerQueueRules(queue, "!.*! remove")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 0, len(queue), "queue is not empty")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!request_body! remove")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+	assert.Equal(t, false, strings.Contains(queue[0], "[\"request_body\","), "request_body not removed")
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"response_body\","), "response_body not found")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!response_body! remove")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+	assert.Equal(t, true, strings.Contains(queue[0], "\"request_body\","), "request_body not found")
+	assert.Equal(t, false, strings.Contains(queue[0], "[\"response_body\","), "response_body not removed")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!request_body|response_body! remove")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+	assert.Equal(t, false, strings.Contains(queue[0], "[\"request_body\","), "request_body not removed")
+	assert.Equal(t, false, strings.Contains(queue[0], "[\"response_body\","), "response_body not removed")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!request_header:.*! remove")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_body\","), "request_body not found")
+	assert.Equal(t, false, strings.Contains(queue[0], "[\"request_header:"), "request_header not removed")
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"response_body\","), "response_body not found")
+
+	queue = make([]string, 0)
+	logger = NewHttpLoggerQueueRules(queue, "!request_header:abc! remove\n!response_body! remove")
+	httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+	assert.Equal(t, 1, len(queue), "queue length is not 1")
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_body\","), "request_body not found")
+	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_header:"), "request_header not found")
+	assert.Equal(t, false, strings.Contains(queue[0], "[\"request_header:abc\","), "request_header:abc not removed")
+	assert.Equal(t, false, strings.Contains(queue[0], "[\"response_body\","), "response_body not removed")
+}
+
 // test uses remove if rules
+
+func TestUsesRemoveIfRules(t *testing.T) {
+    helper := GetTestHelper()
+
+    request := helper.MockRequestWithJson2()
+    mockResponse := helper.MockResponseWithHtml()
+
+    request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
+    mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+    mockResponse.Request = request
+
+    queue := make([]string, 0)
+    logger := NewHttpLoggerQueueRules(queue, "!response_header:blahblahblah! remove_if !.*!")
+    httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+    assert.Equal(t, 1, len(queue), "length of queue is not 1")
+
+    queue = make([]string, 0)
+    logger = NewHttpLoggerQueueRules(queue, "!.*! remove_if !.*!")
+    httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+    assert.Equal(t, 0, len(queue), "queue is not empty")
+
+    queue = make([]string, 0)
+    logger = NewHttpLoggerQueueRules(queue, "!request_body! remove_if !.*!")
+    httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+    assert.Equal(t, 1, len(queue), "queue length is not 1")
+    assert.Equal(t, false, strings.Contains(queue[0], "[\"request_body\","), "request_body not removed")
+    assert.Equal(t, true, strings.Contains(queue[0], "[\"response_body\","), "response_body not found")
+
+    queue = make([]string, 0)
+    logger = NewHttpLoggerQueueRules(queue, "!response_body! remove_if !.*!")
+    httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+    assert.Equal(t, 1, len(queue), "queue length is not 1")
+    assert.Equal(t, true, strings.Contains(queue[0], "[\"request_body\","), "request_body not found")
+    assert.Equal(t, false, strings.Contains(queue[0], "[\"response_body\","), "response_body not removed")
+
+    queue = make([]string, 0)
+    logger = NewHttpLoggerQueueRules(queue, "!response_body|request_body! remove_if !.*World.*!") //mock response should contain "World" and therefore be removed
+    httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+    assert.Equal(t, 1, len(queue), "queue length is not 1")
+    assert.Equal(t, true, strings.Contains(queue[0], "[\"request_body\","), "request_body not found")
+    assert.Equal(t, false, strings.Contains(queue[0], "[\"response_body\","), "response_body not removed")
+
+    queue = make([]string, 0)
+    logger = NewHttpLoggerQueueRules(queue, "!response_body|request_body! remove_if !.*blahblahblah.*!")
+    httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+    assert.Equal(t, 1, len(queue), "queue length is not 1")
+    assert.Equal(t, true, strings.Contains(queue[0], "[\"request_body\","), "request_body not found")
+    assert.Equal(t, true, strings.Contains(queue[0], "[\"response_body\","), "response_body not found")
+
+    queue = make([]string, 0)
+    logger = NewHttpLoggerQueueRules(queue, "!request_body! remove_if !.*!\n!response_body! remove_if !.*!")
+    httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+    assert.Equal(t, 1, len(queue), "queue length is not 1")
+    assert.Equal(t, false, strings.Contains(queue[0], "[\"request_body\","), "request_body not removed")
+    assert.Equal(t, false, strings.Contains(queue[0], "[\"response_body\","), "response_body not removed")
+}
 
 // test uses remove if found rules
 
+func TestUsesRemoveIfFoundRules(t *testing.T) {
+    helper := GetTestHelper()
+
+    request := helper.MockRequestWithJson2()
+    mockResponse := helper.MockResponseWithHtml()
+
+    request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
+    mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+    mockResponse.Request = request
+
+    queue := make([]string, 0)
+    logger := NewHttpLoggerQueueRules(queue, "!response_header:blahblahblah! remove_if_found !.*!")
+    httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+    assert.Equal(t, 1, len(queue), "queue length is not 1")
+
+    queue = make([]string, 0)
+    logger = NewHttpLoggerQueueRules(queue, "!.*! remove_if_found !.*!")
+    httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+    assert.Equal(t, 0, len(queue), "queue is not empty")
+
+    queue = make([]string, 0)
+    logger = NewHttpLoggerQueueRules(queue, "!request_body! remove_if_found !.*!")
+    httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+    assert.Equal(t, 1, len(queue), "queue length is not 1")
+    assert.Equal(t, false, strings.Contains(queue[0], "[\"request_body\","), "request_body not removed")
+    assert.Equal(t, true, strings.Contains(queue[0], "[\"response_body\","), "response_body not found")
+
+    queue = make([]string, 0)
+    logger = NewHttpLoggerQueueRules(queue, "!response_body! remove_if_found !.*!")
+    httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+    assert.Equal(t, 1, len(queue), "queue length is not 1")
+    assert.Equal(t, true, strings.Contains(queue[0], "[\"request_body\","), "request_body not found")
+    assert.Equal(t, false, strings.Contains(queue[0], "[\"response_body\","), "response_body not removed")
+
+    queue = make([]string, 0)
+    logger = NewHttpLoggerQueueRules(queue, "!response_body|request_body! remove_if_found !World!") //mock response should contain "World" and should therefore be removed
+    httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+    assert.Equal(t, 1, len(queue), "queue length is not 1")
+    assert.Equal(t, true, strings.Contains(queue[0], "[\"request_body\","), "request_body not found")
+    assert.Equal(t, false, strings.Contains(queue[0], "[\"response_body\","), "response_body not removed")
+
+    queue = make([]string, 0)
+    logger = NewHttpLoggerQueueRules(queue, "!response_body|request_body! remove_if_found !.*World.*!") //mock response should contain "World" and should therefore be removed
+    httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+    assert.Equal(t, 1, len(queue), "queue length is not 1")
+    assert.Equal(t, true, strings.Contains(queue[0], "[\"request_body\","), "request_body not found")
+    assert.Equal(t, false, strings.Contains(queue[0], "[\"response_body\","), "response_body not removed")
+
+    queue = make([]string, 0)
+    logger = NewHttpLoggerQueueRules(queue, "!response_body|request_body! remove_if_found !blahblahblah!")
+    httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+    assert.Equal(t, 1, len(queue), "queue length is not 1")
+    assert.Equal(t, true, strings.Contains(queue[0], "[\"request_body\","), "request_body not found")
+    assert.Equal(t, true, strings.Contains(queue[0], "[\"response_body\","), "response_body not found")
+}
+
 // test uses remove unless rules
+
+func TestUsesRemoveUnlessRules(t *testing.T) {
+    helper := GetTestHelper()
+
+    request := helper.MockRequestWithJson2()
+    mockResponse := helper.MockResponseWithHtml()
+
+    request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
+    mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+    mockResponse.Request = request
+
+    queue := make([]string, 0)
+    logger := NewHttpLoggerQueueRules(queue, "!response_header:blahblahblah! remove_unless !.*!")
+    httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+    assert.Equal(t, 1, len(queue), "queue length is not 1")
+
+    queue = make([]string, 0)
+    logger = NewHttpLoggerQueueRules(queue, "!.*! remove_unless !.*blahblahblah.*!")
+    httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+    assert.Equal(t, 0, len(queue), "queue is not empty")
+
+    queue = make([]string, 0)
+    logger = NewHttpLoggerQueueRules(queue, "!request_body! remove_unless !.*blahblahblah.*!")
+    httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+    assert.Equal(t, 1, len(queue), "queue length is not 1")
+    assert.Equal(t, false, strings.Contains(queue[0], "[\"request_body\","), "request_body not removed")
+    assert.Equal(t, true, strings.Contains(queue[0], "[\"response_body\","), "response_body not found")
+
+    queue = make([]string, 0)
+    logger = NewHttpLoggerQueueRules(queue, "!response_body! remove_unless !.*blahblahblah.*!")
+    httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+    assert.Equal(t, 1, len(queue), "queue length is not 1")
+    assert.Equal(t, true, strings.Contains(queue[0], "[\"request_body\","), "request_body not found")
+    assert.Equal(t, false, strings.Contains(queue[0], "[\"response_body\","), "response_body not removed")
+
+    queue = make([]string, 0)
+    logger = NewHttpLoggerQueueRules(queue, "!response_body|request_body! remove_unless !.*World.*!") //mock response should contain "World" and therefore should not be removed
+    httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+    assert.Equal(t, 1, len(queue), "queue length is not 1")
+    assert.Equal(t, false, strings.Contains(queue[0], "[\"request_body\","), "request_body not removed")
+    assert.Equal(t, true, strings.Contains(queue[0], "[\"response_body\","), "response_body not found")
+
+    queue = make([]string, 0)
+    logger = NewHttpLoggerQueueRules(queue, "!response_body|request_body! remove_unless !.*!")
+    httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+    assert.Equal(t, 1, len(queue), "queue length is not 1")
+    assert.Equal(t, true, strings.Contains(queue[0], "[\"request_body\","), "request_body not found")
+    assert.Equal(t, true, strings.Contains(queue[0], "[\"response_body\","), "response_body not found")
+
+    queue = make([]string, 0)
+    logger = NewHttpLoggerQueueRules(queue, "!response_body! remove_unless !.*!\n!request_body! remove_unless !.*!")
+    httpMessage.sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
+    assert.Equal(t, 1, len(queue), "queue length is not 1")
+    assert.Equal(t, true, strings.Contains(queue[0], "[\"request_body\","), "request_body not found")
+    assert.Equal(t, true, strings.Contains(queue[0], "[\"response_body\","), "response_body not found")
+}
 
 // test uses remove unless found rules
 
