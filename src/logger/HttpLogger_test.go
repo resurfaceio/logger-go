@@ -26,10 +26,19 @@ func TestCreateMultipleInstances(t *testing.T) {
 	url1 := "https://resurface.io"
 	url2 := "https://whatever.com"
 	helper := GetTestHelper()
+	options1 := Options{
+		url := url1
+	}
+	options2 := Options{
+		url := url2
+	}
+	options3 := Options{
+		url := helper.demoURL
+	}
 
-	logger1 := NewHttpLogger(url1)
-	logger2 := NewHttpLogger(url2)
-	logger3 := NewHttpLogger(helper.demoURL)
+	logger1 := NewHttpLogger(options1)
+	logger2 := NewHttpLogger(options2)
+	logger3 := NewHttpLogger(options3)
 
 	//Logger 1
 	assert.NotNil(t, logger1)
