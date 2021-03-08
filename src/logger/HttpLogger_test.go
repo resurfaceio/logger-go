@@ -27,9 +27,9 @@ func TestCreateMultipleInstances(t *testing.T) {
 	url2 := "https://whatever.com"
 	helper := GetTestHelper()
 
-	logger1 := NewHttpLoggerUrl(url1)
-	logger2 := NewHttpLoggerUrl(url2)
-	logger3 := NewHttpLoggerUrl(helper.demoURL)
+	logger1 := NewHttpLogger(url1)
+	logger2 := NewHttpLogger(url2)
+	logger3 := NewHttpLogger(helper.demoURL)
 
 	//Logger 1
 	assert.NotNil(t, logger1)
