@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -78,13 +79,26 @@ func TestLogsHead(t *testing.T) {
 	assert.NotEqual(t, true, strings.Contains(queue[0], "request_body"))
 	assert.NotEqual(t, true, strings.Contains(queue[0], "request_header"))
 	assert.NotEqual(t, true, strings.Contains(queue[0], "request_param"))
-
 }
 
 func TestLogsPostForm(t *testing.T) {
-	netLogger := NewNetHttpClientLogger(nil)
+	queue := make([]string, 0)
+	options := Options{
+		queue := queue,
+	}
+	netLogger := NewNetHttpClientLogger(options)
 	helper := GetTestHelper()
-	resp, err := netLogger.PostForm(helper.demoURL /*data url.values*/)
-	fmt.Println(resp)
-	fmt.Println(err)
+	form := url.Values{}
+	form.Add(helper.mockFormData)
+
+	resp, err := netLogger.PostForm(helper.demoURL,)
+
+	assert.True(t, parsable(resp))
+	assert.Equal(t,true,strings.Contains(queue[0],"[\"request_header:content-type\",\"application/x-www-form-urlencoded\"]"))
+	assert.Equal(t,true,strings.Contains(queue[0],"[\"request_method\",\"POST\"]"))
+	//Not sure where postform data is held in the param message or within the url
+	assert.Equal(t,true,strings.Contains(queue[0],"[\"request_param:message\",\""+helper.mockFormData+"\"]"))
+	assert.Equal(t,true,strings.Contains(queue[0],"[\"request_url\",\""+helper.mockURL+"?"+helper.mockFormData+"\"]"))
+	assert.Equal(t,true,strings.Contains(queue[0],"[\"response_code\",\"200\"]"))
+	assert.Equal(t,true,strings.Contains(queue[0],"[\"response_header:content-type\",\"application/json; charset=utf-8\"]"))
 }
