@@ -71,7 +71,7 @@ func TestHasValidAgent(t *testing.T) {
 	//Has Valid Agent Test
 	httpLogger := NewHttpLogger()
 
-	agent := httpLogger.mockAgent
+	agent := HttpLogger.agent
 	assert.Greater(t, len(agent), 0)
 	assert.Equal(t, ".go", agent[len(agent)-3:])
 	assert.NotContains(t, agent, "\\")
