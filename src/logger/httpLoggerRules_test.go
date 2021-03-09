@@ -650,12 +650,12 @@ func TestUsesSampleRules(t *testing.T) {
 	
 	queue := make([]string, 0)
 
-	logger, err := NewHttpLoggerQueueRules(queue, "sample 10\nsample 99")
-	if err != nil {
-		assert.Equal(t, "Multiple sample rules", err.message, "multiple sample rule error not correct") //This is what I came up with as Go has no Try & Catch functionality for errors
-	}
+	logger := NewHttpLoggerQueueRules(queue, "sample 10\nsample 99")
+	// if err != nil {
+	// 	assert.Equal(t, "Multiple sample rules", err.message, "multiple sample rule error not correct") //This is what I came up with as Go has no Try & Catch functionality for errors
+	// }
 	
-	logger, _ = NewHttpLoggerQueueRules(queue, "sample 10")
+	logger = NewHttpLoggerQueueRules(queue, "sample 10")
 	for (i := 1; i <= 100; i++) {
 		sendNetHttpRequestResponseMessage(logger, mockResponse, 0, 0)
 	}
