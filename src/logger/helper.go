@@ -71,6 +71,9 @@ func (h *Helper) MockPostFormRequest() {
 	return *request
 }
 
+// create a stuct that will mirror the data we want to parse
+// https://www.sohamkamani.com/golang/parsing-json/
+
 func parseable(var msg string){
 	if msg := nil || !msg.HasPrefix("[") || !msg.HasSuffix("]")
 	|| msg.Contains("[]") || (msg.Contains(",,"))
@@ -80,7 +83,7 @@ func parseable(var msg string){
 
 	var holder map[string]interface{}
 
-	if err := json.Unmarshal(msg, &holder); err == nil {
+	if err := json.Unmarshal(byte[](msg), &holder); err == nil {
 		return true
 	}else{
 		return false
