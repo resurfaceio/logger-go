@@ -7,7 +7,10 @@ import (
 )
 
 func TestProvidesDefaultUrl(t *testing.T) {
-	uLogger := GetUsageLoggers()
+	uLogger, error := GetUsageLoggers()
+	if error != nil {
+		assert.Falsef(t, true, "GetUsageLoggers failed: %s", error.Error())
+	}
 	//compare to empty string because there is no nil string in go
 	assert.Equal(t, "", uLogger.UrlByDefault())
 }
