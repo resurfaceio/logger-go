@@ -25,6 +25,7 @@ func TestLogsGet(t *testing.T) {
 	assert.True(t, helper.parsable(resp))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_method\",\"GET\"]"))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_url\",\""+helper.demoURL+"\"]"))
+	//Dependding on what the get actually gets this could change the response body
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"response_body\",\""+helper.mockHTML+"\"]"))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"response_code\",\"200\"]"))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"response_header:a\",\"Z\"]"))
@@ -45,13 +46,13 @@ func TestLogsPost(t *testing.T) {
 	netLogger := NewNetHttpClientLogger(options)
 	helper := GetTestHelper()
 
-	resp, err := netLogger.Post(helper.demoURL, "text/html" /*Need IO reader format for body*/)
+	resp, err := netLogger.Post(helper.demoURL, "text/html", bytes.NewBuffer([]byte(helper.mockJSON)))
 
 	assert.True(t, parsable(resp))
 	assert.Equal(t,true,strings.Contains(queue[0],"[\"request_header:content-type\",\"Application/JSON\"]"))
 	assert.Equal(t,true,strings.Contains(queue[0],"[\"request_method\",\"POST\"]"))
 	assert.Equal(t,true,strings.Contains(queue[0],"[\"request_param:message\",\""+helper.mockJSONescaped+"\"]"))
-	assert.Equal(t,true,strings.Contains(queue[0],"[\"request_url\",\""+helper.mockURL+"?"+helper.mockQueryString+"\"]"))
+	assert.Equal(t,true,strings.Contains(queue[0],"[\"request_url\",\""+helper.demoURL+"?"+helper.mockJSON+"\"]"))
 	assert.Equal(t,true,strings.Contains(queue[0],"[\"response_body\",\""+helper.mockJSONescaped+"\"]"))
 	assert.Equal(t,true,strings.Contains(queue[0],"[\"response_code\",\"200\"]"))
 	assert.Equal(t,true,strings.Contains(queue[0],"[\"response_header:content-type\",\"application/json; charset=utf-8\"]"))
@@ -91,14 +92,14 @@ func TestLogsPostForm(t *testing.T) {
 	form := url.Values{}
 	form.Add(helper.mockFormData)
 
-	resp, err := netLogger.PostForm(helper.demoURL,)
+	resp, err := netLogger.PostForm(helper.demoURL, "text/html",bytes.NewBuffer([]byte(helper.mockFormData)))
 
 	assert.True(t, parsable(resp))
 	assert.Equal(t,true,strings.Contains(queue[0],"[\"request_header:content-type\",\"application/x-www-form-urlencoded\"]"))
 	assert.Equal(t,true,strings.Contains(queue[0],"[\"request_method\",\"POST\"]"))
-	//Not sure where postform data is held in the param message or within the url
+	//Not sure where postform data is held in the param message or within the url. Will have to wait to see exactly
 	assert.Equal(t,true,strings.Contains(queue[0],"[\"request_param:message\",\""+helper.mockFormData+"\"]"))
-	assert.Equal(t,true,strings.Contains(queue[0],"[\"request_url\",\""+helper.mockURL+"?"+helper.mockFormData+"\"]"))
+	assert.Equal(t,true,strings.Contains(queue[0],"[\"request_url\",\""+helper.demoURL+"?"+helper.mockFormData+"\"]"))
 	assert.Equal(t,true,strings.Contains(queue[0],"[\"response_code\",\"200\"]"))
 	assert.Equal(t,true,strings.Contains(queue[0],"[\"response_header:content-type\",\"application/json; charset=utf-8\"]"))
 }
