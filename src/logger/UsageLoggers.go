@@ -38,28 +38,29 @@ func GetUsageLoggers() (*UsageLoggers, error) {
 /**
 * Enable all usage loggers, except those explicitly disabled.
  */
-func (obj UsageLoggers) Enable() {
-	obj.disabled = !obj.bricked
+func (uLogger UsageLoggers) Enable() {
+	if !uLogger.bricked {
+		uLogger.disabled = false
+	}
 }
 
 /**
 * Disable all usage loggers.
  */
-func (obj UsageLoggers) Disable() {
-	obj.disabled = true
+func (uLogger UsageLoggers) Disable() {
+	uLogger.disabled = true
 }
 
 /**
 * Returns true if usage loggers are generally enabled.
  */
-func (obj UsageLoggers) IsEnabled() bool {
-	return !obj.disabled
+func (uLogger UsageLoggers) IsEnabled() bool {
+	return !uLogger.disabled
 }
 
 /**
 * Returns url to use by default.
  */
-func (obj UsageLoggers) UrlByDefault() (string, bool) {
-	url, lookupSuccess := os.LookupEnv("USAGE_LOGGERS_URL")
-	return url, lookupSuccess
-}
+func (uLogger UsageLoggers) UrlByDefault() string {
+	url := os.Getenv("USAGE_LOGGERS_URL")
+	return url
