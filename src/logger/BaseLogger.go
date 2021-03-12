@@ -75,13 +75,13 @@ func (logger BaseLogger) Submit(msg string) {
 		submitRequest := http.Request{}
 		submitRequest.Method = "POST"
 		submitRequest.URL = logger.urlParsed
+		// attach msg to request
 		submitRequest.Header.Set("Content-Type", "application/json; charset=UTF-8")
 		submitRequest.Header.Set("User-Agent", "Resurface/"+logger.version+" ("+logger.agent+")")
 
 		if !logger.skipCompression {
 			submitRequest.Header.Set("Content-Encoding", "deflated")
-		} else {
-			// skip request/body compression
+			// deflate method on the msg
 		}
 
 		submitResponse, err := http.DefaultClient.Do(&submitRequest)
