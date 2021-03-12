@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 )
 
-type options struct {
+type Options struct {
 	rules   string
 	agent   string
 	url     string
@@ -66,7 +66,6 @@ func (logger BaseLogger) Disable() {
  */
 func (logger BaseLogger) Submit(msg string) {
 	//woah congrats you submitted the message
-	//TODO: implement submit func
 	if msg == "" || logger.SkipSubmission() || !logger.Enabled() {
 		//do nothing
 	} else if logger.queue != nil {
@@ -81,10 +80,8 @@ func (logger BaseLogger) Submit(msg string) {
 
 		if !logger.skipCompression {
 			submitRequest.Header.Set("Content-Encoding", "deflated")
-		}
-
-		if logger.SkipCompression() {
-			submitRequest.Header.Set("Content-Encoding", "deflated")
+		} else {
+			// skip request/body compression
 		}
 
 		submitResponse, err := http.DefaultClient.Do(&submitRequest)
@@ -105,8 +102,8 @@ func (logger BaseLogger) Submit(msg string) {
  * These are utility functions that can be static if this wasn't Go
  */
 func hostLookup() string {
-	dyno := os.Getenv("DYNO")
-	if dyno != "" {
+	dyno, dynoIsPresent := os.LookupEnv("DYNO")
+	if dynoIsPresent && dyno != "" {
 		return dyno
 	}
 
@@ -117,6 +114,7 @@ func hostLookup() string {
 
 	return hostName
 }
+
 func versionLookup() string { return "1.0.0" }
 
 func (logger *BaseLogger) Agent() string          { return logger.agent }
