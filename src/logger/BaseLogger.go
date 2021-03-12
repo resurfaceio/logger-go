@@ -5,6 +5,14 @@ import (
 	"sync/atomic"
 )
 
+type Options struct {
+	rules   string
+	agent   string
+	url     string
+	enabled bool
+	queue   []string
+}
+
 /**
  * Initialize enabled logger using default url.
  */
