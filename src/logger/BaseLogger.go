@@ -1,6 +1,8 @@
 package logger
 
 import (
+	"bytes"
+	"compress/zlib"
 	"net/http"
 	"net/url"
 	"os"
@@ -72,16 +74,24 @@ func (logger BaseLogger) Submit(msg string) {
 		logger.queue = append(logger.queue, msg)
 		atomic.AddInt64(&logger.submitSuccesses, 1)
 	} else {
-		submitRequest := http.Request{}
-		submitRequest.Method = "POST"
-		submitRequest.URL = logger.urlParsed
-		// attach msg to request
+		// not 100% sure this works (needs testing)
+		submitRequest := http.NewRequest("POST", logger.url, bytes.NewBuffer([]byte(msg)))
+
+		// submitRequest.Method = "POST"
+		// submitRequest.URL = logger.urlParsed
+
 		submitRequest.Header.Set("Content-Type", "application/json; charset=UTF-8")
 		submitRequest.Header.Set("User-Agent", "Resurface/"+logger.version+" ("+logger.agent+")")
 
 		if !logger.skipCompression {
 			submitRequest.Header.Set("Content-Encoding", "deflated")
-			// deflate method on the msg
+
+			var b bytes.Buffer
+			w := zlib.NewWriter(&b)
+			w.Write([]byte(msg))
+			w.Close()
+
+			submitRequest.Write(w)
 		}
 
 		submitResponse, err := http.DefaultClient.Do(&submitRequest)
