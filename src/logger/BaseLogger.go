@@ -2,7 +2,8 @@ package logger
 
 import (
 	"bytes"
-	"compress/zlib"
+	"compress/flate"
+	"fmt"
 	"net/http"
 	"net/url"
 	"os"
@@ -87,7 +88,10 @@ func (logger BaseLogger) Submit(msg string) {
 			submitRequest.Header.Set("Content-Encoding", "deflated")
 
 			var b bytes.Buffer
-			w := zlib.NewWriter(&b)
+			w, err := flate.NewWriter(&b, 0)
+			if err != nil {
+				fmt.Errorf("Error applying deflate compression to message: ", err.Error())
+			}
 			w.Write([]byte(msg))
 			w.Close()
 
