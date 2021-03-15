@@ -4,14 +4,6 @@ import (
 	"strings"
 )
 
-type loggerOptions struct {
-	rules   string
-	agent   string
-	url     string
-	enabled bool
-	queue   []string
-}
-
 const loggerAgent string = "HttpLogger.go"
 
 //base HttpLogger definition
