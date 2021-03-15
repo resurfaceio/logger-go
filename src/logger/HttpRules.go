@@ -21,12 +21,37 @@ type HttpRules struct{
 	DEFAULT_RULES	string
 }
 
-func newHttpRules() HttpRules{
-	return 
+func newHttpRules(string rules) HttpRules{
+	if(rules == null){
+		rules = HttpRules.getDefaultRules()
+	}
+
+	//load rules from external files
+	if(rules[0:6] == "file://"){
+		string rfile = rules[0:6]
+		//try to read rules from file
+	}
+
+	//force default rules if necessary
+	strings.Replace(rules, "(?m)^\\s*include default\\s*$", /*Not sure exactly what its trying to replace it with*/)
+	if(len(strings.Trimspace(rules)) == 0){
+		rules = HttpRules.getDefaultRules
+	}
+
+	//expand rule includes
+	strings.Replace(rules, "(?m)^\\s*include debug\\s*$", )
+	strings.Replace(rules, "(?m)^\\s*include standard\\s*$", )
+	strings.Replace(rules, "(?m)^\\s*include strict\\s*$", )
+
+	// parse all rules
+	// Not sure about this part
+
+	// break out rules by verb
+	// Not sure either but may need to add to the struct created at the top
 }
 
 func (HttpRules) getDefaultRules() string{
-	rreturn HttpRules.DEFAULT_RULES;
+	return HttpRules.DEFAULT_RULES
 }
 
 func (HttpRules) setDefaultRules(string r){
@@ -46,5 +71,7 @@ func (HttpRules) getStrictRules() string{
 }
 
 func parseRule(string r) HttpRule{
-	
+
+	//https://www.geeksforgeeks.org/matching-using-regexp-in-golang/
+
 }
