@@ -20,8 +20,10 @@ type Options struct {
 
 // BaseLogger constructor
 func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *BaseLogger {
+	usageLoggers, _ := GetUsageLoggers()
+
 	if _url == "" {
-		_url = UsageLoggers.urlByDefault()
+		_url = usageLoggers.UrlByDefault()
 		if _url == "" {
 			_enabled = false
 		}
@@ -75,8 +77,8 @@ func (logger BaseLogger) Submit(msg string) {
 		logger.queue = append(logger.queue, msg)
 		atomic.AddInt64(&logger.submitSuccesses, 1)
 	} else {
-		// not 100% sure this works (needs testing)
-		submitRequest := http.NewRequest("POST", logger.url, bytes.NewBuffer([]byte(msg)))
+		// not 100% sure this works (needs testing) and should add some error handling
+		submitRequest, err := http.NewRequest("POST", logger.url, bytes.NewBuffer([]byte(msg)))
 
 		// submitRequest.Method = "POST"
 		// submitRequest.URL = logger.urlParsed
@@ -98,7 +100,7 @@ func (logger BaseLogger) Submit(msg string) {
 			submitRequest.Write(w)
 		}
 
-		submitResponse, err := http.DefaultClient.Do(&submitRequest)
+		submitResponse, err := http.DefaultClient.Do(submitRequest)
 		if err != nil {
 			atomic.AddInt64(&logger.submitFailures, 1)
 		}
@@ -131,9 +133,12 @@ func hostLookup() string {
 
 func versionLookup() string { return "1.0.0" }
 
-func (logger *BaseLogger) Agent() string          { return logger.agent }
-func (logger *BaseLogger) Enableable() bool       { return logger.enableable }
-func (logger *BaseLogger) Enabled() bool          { return logger.enabled }
+func (logger *BaseLogger) Agent() string    { return logger.agent }
+func (logger *BaseLogger) Enableable() bool { return logger.enableable }
+func (logger *BaseLogger) Enabled() bool {
+	usageLoggers, _ := GetUsageLoggers()
+	return logger.enabled && usageLoggers.IsEnabled()
+}
 func (logger *BaseLogger) Host() string           { return logger.host }
 func (logger *BaseLogger) Queue() []string        { return logger.queue }
 func (logger *BaseLogger) SkipCompression() bool  { return logger.skipCompression }
