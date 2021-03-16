@@ -1,7 +1,12 @@
 package logger
 
 import (
+	"bytes"
+	"compress/flate"
+	"fmt"
+	"net/http"
 	"net/url"
+	"os"
 	"sync/atomic"
 )
 
@@ -13,47 +18,12 @@ type Options struct {
 	queue   []string
 }
 
-/**
- * Initialize enabled logger using default url.
- */
-func NewBaseLoggerAgent(_agent string) *BaseLogger {
-	return NewBaseLogger(_agent, UsageLoggers.urlByDefault(), true, nil)
-}
-
-/**
- * Initialize enabled/disabled logger using default url.
- */
-func NewBaseLoggerAgentEnabled(_agent string, _enabled bool) *BaseLogger {
-	return NewBaseLogger(_agent, UsageLoggers.urlByDefault(), _enabled, nil)
-}
-
-/**
- * Initialize enabled logger using url.
- */
-func NewBaseLoggerAgentUrl(_agent string, _url string) *BaseLogger {
-	return NewBaseLogger(_agent, _url, true, nil)
-}
-
-/**
- * Initialize enabled logger using queue.
- */
-func NewBaseLoggerAgentQueue(_agent string, _queue []string) *BaseLogger {
-	return NewBaseLogger(_agent, UsageLoggers.urlByDefault(), true, _queue)
-}
-
-/**
-* Initialize enabled/disabled logger using queue.
- */
-func NewBaseLoggerAgentQueueEnabled(_agent string, _queue []string, _enabled bool) *BaseLogger {
-	return NewBaseLogger(_agent, UsageLoggers.urlByDefault(), _enabled, _queue)
-}
-
-//main constructor
+// BaseLogger constructor
 func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *BaseLogger {
+	usageLoggers, _ := GetUsageLoggers()
 
-	//I believe comparing with an empty string should be the same as comparing with nil
 	if _url == "" {
-		_url = UsageLoggers.urlByDefault()
+		_url = usageLoggers.UrlByDefault()
 		if _url == "" {
 			_enabled = false
 		}
@@ -70,6 +40,7 @@ func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *
 			_enabled = false
 		}
 	}
+
 	_enableable := (_url != "")
 
 	constructedBaseLogger := &BaseLogger{
@@ -87,39 +58,58 @@ func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *
 	return constructedBaseLogger
 }
 
-func (obj BaseLogger) Enable() {
-	obj.enabled = true
+func (logger BaseLogger) Enable() {
+	logger.enabled = true
 }
 
-func (obj BaseLogger) Disable() {
-	obj.enabled = false
+func (logger BaseLogger) Disable() {
+	logger.enabled = false
 }
 
 /**
  * Submits JSON message to intended destination.
  */
-func (obj BaseLogger) Submit(msg string) {
+func (logger BaseLogger) Submit(msg string) {
 	//woah congrats you submitted the message
-	//TODO: implement submit func
-	if msg == "" || obj.SkipSubmission() || !obj.Enabled() {
+	if msg == "" || logger.SkipSubmission() || !logger.Enabled() {
 		//do nothing
-	} else if obj.queue != nil {
-		obj.queue.add(msg)
-		obj.submitSuccesses.increment()
+	} else if logger.queue != nil {
+		logger.queue = append(logger.queue, msg)
+		atomic.AddInt64(&logger.submitSuccesses, 1)
 	} else {
-		// HttpURLConnection url_connection = (HttpURLConnection) this.url_parsed.openConnection();
-		// url_connection.setConnectTimeout(5000);
-		// url_connection.setReadTimeout(1000);
-		// url_connection.setRequestMethod("POST");
-		// url_connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-		// url_connection.setRequestProperty("User-Agent", "Resurface/" + version + " (" + agent + ")");
-		// url_connection.setDoOutput(true);
-		if obj.SkipCompression() {
-			url_connection.setRequestProperty("Content-Encoding", "deflated")
-		} else {
+		// not 100% sure this works (needs testing) and should add some error handling
+		submitRequest, err := http.NewRequest("POST", logger.url, bytes.NewBuffer([]byte(msg)))
 
+		// submitRequest.Method = "POST"
+		// submitRequest.URL = logger.urlParsed
+
+		submitRequest.Header.Set("Content-Type", "application/json; charset=UTF-8")
+		submitRequest.Header.Set("User-Agent", "Resurface/"+logger.version+" ("+logger.agent+")")
+
+		if !logger.skipCompression {
+			submitRequest.Header.Set("Content-Encoding", "deflated")
+
+			var b bytes.Buffer
+			w, err := flate.NewWriter(&b, 0)
+			if err != nil {
+				fmt.Errorf("Error applying deflate compression to message: ", err.Error())
+			}
+			w.Write([]byte(msg))
+			w.Close()
+
+			submitRequest.Write(w)
 		}
 
+		submitResponse, err := http.DefaultClient.Do(submitRequest)
+		if err != nil {
+			atomic.AddInt64(&logger.submitFailures, 1)
+		}
+
+		if submitResponse.StatusCode == 204 {
+			atomic.AddInt64(&logger.submitSuccesses, 1)
+		} else {
+			atomic.AddInt64(&logger.submitFailures, 1)
+		}
 	}
 }
 
@@ -128,45 +118,54 @@ func (obj BaseLogger) Submit(msg string) {
  * These are utility functions that can be static if this wasn't Go
  */
 func hostLookup() string {
-	dyno := "this is what System.getenv(dyno) will return"
-	if dyno == "" {
+	dyno, dynoIsPresent := os.LookupEnv("DYNO")
+	if dynoIsPresent && dyno != "" {
 		return dyno
 	}
-	//TODO: implement try/catch style error return
-	//Implement whatever this host code is
-	return InetAddress.getLocalHost().getHostName()
-}
-func versionLookup() string { return "0.0.0.wehaventstartedityet" }
 
-func (obj BaseLogger) Agent() string         { return obj.agent }
-func (obj BaseLogger) Enableable() bool      { return obj.enableable }
-func (obj BaseLogger) Enabled() bool         { return obj.enabled }
-func (obj BaseLogger) Host() string          { return obj.host }
-func (obj BaseLogger) Queue() []string       { return obj.queue }
-func (obj BaseLogger) SkipCompression() bool { return obj.skipCompression }
-func (obj BaseLogger) SkipSubmission() bool  { return obj.skipSubmission }
-func (obj BaseLogger) SubmitFailures() int   { return obj.submitFailures }
-func (obj BaseLogger) SubmitSuccesses() int  { return obj.submitSuccesses }
-func (obj BaseLogger) Url() string           { return obj.url }
-func (obj BaseLogger) UrlParsed() *url.URL   { return obj.urlParsed }
-func (obj BaseLogger) Version() string       { return obj.version }
+	hostName, err := os.Hostname()
+	if err != nil {
+		return "unknown"
+	}
 
-func (obj BaseLogger) SetSkipCompression(_skipCompression bool) {
-	obj.skipCompression = _skipCompression
+	return hostName
 }
-func (obj BaseLogger) SetSkipSubmission(_skipSubmission bool) { obj.skipSubmission = _skipSubmission }
+
+func versionLookup() string { return "1.0.0" }
+
+func (logger *BaseLogger) Agent() string    { return logger.agent }
+func (logger *BaseLogger) Enableable() bool { return logger.enableable }
+func (logger *BaseLogger) Enabled() bool {
+	usageLoggers, _ := GetUsageLoggers()
+	return logger.enabled && usageLoggers.IsEnabled()
+}
+func (logger *BaseLogger) Host() string           { return logger.host }
+func (logger *BaseLogger) Queue() []string        { return logger.queue }
+func (logger *BaseLogger) SkipCompression() bool  { return logger.skipCompression }
+func (logger *BaseLogger) SkipSubmission() bool   { return logger.skipSubmission }
+func (logger *BaseLogger) SubmitFailures() int64  { return logger.submitFailures }
+func (logger *BaseLogger) SubmitSuccesses() int64 { return logger.submitSuccesses }
+func (logger *BaseLogger) Url() string            { return logger.url }
+func (logger *BaseLogger) UrlParsed() *url.URL    { return logger.urlParsed }
+func (logger *BaseLogger) Version() string        { return logger.version }
+
+func (logger BaseLogger) SetSkipCompression(_skipCompression bool) {
+	logger.skipCompression = _skipCompression
+}
+func (logger BaseLogger) SetSkipSubmission(_skipSubmission bool) {
+	logger.skipSubmission = _skipSubmission
+}
 
 type BaseLogger struct {
-	agent      string
-	enableable bool
-	enabled    bool
-	host       string
-	//easiest to implement a queue in go by using slices, need enqueue and dequque methods
+	agent           string
+	enableable      bool
+	enabled         bool
+	host            string
 	queue           []string
 	skipCompression bool
 	skipSubmission  bool
-	submitFailures  atomic.Value
-	submitSuccesses atomic.Value
+	submitFailures  int64
+	submitSuccesses int64
 	url             string
 	urlParsed       *url.URL
 	version         string
