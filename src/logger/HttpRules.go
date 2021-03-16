@@ -8,12 +8,6 @@ import (
 	"strings"
 )
 
-type HttpRule struct{
-	string verb
-	pattern scope
-	//not sure how to an object
-}
-
 type HttpRules struct{
 	DEBUG_RULES		string
 	STANDARD_RULES	string
