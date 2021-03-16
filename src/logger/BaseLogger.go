@@ -17,14 +17,14 @@ type Options struct {
  * Initialize enabled logger using default url.
  */
 func NewBaseLoggerAgent(_agent string) *BaseLogger {
-	return NewBaseLogger(_agent, UsageLoggers.urlByDefault(), true, nil)
+	return NewBaseLogger(_agent, UsageLoggers.UrlByDefault(), true, nil)
 }
 
 /**
  * Initialize enabled/disabled logger using default url.
  */
 func NewBaseLoggerAgentEnabled(_agent string, _enabled bool) *BaseLogger {
-	return NewBaseLogger(_agent, UsageLoggers.urlByDefault(), _enabled, nil)
+	return NewBaseLogger(_agent, UsageLoggers.UrlByDefault(), _enabled, nil)
 }
 
 /**
@@ -38,14 +38,14 @@ func NewBaseLoggerAgentUrl(_agent string, _url string) *BaseLogger {
  * Initialize enabled logger using queue.
  */
 func NewBaseLoggerAgentQueue(_agent string, _queue []string) *BaseLogger {
-	return NewBaseLogger(_agent, UsageLoggers.urlByDefault(), true, _queue)
+	return NewBaseLogger(_agent, UsageLoggers.UrlByDefault(), true, _queue)
 }
 
 /**
 * Initialize enabled/disabled logger using queue.
  */
 func NewBaseLoggerAgentQueueEnabled(_agent string, _queue []string, _enabled bool) *BaseLogger {
-	return NewBaseLogger(_agent, UsageLoggers.urlByDefault(), _enabled, _queue)
+	return NewBaseLogger(_agent, UsageLoggers.UrlByDefault(), _enabled, _queue)
 }
 
 //main constructor
@@ -53,7 +53,7 @@ func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *
 
 	//I believe comparing with an empty string should be the same as comparing with nil
 	if _url == "" {
-		_url = UsageLoggers.urlByDefault()
+		_url = UsageLoggers.UrlByDefault()
 		if _url == "" {
 			_enabled = false
 		}
