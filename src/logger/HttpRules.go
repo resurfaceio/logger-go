@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -185,15 +186,69 @@ func parseRule(r string) (*HttpRule, error) {
 	if regexCopySessionField.MatchString(r) {
 		return NewHttpRule("copy_session_field", nil, nil, nil), nil
 	}
-	m := regexRemove.FindStringSubmatch(r)
+	m := regexRemove.FindAllStringSubmatch(r, -1)
 	if m != nil {
-		return NewHttpRule("remove", parseRegex(r, m[1]), nil, nil), nil
+		return NewHttpRule("remove", parseRegex(r, m[0][1]), nil, nil), nil
 	}
-	m = regexRemoveIf.FindStringSubmatch(r)
+	m = regexRemoveIf.FindAllStringSubmatch(r, -1)
 	if m != nil {
-		return NewHttpRule("remove_if", parseRegex(r, m[1]), parseRegex(r, m[2]), nil), nil
+		return NewHttpRule("remove_if", parseRegex(r, m[0][1]), parseRegex(r, m[0][2]), nil), nil
 	}
-	m = regexRemoveIfFound.FindStringSubmatch(r)
+	m = regexRemoveIfFound.FindAllStringSubmatch(r, -1)
+	if m != nil {
+		return NewHttpRule("remove_if_found", parseRegex(r, m[0][1]), parseRegexFind(r, m[0][2]), nil), nil
+	}
+	m = regexRemoveUnless.FindAllStringSubmatch(r, -1)
+	if m != nil {
+		return NewHttpRule("remove_uless", parseRegex(r, m[0][1]), parseRegex(r, m[0][2]), nil), nil
+	}
+	m = regexRemoveUnlessFound.FindAllStringSubmatch(r, -1)
+	if m != nil {
+		return NewHttpRule("remove_uless_found", parseRegex(r, m[0][1]), parseRegexFind(r, m[0][2]), nil), nil
+	}
+	m = regexReplace.FindAllStringSubmatch(r, -1)
+	if m != nil {
+		return NewHttpRule("replace", parseRegex(r, m[0][1]), parseRegexFind(r, m[0][2]), parseString(r, m[0][3])), nil
+	}
+	m = regexSample.FindAllStringSubmatch(r, -1)
+	if m != nil {
+		m1, err := strconv.Atoi(m[0][1])
+		if err != nil {
+			return nil, errors.New(fmt.Sprintf("Error parsing sample rule: %s", r))
+		}
+		if m1 < 1 || m1 > 99 {
+			return nil, errors.New(fmt.Sprintf("Invalid sample percent: %d", m1))
+		}
+		return NewHttpRule("sample", nil, m1, nil), nil
+	}
+	m = regexSkipCompression.FindAllStringSubmatch(r, -1)
+	if m != nil {
+		return NewHttpRule("skip_compression", nil, nil, nil), nil
+	}
+	m = regexSkipSubmission.FindAllStringSubmatch(r, -1)
+	if m != nil {
+		return NewHttpRule("skip_submission", nil, nil, nil), nil
+	}
+	m = regexStop.FindAllStringSubmatch(r, -1)
+	if m != nil {
+		return NewHttpRule("stop", parseRegex(r, m[0][1]), nil, nil), nil
+	}
+	m = regexStopIf.FindAllStringSubmatch(r, -1)
+	if m != nil {
+		return NewHttpRule("stop_if", parseRegex(r, m[0][1]), parseRegex(r, m[0][2]), nil), nil
+	}
+	m = regexStopIfFound.FindAllStringSubmatch(r, -1)
+	if m != nil {
+		return NewHttpRule("stop_if_found", parseRegex(r, m[0][1]), parseRegexFind(r, m[0][2]), nil), nil
+	}
+	m = regexStopUnless.FindAllStringSubmatch(r, -1)
+	if m != nil {
+		return NewHttpRule("stop_unless", parseRegex(r, m[0][1]), parseRegex(r, m[0][2]), nil), nil
+	}
+	m = regexStopUnlessFound.FindAllStringSubmatch(r, -1)
+	if m != nil {
+		return NewHttpRule("stop_unless_found", parseRegex(r, m[0][1]), parseRegexFind(r, m[0][2]), nil), nil
+	}
 	return nil, errors.New(fmt.Sprintf("Invalid rule: %s", r))
 }
 
@@ -248,12 +303,6 @@ func parseString(r string, expr string) string /* error */ {
 }
 
 /*
- ALL REGEX STRINGS NEED TO BE COVERTED TO STRINGS THAT GO CAN COMPILE
-
- THESE vvvv DON'T WORK vvvv
-*/
-
-/*
 The following unexported Regexps should be treat as constants
 and remain unchanged throughout package usage
 */
@@ -275,10 +324,15 @@ var regexStopIfFound *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/
 var regexStopUnless *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*stop_unless\s+([~!%|\/].+[~!%|\/])\s*(#.*)?$`)
 var regexStopUnlessFound *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*stop_unless_found\s+([~!%|\/].+[~!%|\/])\s*(#.*)?$`)
 
+/*
+used in ruleFilter method to compare given rule string
+and a parse rule's verb
+*/
 func ruleCompare(ruleString string, s string) bool {
 	return ruleString == s
 }
 
+// filter a slice of HttpRules comparing a given rule string with an HttpRule's verb
 func ruleFilter(parsedRules []*HttpRule, ruleString string, cond func(string, string) bool) []*HttpRule {
 	result := []*HttpRule{}
 	for _, rule := range parsedRules {
