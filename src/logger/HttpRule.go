@@ -6,12 +6,12 @@ import (
 
 type HttpRule struct {
 	verb   string
-	scope  regexp.Regexp
+	scope  *regexp.Regexp
 	param1 interface{}
 	param2 interface{}
 }
 
-func NewHttpRule(_verb string, _scope regexp.Regexp,
+func NewHttpRule(_verb string, _scope *regexp.Regexp,
 	_param1 interface{}, _param2 interface{}) *HttpRule {
 	return &HttpRule{
 		verb:   _verb,
@@ -25,7 +25,7 @@ func (rule *HttpRule) Verb() string {
 	return rule.verb
 }
 
-func (rule *HttpRule) Scope() regexp.Regexp {
+func (rule *HttpRule) Scope() *regexp.Regexp {
 	return rule.scope
 }
 
