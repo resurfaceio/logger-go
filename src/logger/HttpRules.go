@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"regexp"
 	"strconv"
 	"strings"
@@ -523,8 +524,42 @@ func (rules *HttpRules) apply(details [][]string) [][]string {
 			}
 		}
 	}
-
 	passed := 0
+	for _, r := range rules.stopUnlessFound {
+		for _, d := range details {
+			regex := r.param1.(regexp.Regexp)
+			if r.scope.FindAllStringSubmatch(d[0], -1) != nil && regex.FindAllStringSubmatch(d[1], -1) != nil {
+				passed++
+			}
+		}
+	}
+	if passed != len(rules.stopUnlessFound) {
+		return nil
+	}
+	passed = 0
+	for _, r := range rules.stopUnless {
+		for _, d := range details {
+			regex := r.param1.(regexp.Regexp)
+			if r.scope.FindAllStringSubmatch(d[0], -1) != nil && regex.FindAllStringSubmatch(d[1], -1) != nil {
+				passed++
+			}
+		}
+	}
+	if passed != len(rules.stopUnlessFound) {
+		return nil
+	}
+
+	// do sampling if configured
+	if len(rules.sample) == 1 && rand.Intn(100) >= rules.sample[0].param1.(int) {
+		return nil
+	}
+
+	// winnow sensitive details based on remove rules if configured
+	// for _, r := range rules.remove {
+	// 	removeDetailIf(details, r.scope)
+	// }
+
+	return details
 }
 
 /*
@@ -566,4 +601,18 @@ func ruleFilter(parsedRules []*HttpRule, ruleString string, cond func(string, st
 		}
 	}
 	return result
+}
+
+// https://stackoverflow.com/questions/20545743/delete-entries-from-a-slice-while-iterating-over-it-in-go/20551116
+// remove detail form details slice if both regex patterns are matched
+func removeDetailIf(details [][]string, regex1 *regexp.Regexp, regex2 *regexp.Regexp) [][]string {
+	i := 0
+	for _, d := range details {
+		if regex1.FindAllStringSubmatch(d[0], -1) == nil && regex1.FindAllStringSubmatch(d[1], -1) == nil {
+			details[i] = d
+			i++
+		}
+	}
+	details = details[:i]
+	return details
 }
