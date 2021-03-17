@@ -153,47 +153,47 @@ func NewHttpRules(rules string) *HttpRules {
 }
 
 func (rules *HttpRules) getDefaultRules() string {
-	return HttpRules.defaultRules
+	return rules.defaultRules
 }
 
-func (rules *HttpRules) setDefaultRules(string r) {
+func (rules *HttpRules) setDefaultRules(r string) {
 	regex := regexp.MustCompile("(?m)^\\s*include default\\s*$")
 	rules.defaultRules = regex.ReplaceAllString(r, "")
 }
 
-func (HttpRules) getDebugRules() string {
-	return HttpRules.debugRules
+func (rules *HttpRules) getDebugRules() string {
+	return rules.debugRules
 }
 
-func (HttpRules) getStandardRules() string {
-	return HttpRules.standardRules
+func (rules *HttpRules) getStandardRules() string {
+	return rules.standardRules
 }
 
-func (HttpRules) getStrictRules() string {
-	return HttpRules.strictRules
+func (rules *HttpRules) getStrictRules() string {
+	return rules.strictRules
 }
 
 // parse rule from single line
 // !!! will return error eventually !!!
 func parseRule(r string) (*HttpRule, error) {
-	if r == "" || RegexBlankOrComment.MatchString(r) {
+	if r == "" || regexBlankOrComment.MatchString(r) {
 		return nil, errors.New("Blank rule or comment")
 	}
-	if RegexAllowHttpUrl.MatchString(r) {
+	if regexAllowHttpUrl.MatchString(r) {
 		return NewHttpRule("allow_http_url", nil, nil, nil), nil
 	}
-	if RegexCopySessionField.MatchString(r) {
+	if regexCopySessionField.MatchString(r) {
 		return NewHttpRule("copy_session_field", nil, nil, nil), nil
 	}
-	m := RegexRemove.FindStringSubmatch(r)
+	m := regexRemove.FindStringSubmatch(r)
 	if m != nil {
 		return NewHttpRule("remove", parseRegex(r, m[1]), nil, nil), nil
 	}
-	m = RegexRemoveIf.FindStringSubmatch(r)
+	m = regexRemoveIf.FindStringSubmatch(r)
 	if m != nil {
 		return NewHttpRule("remove_if", parseRegex(r, m[1]), parseRegex(r, m[2]), nil), nil
 	}
-
+	m = regexRemoveIfFound.FindStringSubmatch(r)
 	return nil, errors.New(fmt.Sprintf("Invalid rule: %s", r))
 }
 
@@ -215,6 +215,7 @@ func parseRegex(r string, regex string) *regexp.Regexp /* error */ {
 	if err != nil {
 		// return error '"Invalid regex (%s) in rule: %s", regex, r'
 	}
+	return regexp
 }
 
 // Parses regex for finding.
@@ -224,6 +225,7 @@ func parseRegexFind(r string, regex string) *regexp.Regexp /* error */ {
 	if err != nil {
 		// return error '"Invalid regex (%s) in rule: %s", regex, r'
 	}
+	return regexp
 }
 
 // Parses delimited string expression
@@ -232,15 +234,17 @@ func parseString(r string, expr string) string /* error */ {
 	separators := []string{"~", "!", "%", "|", "/"}
 	for _, sep := range separators {
 		regex := regexp.MustCompile(fmt.Sprintf("^[%s](.*)[%s]$", sep, sep))
-		matches := regex.FindAllString(expr)
-		if len(matches) > 0 {
+		m := regex.FindAllStringSubmatch(expr, -1)
+		if m != nil {
+			m1 := m[0][1]
 			regex = regexp.MustCompile(fmt.Sprintf("^[%s].*|.*[^\\\\][%s].*", sep, sep))
-			if regex.MatchString(matches[0]) {
+			if regex.MatchString(m1) {
 				// return error '"Unescaped separator (%s) in rule: %s", sep, r'
 			}
-			return strings.Replace(matches[0], "\\"+sep, sep, -1)
+			return strings.Replace(m1, "\\"+sep, sep, -1)
 		}
 	}
+	return "" /* error: '"Invalid expression (%s) in rule: %s", expr, r' */
 }
 
 /*
@@ -249,23 +253,27 @@ func parseString(r string, expr string) string /* error */ {
  THESE vvvv DON'T WORK vvvv
 */
 
-const RegexAllowHttpUrl *regexp.Regexp = regexp.MustCompile(`^\s*allow_http_url\s*(#.*)?$`)
-const RegexBlankOrComment *regexp.Regexp = regexp.MustCompile(`^\s*([#].*)*`)
-const RegexCopySessionField *regexp.Regexp = regexp.MustCompile(`^\s*copy_session_field\s+([~!%|\/].+[~!%|\/])\s*(#.*)?`)
-const RegexRemove *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*remove\s*(#.*)?`)
-const RegexRemoveIf *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*remove_if\s+([~!%|\/].+[~!%|\/])\s*(#.*)?`)
-const RegexRemoveIfFound *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*remove_if_found\s+([~!%|\/].+[~!%|\/])\s*(#.*)?$`)
-const RegexRemoveUnless *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*remove_unless\s+([~!%|\/].+[~!%|\/])\s*(#.*)?$`)
-const RegexRemoveUnlessFound *regexp.Regexp = regexp.MustCompile(`/^\s*([~!%|\/].+[~!%|\/])\s*remove_unless_found\s+([~!%|\/].+[~!%|\/])\s*(#.*)?$`)
-const RegexReplace *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*replace[\s]+([~!%|\/].+[~!%|\/]),[\s]+([~!%|\/].*[~!%|\/])\s*(#.*)?$`)
-const RegexSample *regexp.Regexp = regexp.MustCompile(`^\s*sample\s+(\d+)\s*(#.*)?$`)
-const RegexSkipCompression *regexp.Regexp = regexp.MustCompile(`^\s*skip_compression\s*(#.*)?$`)
-const RegexSkipSubmission *regexp.Regexp = regexp.MustCompile(`^\s*skip_submission\s*(#.*)?$`)
-const RegexStop *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*stop\s*(#.*)?$`)
-const RegexStopIf *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*stop_if\s+([~!%|\/].+[~!%|\/])\s*(#.*)?$`)
-const RegexStopIfFound *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*stop_if_found\s+([~!%|\/].+[~!%|\/])\s*(#.*)?$`)
-const RegexStopUnless *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*stop_unless\s+([~!%|\/].+[~!%|\/])\s*(#.*)?$`)
-const RegexStopUnlessFound *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*stop_unless_found\s+([~!%|\/].+[~!%|\/])\s*(#.*)?$`)
+/*
+The following unexported Regexps should be treat as constants
+and remain unchanged throughout package usage
+*/
+var regexAllowHttpUrl *regexp.Regexp = regexp.MustCompile(`^\s*allow_http_url\s*(#.*)?$`)
+var regexBlankOrComment *regexp.Regexp = regexp.MustCompile(`^\s*([#].*)*`)
+var regexCopySessionField *regexp.Regexp = regexp.MustCompile(`^\s*copy_session_field\s+([~!%|\/].+[~!%|\/])\s*(#.*)?`)
+var regexRemove *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*remove\s*(#.*)?`)
+var regexRemoveIf *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*remove_if\s+([~!%|\/].+[~!%|\/])\s*(#.*)?`)
+var regexRemoveIfFound *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*remove_if_found\s+([~!%|\/].+[~!%|\/])\s*(#.*)?$`)
+var regexRemoveUnless *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*remove_unless\s+([~!%|\/].+[~!%|\/])\s*(#.*)?$`)
+var regexRemoveUnlessFound *regexp.Regexp = regexp.MustCompile(`/^\s*([~!%|\/].+[~!%|\/])\s*remove_unless_found\s+([~!%|\/].+[~!%|\/])\s*(#.*)?$`)
+var regexReplace *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*replace[\s]+([~!%|\/].+[~!%|\/]),[\s]+([~!%|\/].*[~!%|\/])\s*(#.*)?$`)
+var regexSample *regexp.Regexp = regexp.MustCompile(`^\s*sample\s+(\d+)\s*(#.*)?$`)
+var regexSkipCompression *regexp.Regexp = regexp.MustCompile(`^\s*skip_compression\s*(#.*)?$`)
+var regexSkipSubmission *regexp.Regexp = regexp.MustCompile(`^\s*skip_submission\s*(#.*)?$`)
+var regexStop *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*stop\s*(#.*)?$`)
+var regexStopIf *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*stop_if\s+([~!%|\/].+[~!%|\/])\s*(#.*)?$`)
+var regexStopIfFound *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*stop_if_found\s+([~!%|\/].+[~!%|\/])\s*(#.*)?$`)
+var regexStopUnless *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*stop_unless\s+([~!%|\/].+[~!%|\/])\s*(#.*)?$`)
+var regexStopUnlessFound *regexp.Regexp = regexp.MustCompile(`^\s*([~!%|\/].+[~!%|\/])\s*stop_unless_found\s+([~!%|\/].+[~!%|\/])\s*(#.*)?$`)
 
 func ruleCompare(ruleString string, s string) bool {
 	return ruleString == s
