@@ -9,7 +9,7 @@ import (
 )
 
 func TestChangesDefaultRules(t *testing.T) {
-	httpRules, _ := GetHttpRules()
+	httpRules := GetHttpRules()
 	for {
 		if !assert.Equal(t, newHttpRules("").StrictRules(), httpRules.DefaultRules()) {
 			break
@@ -70,7 +70,7 @@ func TestIncludeDebugRules(t *testing.T) {
 	rules = newHttpRules("include debug\nsample 50\ninclude debug")
 	assert.Equal(t, 5, rules.Size())
 
-	httpRules, _ := GetHttpRules()
+	httpRules := GetHttpRules()
 	assert.Equal(t, httpRules.StrictRules(), httpRules.DefaultRules())
 	httpRules.SetDefaultRules("include debug")
 	rules = newHttpRules("")

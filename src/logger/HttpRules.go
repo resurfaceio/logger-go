@@ -7,8 +7,19 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 )
 
+// sync.Once for UsageLoggers
+var onceHttpRules sync.Once
+
+/*
+package global containing default:
+	debugRules
+	standardRules
+	strictRules
+	defaultRules
+*/
 var httpRules *HttpRules
 
 type HttpRules struct {
@@ -36,15 +47,34 @@ type HttpRules struct {
 	text              string
 }
 
+// get packag global httpRules containing default rules sets
 func GetHttpRules() *HttpRules {
+	onceHttpRules.Do(func() {
+		_debugRules := "allow_http_url\ncopy_session_field /.*/\n"
 
+		_standardRules := "/request_header:cookie|response_header:set-cookie/remove\n" +
+			"/(request|response)_body|request_param/ replace /[a-zA-Z0-9.!#$%&’*+\\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)/, /x@y.com/\n" +
+			"/request_body|request_param|response_body/ replace /[0-9\\.\\-\\/]{9,}/, /xyxy/\n"
+
+		_strictRules := "/request_url/ replace /([^\\?;]+).*/, /$1/\n" +
+			"/request_body|response_body|request_param:.*|request_header:(?!user-agent).*|response_header:(?!(content-length)|(content-type)).*/ remove\n"
+
+		_defaultRules := _strictRules
+		httpRules = &HttpRules{
+			debugRules:    _debugRules,
+			standardRules: _standardRules,
+			strictRules:   _strictRules,
+			defaultRules:  _defaultRules,
+		}
+	})
+	return httpRules
 }
 
 // !!! this will need to return an error as well !!!
-func NewHttpRules(rules string) *HttpRules {
+func newHttpRules(rules string) *HttpRules {
 	httpRules := GetHttpRules()
 	if rules == "" {
-		rules = httpRules.getDefaultRules()
+		rules = httpRules.DefaultRules()
 	}
 
 	//load rules from external files
@@ -62,7 +92,7 @@ func NewHttpRules(rules string) *HttpRules {
 	}
 
 	//force default rules if necessary
-	regex := regexp.MustCompile("(?m)^\\s*include default\\s*$")
+	regex := regexp.MustCompile("^\\s*include default\\s*$")
 	rules = regex.ReplaceAllString(rules, httpRules.defaultRules)
 	if len(strings.TrimSpace(rules)) == 0 {
 		rules = httpRules.defaultRules
@@ -83,13 +113,13 @@ func NewHttpRules(rules string) *HttpRules {
 	_text := rules
 
 	// parse all rules
-	// Not sure about this part
 	var prs []*HttpRule
 	for _, rule := range regexp.MustCompile("\\r?\\n").Split(_text, -1) {
 		parsed, err := parseRule(rule)
-		if err == nil {
-			prs = append(prs, parsed)
+		if err != nil {
+			// return error: 'Error parsing line of input rules (or rules file)'
 		}
+		prs = append(prs, parsed)
 	}
 
 	_size := len(prs)
@@ -153,29 +183,103 @@ func NewHttpRules(rules string) *HttpRules {
 	}
 }
 
-func (rules *HttpRules) getDefaultRules() string {
+func (rules *HttpRules) DefaultRules() string {
 	return rules.defaultRules
 }
 
-func (rules *HttpRules) setDefaultRules(r string) {
+func (rules *HttpRules) SetDefaultRules(r string) {
 	regex := regexp.MustCompile("(?m)^\\s*include default\\s*$")
 	rules.defaultRules = regex.ReplaceAllString(r, "")
 }
 
-func (rules *HttpRules) getDebugRules() string {
+func (rules *HttpRules) DebugRules() string {
 	return rules.debugRules
 }
 
-func (rules *HttpRules) getStandardRules() string {
+func (rules *HttpRules) StandardRules() string {
 	return rules.standardRules
 }
 
-func (rules *HttpRules) getStrictRules() string {
+func (rules *HttpRules) StrictRules() string {
 	return rules.strictRules
 }
 
+/*
+!!! We might be able to remove these getters later !!!
+*/
+func (rules *HttpRules) AllowHttpUrl() bool {
+	return rules.allowHttpUrl
+}
+
+func (rules *HttpRules) CopySessionField() []*HttpRule {
+	return rules.copySessionField
+}
+
+func (rules *HttpRules) Remove() []*HttpRule {
+	return rules.remove
+}
+
+func (rules *HttpRules) RemoveIf() []*HttpRule {
+	return rules.removeIf
+}
+
+func (rules *HttpRules) RemoveIfFound() []*HttpRule {
+	return rules.removeIfFound
+}
+
+func (rules *HttpRules) RemoveUnless() []*HttpRule {
+	return rules.removeUnless
+}
+
+func (rules *HttpRules) RemoveUnlessFound() []*HttpRule {
+	return rules.removeUnlessFound
+}
+
+func (rules *HttpRules) Replace() []*HttpRule {
+	return rules.replace
+}
+
+func (rules *HttpRules) Sample() []*HttpRule {
+	return rules.sample
+}
+
+func (rules *HttpRules) SkipCompression() bool {
+	return rules.skipCompression
+}
+
+func (rules *HttpRules) SkipSubmissio() bool {
+	return rules.skipSubmission
+}
+
+func (rules *HttpRules) Size() int {
+	return rules.size
+}
+
+func (rules *HttpRules) Stop() []*HttpRule {
+	return rules.stop
+}
+
+func (rules *HttpRules) StopIf() []*HttpRule {
+	return rules.stopIf
+}
+
+func (rules *HttpRules) StopIfFound() []*HttpRule {
+	return rules.stopIfFound
+}
+
+func (rules *HttpRules) StopUnless() []*HttpRule {
+	return rules.stopUnless
+}
+
+func (rules *HttpRules) StopUnlessFound() []*HttpRule {
+	return rules.stopUnlessFound
+}
+
+func (rules *HttpRules) Text() string {
+	return rules.text
+}
+
 // parse rule from single line
-// !!! will return error eventually !!!
 func parseRule(r string) (*HttpRule, error) {
 	if r == "" || regexBlankOrComment.MatchString(r) {
 		return nil, errors.New("Blank rule or comment")
@@ -188,27 +292,75 @@ func parseRule(r string) (*HttpRule, error) {
 	}
 	m := regexRemove.FindAllStringSubmatch(r, -1)
 	if m != nil {
-		return NewHttpRule("remove", parseRegex(r, m[0][1]), nil, nil), nil
+		parsedRegex, err := parseRegex(r, m[0][1])
+		if err != nil {
+			return nil, err
+		}
+		return NewHttpRule("remove", parsedRegex, nil, nil), nil
 	}
 	m = regexRemoveIf.FindAllStringSubmatch(r, -1)
 	if m != nil {
-		return NewHttpRule("remove_if", parseRegex(r, m[0][1]), parseRegex(r, m[0][2]), nil), nil
+		parsedRegex1, err := parseRegex(r, m[0][1])
+		if err != nil {
+			return nil, err
+		}
+		parsedRegex2, err := parseRegex(r, m[0][2])
+		if err != nil {
+			return nil, err
+		}
+		return NewHttpRule("remove_if", parsedRegex1, parsedRegex2, nil), nil
 	}
 	m = regexRemoveIfFound.FindAllStringSubmatch(r, -1)
 	if m != nil {
-		return NewHttpRule("remove_if_found", parseRegex(r, m[0][1]), parseRegexFind(r, m[0][2]), nil), nil
+		parsedRegex, err := parseRegex(r, m[0][1])
+		if err != nil {
+			return nil, err
+		}
+		parsedRegexFind, err := parseRegexFind(r, m[0][2])
+		if err != nil {
+			return nil, err
+		}
+		return NewHttpRule("remove_if_found", parsedRegex, parsedRegexFind, nil), nil
 	}
 	m = regexRemoveUnless.FindAllStringSubmatch(r, -1)
 	if m != nil {
-		return NewHttpRule("remove_uless", parseRegex(r, m[0][1]), parseRegex(r, m[0][2]), nil), nil
+		parsedRegex1, err := parseRegex(r, m[0][1])
+		if err != nil {
+			return nil, err
+		}
+		parsedRegex2, err := parseRegex(r, m[0][2])
+		if err != nil {
+			return nil, err
+		}
+		return NewHttpRule("remove_uless", parsedRegex1, parsedRegex2, nil), nil
 	}
 	m = regexRemoveUnlessFound.FindAllStringSubmatch(r, -1)
 	if m != nil {
-		return NewHttpRule("remove_uless_found", parseRegex(r, m[0][1]), parseRegexFind(r, m[0][2]), nil), nil
+		parsedRegex, err := parseRegex(r, m[0][1])
+		if err != nil {
+			return nil, err
+		}
+		parsedRegexFind, err := parseRegexFind(r, m[0][2])
+		if err != nil {
+			return nil, err
+		}
+		return NewHttpRule("remove_uless_found", parsedRegex, parsedRegexFind, nil), nil
 	}
 	m = regexReplace.FindAllStringSubmatch(r, -1)
 	if m != nil {
-		return NewHttpRule("replace", parseRegex(r, m[0][1]), parseRegexFind(r, m[0][2]), parseString(r, m[0][3])), nil
+		parsedRegex, err := parseRegex(r, m[0][1])
+		if err != nil {
+			return nil, err
+		}
+		parsedRegexFind, err := parseRegexFind(r, m[0][2])
+		if err != nil {
+			return nil, err
+		}
+		parsedString, err := parseString(r, m[0][3])
+		if err != nil {
+			return nil, err
+		}
+		return NewHttpRule("replace", parsedRegex, parsedRegexFind, parsedString), nil
 	}
 	m = regexSample.FindAllStringSubmatch(r, -1)
 	if m != nil {
@@ -231,61 +383,101 @@ func parseRule(r string) (*HttpRule, error) {
 	}
 	m = regexStop.FindAllStringSubmatch(r, -1)
 	if m != nil {
-		return NewHttpRule("stop", parseRegex(r, m[0][1]), nil, nil), nil
+		parsedRegex, err := parseRegex(r, m[0][1])
+		if err != nil {
+			return nil, err
+		}
+		return NewHttpRule("stop", parsedRegex, nil, nil), nil
 	}
 	m = regexStopIf.FindAllStringSubmatch(r, -1)
 	if m != nil {
-		return NewHttpRule("stop_if", parseRegex(r, m[0][1]), parseRegex(r, m[0][2]), nil), nil
+		parsedRegex1, err := parseRegex(r, m[0][1])
+		if err != nil {
+			return nil, err
+		}
+		parsedRegex2, err := parseRegex(r, m[0][2])
+		if err != nil {
+			return nil, err
+		}
+		return NewHttpRule("stop_if", parsedRegex1, parsedRegex2, nil), nil
 	}
 	m = regexStopIfFound.FindAllStringSubmatch(r, -1)
 	if m != nil {
-		return NewHttpRule("stop_if_found", parseRegex(r, m[0][1]), parseRegexFind(r, m[0][2]), nil), nil
+		parsedRegex, err := parseRegex(r, m[0][1])
+		if err != nil {
+			return nil, err
+		}
+		parsedRegexFind, err := parseRegexFind(r, m[0][2])
+		if err != nil {
+			return nil, err
+		}
+		return NewHttpRule("stop_if_found", parsedRegex, parsedRegexFind, nil), nil
 	}
 	m = regexStopUnless.FindAllStringSubmatch(r, -1)
 	if m != nil {
-		return NewHttpRule("stop_unless", parseRegex(r, m[0][1]), parseRegex(r, m[0][2]), nil), nil
+		parsedRegex1, err := parseRegex(r, m[0][1])
+		if err != nil {
+			return nil, err
+		}
+		parsedRegex2, err := parseRegex(r, m[0][2])
+		if err != nil {
+			return nil, err
+		}
+		return NewHttpRule("stop_unless", parsedRegex1, parsedRegex2, nil), nil
 	}
 	m = regexStopUnlessFound.FindAllStringSubmatch(r, -1)
 	if m != nil {
-		return NewHttpRule("stop_unless_found", parseRegex(r, m[0][1]), parseRegexFind(r, m[0][2]), nil), nil
+		parsedRegex, err := parseRegex(r, m[0][1])
+		if err != nil {
+			return nil, err
+		}
+		parsedRegexFind, err := parseRegexFind(r, m[0][2])
+		if err != nil {
+			return nil, err
+		}
+		return NewHttpRule("stop_unless_found", parsedRegex, parsedRegexFind, nil), nil
 	}
 	return nil, errors.New(fmt.Sprintf("Invalid rule: %s", r))
 }
 
 // Parses regex for finding.
-// !!! will return error eventually !!!
-func parseRegex(r string, regex string) *regexp.Regexp /* error */ {
-	s := parseString(r, regex)
-	if "*" == s || "+" == s || "?" == s {
-		// return error '"Invalid regex (%s) in rule: %s", regex, r'
+func parseRegex(r string, regex string) (*regexp.Regexp, error) {
+	s, err := parseString(r, regex)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("Invalid regex (%s) in rule: %s", regex, r))
 	}
-	if strings.HasPrefix(s, "^") {
+	if "*" == s || "+" == s || "?" == s {
+		return nil, errors.New(fmt.Sprintf("Invalid regex (%s) in rule: %s", regex, r))
+	}
+	if !strings.HasPrefix(s, "^") {
 		s = "^" + s
 	}
-	if strings.HasSuffix(s, "$") {
+	if !strings.HasSuffix(s, "$") {
 		s = s + "$"
 	}
 
 	regexp, err := regexp.Compile(s)
 	if err != nil {
-		// return error '"Invalid regex (%s) in rule: %s", regex, r'
+		return nil, errors.New(fmt.Sprintf("Invalid regex (%s) in rule: %s", regex, r))
 	}
-	return regexp
+	return regexp, nil
 }
 
 // Parses regex for finding.
-// !!! will return error eventually !!!
-func parseRegexFind(r string, regex string) *regexp.Regexp /* error */ {
-	regexp, err := regexp.Compile(parseString(r, regex))
+func parseRegexFind(r string, regex string) (*regexp.Regexp, error) {
+	parsedString, err := parseString(r, regex)
 	if err != nil {
-		// return error '"Invalid regex (%s) in rule: %s", regex, r'
+		return nil, errors.New(fmt.Sprintf("Invalid regex (%s) in rule: %s", regex, r))
 	}
-	return regexp
+	regexp, err := regexp.Compile(parsedString)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("Invalid regex (%s) in rule: %s", regex, r))
+	}
+	return regexp, nil
 }
 
 // Parses delimited string expression
-// !!! will return an error eventually !!!
-func parseString(r string, expr string) string /* error */ {
+func parseString(r string, expr string) (string, error) {
 	separators := []string{"~", "!", "%", "|", "/"}
 	for _, sep := range separators {
 		regex := regexp.MustCompile(fmt.Sprintf("^[%s](.*)[%s]$", sep, sep))
@@ -295,11 +487,12 @@ func parseString(r string, expr string) string /* error */ {
 			regex = regexp.MustCompile(fmt.Sprintf("^[%s].*|.*[^\\\\][%s].*", sep, sep))
 			if regex.MatchString(m1) {
 				// return error '"Unescaped separator (%s) in rule: %s", sep, r'
+				return "", errors.New(fmt.Sprintf("Unescaped separator (%s) in rule: %s", sep, r))
 			}
-			return strings.Replace(m1, "\\"+sep, sep, -1)
+			return strings.Replace(m1, "\\"+sep, sep, -1), nil
 		}
 	}
-	return "" /* error: '"Invalid expression (%s) in rule: %s", expr, r' */
+	return "", errors.New(fmt.Sprintf("Invalid expression (%s) in rule: %s", expr, r))
 }
 
 /*
