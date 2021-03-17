@@ -22,6 +22,7 @@ package global containing default:
 */
 var httpRules *HttpRules
 
+// struct for rules that are applied to http logging messages
 type HttpRules struct {
 	debugRules        string
 	standardRules     string
@@ -47,7 +48,7 @@ type HttpRules struct {
 	text              string
 }
 
-// get packag global httpRules containing default rules sets
+// get package global httpRules containing default rules sets
 func GetHttpRules() *HttpRules {
 	onceHttpRules.Do(func() {
 		_debugRules := "allow_http_url\ncopy_session_field /.*/\n"
@@ -70,6 +71,7 @@ func GetHttpRules() *HttpRules {
 	return httpRules
 }
 
+// generate new set of rules based on given rule input string
 // !!! this will need to return an error as well !!!
 func newHttpRules(rules string) *HttpRules {
 	httpRules := GetHttpRules()
@@ -440,7 +442,7 @@ func parseRule(r string) (*HttpRule, error) {
 	return nil, errors.New(fmt.Sprintf("Invalid rule: %s", r))
 }
 
-// Parses regex for finding.
+// Parses regex for matching.
 func parseRegex(r string, regex string) (*regexp.Regexp, error) {
 	s, err := parseString(r, regex)
 	if err != nil {
@@ -493,6 +495,36 @@ func parseString(r string, expr string) (string, error) {
 		}
 	}
 	return "", errors.New(fmt.Sprintf("Invalid expression (%s) in rule: %s", expr, r))
+}
+
+// Apply current rules to message details.
+func (rules *HttpRules) apply(details [][]string) [][]string {
+	// stop rules come first
+	for _, r := range rules.stop {
+		for _, d := range details {
+			if r.scope.FindAllStringSubmatch(d[0], -1) != nil {
+				return nil
+			}
+		}
+	}
+	for _, r := range rules.stopIfFound {
+		for _, d := range details {
+			regex := r.param1.(regexp.Regexp)
+			if r.scope.FindAllStringSubmatch(d[0], -1) != nil && regex.FindAllStringSubmatch(d[1], -1) != nil {
+				return nil
+			}
+		}
+	}
+	for _, r := range rules.stopIf {
+		for _, d := range details {
+			regex := r.param1.(regexp.Regexp)
+			if r.scope.FindAllStringSubmatch(d[0], -1) != nil && regex.FindAllStringSubmatch(d[1], -1) != nil {
+				return nil
+			}
+		}
+	}
+
+	passed := 0
 }
 
 /*
