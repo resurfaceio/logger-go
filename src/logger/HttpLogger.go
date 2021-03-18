@@ -16,7 +16,7 @@ type HttpLogger struct {
 func NewHttpLogger(options Options) *HttpLogger {
 	baseLogger := NewBaseLogger(options.agent, options.url, options.enabled, options.queue)
 
-	loggerRules, err := NewHttpRules(options.rules)
+	loggerRules := NewHttpRules(options.rules)
 
 	logger := &HttpLogger{
 		baseLogger,
@@ -35,7 +35,7 @@ func NewHttpLogger(options Options) *HttpLogger {
 }
 
 // getter for rules
-func (logger *HttpLogger) Rules() HttpRules {
+func (logger *HttpLogger) Rules() *HttpRules {
 	return logger.rules
 }
 
