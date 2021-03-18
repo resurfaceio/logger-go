@@ -555,9 +555,47 @@ func (rules *HttpRules) apply(details [][]string) [][]string {
 	}
 
 	// winnow sensitive details based on remove rules if configured
-	// for _, r := range rules.remove {
-	// 	removeDetailIf(details, r.scope)
-	// }
+	for _, r := range rules.remove {
+		details = removeDetailIf(details, []*regexp.Regexp{r.scope})
+	}
+	for _, r := range rules.removeUnlessFound {
+		details = removeDetailIf(details, []*regexp.Regexp{r.scope, r.param1.(*regexp.Regexp)})
+	}
+	for _, r := range rules.removeIfFound {
+		details = removeDetailIf(details, []*regexp.Regexp{r.scope, r.param1.(*regexp.Regexp)})
+	}
+	for _, r := range rules.removeUnless {
+		details = removeDetailIf(details, []*regexp.Regexp{r.scope, r.param1.(*regexp.Regexp)})
+	}
+	for _, r := range rules.removeIf {
+		details = removeDetailIf(details, []*regexp.Regexp{r.scope, r.param1.(*regexp.Regexp)})
+	}
+	if len(details) == 0 {
+		return nil
+	}
+
+	// mask sensitive details based on replace rules if configured
+	for _, r := range rules.replace {
+		for _, d := range details {
+			if r.scope.FindAllStringSubmatch(d[0], -1) != nil {
+				r.param1.(*regexp.Regexp).ReplaceAllLiteralString(d[1], r.param2.(string))
+			}
+		}
+	}
+
+	// remove any details with empty values
+	i := 0
+	for _, d := range details {
+		if d[1] != "" {
+			details[i] = d
+			i++
+		}
+	}
+	details = details[:i]
+	return details
+	if len(details) == 0 {
+		return nil
+	}
 
 	return details
 }
@@ -604,11 +642,23 @@ func ruleFilter(parsedRules []*HttpRule, ruleString string, cond func(string, st
 }
 
 // https://stackoverflow.com/questions/20545743/delete-entries-from-a-slice-while-iterating-over-it-in-go/20551116
-// remove detail form details slice if both regex patterns are matched
-func removeDetailIf(details [][]string, regex1 *regexp.Regexp, regex2 *regexp.Regexp) [][]string {
+// remove detail form details slice if all regexp.Regexp are matched from the given slice of *regexp.Regexp
+func removeDetailIf(details [][]string, regex []*regexp.Regexp) [][]string {
 	i := 0
 	for _, d := range details {
-		if regex1.FindAllStringSubmatch(d[0], -1) == nil && regex1.FindAllStringSubmatch(d[1], -1) == nil {
+		allMatched := true
+		for _, exp := range regex {
+			if exp.FindAllStringSubmatch(d[0], -1) == nil {
+				allMatched = false
+			}
+		}
+		/*
+			for current details item, no
+			expression was matched so
+			include it in the details
+			slice
+		*/
+		if !allMatched {
 			details[i] = d
 			i++
 		}
