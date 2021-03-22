@@ -9,7 +9,7 @@ import (
 	"sync"
 )
 
-var once sync.Once
+var helperOnce sync.Once
 
 type helper struct {
 	demoURL         string
@@ -92,7 +92,7 @@ func parseable(var msg string){
 }
 
 func GetTestHelper() *helper {
-	once.Do(func() {
+	helperOnce.Do(func() {
 		testHelper = &helper{
 			demoURL: "https://demo.resurface.io/ping",
 
