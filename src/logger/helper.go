@@ -1,8 +1,10 @@
 package logger
 
-import "sync"
+import (
+	"sync"
+)
 
-var once sync.Once
+var helperOnce sync.Once
 
 type helper struct {
 	demoURL         string
@@ -24,7 +26,7 @@ type helper struct {
 var testHelper *helper
 
 func GetTestHelper() *helper {
-	once.Do(func() {
+	helperOnce.Do(func() {
 		testHelper = &helper{
 			demoURL: "https://demo.resurface.io/ping",
 
