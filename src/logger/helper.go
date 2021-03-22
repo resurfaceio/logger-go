@@ -28,7 +28,7 @@ func GetTestHelper() *helper {
 		testHelper = &helper{
 			demoURL: "https://demo.resurface.io/ping",
 
-			mockAgent: "helper.java",
+			mockAgent: "helper.go",
 
 			mockHTML: "<html>Hello World!</html>",
 
