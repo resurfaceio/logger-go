@@ -4,27 +4,27 @@ import (
 	"strings"
 )
 
-const loggerAgent string = "HttpLogger.go"
+const httpLoggerAgent string = "HttpLogger.go"
 
 //base HttpLogger definition
 type HttpLogger struct {
 	*BaseLogger
-	rules string
+	rules HttpRules
 }
 
 // initialize HttpLogger
 func NewHttpLogger(options Options) *HttpLogger {
 	baseLogger := NewBaseLogger(options.agent, options.url, options.enabled, options.queue)
 
+	loggerRules := NewHttpRules(options.rules)
+
 	logger := &HttpLogger{
 		baseLogger,
-		"",
+		loggerRules,
 	}
 
-	logger.rules, err = NewHttpRules(_rules)
-
-	logger.skipCompression = httpRules.skipCompression
-	logger.skipSubmission = httpRules.skipSubmission
+	logger.skipCompression = loggerRules.skipCompression
+	logger.skipSubmission = loggerRules.skipSubmission
 
 	if (logger.url != "") && (strings.HasPrefix(logger.url, "http:") && !logger.rules.allowHttpUrl) {
 		logger.enableable = false
@@ -32,6 +32,11 @@ func NewHttpLogger(options Options) *HttpLogger {
 	}
 
 	return logger
+}
+
+// getter for rules
+func (logger *HttpLogger) Rules() *HttpRules {
+	return logger.rules
 }
 
 func (logger *HttpLogger) submitIfPassing(details [][]string) {
@@ -46,6 +51,7 @@ func (logger *HttpLogger) submitIfPassing(details [][]string) {
 	logger.submit(msgStringify(details))
 }
 
+// method for converting message details to string format
 func msgStringify(msg [][]string) string {
 	stringified := ""
 	n := len(msg)
