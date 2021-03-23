@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 )
 
@@ -87,7 +88,7 @@ func MockPostFormRequest() http.Request {
 
 //https://golang.org/pkg/encoding/json/#example_Unmarshal
 func parseable(msg string) bool {
-	if msg == "" {
+	if msg == "" || !strings.HasPrefix(msg, "[") || !strings.HasSuffix(msg, "]") || strings.Contains(msg, "[]") || (strings.Contains(msg, ",,")) {
 		return false
 	} else {
 		bs := []byte(msg)
