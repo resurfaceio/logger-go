@@ -48,7 +48,7 @@ func (logger *HttpLogger) submitIfPassing(details [][]string) {
 
 	details = append(details, []string{"host", logger.host})
 
-	logger.submit(msgStringify(details))
+	logger.Submit(msgStringify(details))
 }
 
 // method for converting message details to string format
@@ -56,7 +56,7 @@ func msgStringify(msg [][]string) string {
 	stringified := ""
 	n := len(msg)
 	for i, val := range msg {
-		stringified += "[" + strings.Join(val, ", ") + "]"
+		stringified += "[\"" + strings.Join(val, "\", \"") + "\"]"
 		if i != n-1 {
 			stringified += ","
 		}
