@@ -80,6 +80,7 @@ func parseable(var msg string){
 	{
 		return false
 	}
+	return true
 }
 
 func GetTestHelper() *helper {
