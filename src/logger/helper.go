@@ -21,6 +21,7 @@ type helper struct {
 	mockURL         string
 	mockURLSdenied  []string
 	mockURLSinvalid []string
+	mockFormData    string
 }
 
 var testHelper *helper
@@ -65,6 +66,8 @@ func GetTestHelper() *helper {
 				"noway3is5this1valid2",
 				"ftp:\\www.noway3is5this1valid2.com/",
 				"urn:ISSN:1535–3613"},
+
+			mockFormData: "\"username\": { \" ResurfaceIO \" ",
 		}
 	})
 
