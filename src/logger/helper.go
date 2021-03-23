@@ -80,15 +80,6 @@ func parseable(var msg string){
 	{
 		return false
 	}
-
-	var holder map[string]interface{}
-
-	if err := json.Unmarshal(byte[](msg), &holder); err == nil {
-		return true
-	}else{
-		return false
-	}
-
 }
 
 func GetTestHelper() *helper {
