@@ -89,7 +89,7 @@ func MockPostFormRequest() http.Request {
 // https://www.sohamkamani.com/golang/parsing-json/
 
 func parseable(msg string) bool{
-	if &msg == nil || !strings.HasPrefix(msg,"[") || !strings.HasSuffix(msg,"]") || strings.Contains(msg,"[]") || strings.Contains(msg,",,"){
+	if msg == "" || !strings.HasPrefix(msg,"[") || !strings.HasSuffix(msg,"]") || strings.Contains(msg,"[]") || strings.Contains(msg,",,"){
 		return false
 	}
 	return true
