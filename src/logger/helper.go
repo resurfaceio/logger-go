@@ -2,11 +2,11 @@ package logger
 
 import (
 	"bytes"
-	"net/http"
-	"sync"
-	"net/url"
-	"strings"
+	"encoding/json"
 	"log"
+	"net/http"
+	"net/url"
+	"sync"
 )
 
 var helperOnce sync.Once
@@ -86,11 +86,11 @@ func MockPostFormRequest() http.Request {
 }
 
 //https://golang.org/pkg/encoding/json/#example_Unmarshal
-func parseable(var msg string){
-	if msg := nil || !msg.HasPrefix("[") || !msg.HasSuffix("]") || msg.Contains("[]") || (msg.Contains(",,")){
+func parseable(msg string) bool {
+	if msg == "" {
 		return false
-	else{
-		bs = []byte(msg)
+	} else {
+		bs := []byte(msg)
 		err := json.Unmarshal(bs, &msg)
 		if err != nil {
 			return false
@@ -98,7 +98,6 @@ func parseable(var msg string){
 		return true
 	}
 }
-
 
 func GetTestHelper() *helper {
 	helperOnce.Do(func() {
@@ -137,9 +136,9 @@ func GetTestHelper() *helper {
 				"https://www.noway3is5this1valid2.com/"},
 
 			mockURLSinvalid: []string{"",
-			"noway3is5this1valid2",
-			"ftp:\\www.noway3is5this1valid2.com/",
-			"urn:ISSN:1535–3613"},
+				"noway3is5this1valid2",
+				"ftp:\\www.noway3is5this1valid2.com/",
+				"urn:ISSN:1535–3613"},
 
 			mockFormData: "\"username\": { \" ResurfaceIO \" ",
 		}
