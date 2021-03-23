@@ -92,10 +92,7 @@ func parseable(msg string) bool {
 		return false
 	} else {
 		bs := []byte(msg)
-		err := json.Unmarshal(bs, &msg)
-		if err != nil {
-			return false
-		}
+		json.Unmarshal(bs, &msg)
 		return true
 	}
 }
