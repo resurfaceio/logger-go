@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-//name change since helper uses the name "once"
+// sync.Once for UsageLoggers
 var onceUsageLoggers sync.Once
 
 type UsageLoggers struct {
