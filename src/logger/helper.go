@@ -85,26 +85,20 @@ func MockPostFormRequest() http.Request {
 	return *request
 }
 
-// create a stuct that will mirror the data we want to parse
-// https://www.sohamkamani.com/golang/parsing-json/
-
-// func parseable(msg string) bool{
-// 	if msg == "" || !strings.HasPrefix(msg,"[") || !strings.HasSuffix(msg,"]") || strings.Contains(msg,"[]") || strings.Contains(msg,",,"){
-// 		return false
-// 	}
-// 	return true
-// }
-
+//https://golang.org/pkg/encoding/json/#example_Unmarshal
 func parseable(var msg string){
-	if msg := nil || !msg.HasPrefix("[") || !msg.HasSuffix("]") || msg.Contains("[]") || (msg.Contains(",,"))
-
-	var holder map[string]interface{}
-
-	if err := json.Unmarshal(msg, &holder); err == nil {
-	if err := json.Unmarshal(byte[](msg), &holder); err == nil {
-		return true
-	}else{
+	if msg := nil || !msg.HasPrefix("[") || !msg.HasSuffix("]") || msg.Contains("[]") || (msg.Contains(",,")){
 		return false
+	else{
+		bs = []byte(msg)
+		err := json.Unmarshal(bs, &msg)
+		if err != nil {
+			return false
+		}
+		return true
+	}
+}
+
 
 func GetTestHelper() *helper {
 	helperOnce.Do(func() {
