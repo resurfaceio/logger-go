@@ -64,3 +64,4 @@ func (uLogger UsageLoggers) IsEnabled() bool {
 func (uLogger UsageLoggers) UrlByDefault() string {
 	url := os.Getenv("USAGE_LOGGERS_URL")
 	return url
+}

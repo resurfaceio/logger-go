@@ -1,6 +1,11 @@
 package logger
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
 	"sync"
 )
 
@@ -25,6 +30,58 @@ type helper struct {
 }
 
 var testHelper *helper
+
+//This is a rough outline.
+//I am thinking we need to cover the requests rather than the responses.
+//MockGetRequest covers a get request to compare against loggin.
+//https://appdividend.com/2019/12/02/golang-http-example-get-post-http-requests-in-golang/
+func MockGetRequest() http.Request {
+	helper := NewTestHelper()
+	resp, err := http.Get(helper.demoURL)
+	request := resp.Request
+	return *request
+}
+
+func MockDoRequest() http.Request {
+	helper := NewTestHelper()
+	// No do method.
+	//resp, err := http.Do(helper.mockRequest)??
+	request := resp.Request
+	return *request
+}
+
+func MockHeadRequest() http.Request {
+	helper := NewTestHelper()
+	resp, err := http.Head(helper.demoURL)
+	request := resp.Request
+	return *request
+}
+
+func MockPostRequest() http.Request {
+	helper := NewTestHelper()
+	resp, err := http.Post(helper.demoURL, "html", bytes.NewBuffer([]byte(helper.mockJSON)))
+	request := resp.Request
+	return *request
+}
+
+func (h *Helper) MockPostFormRequest() {
+	helper := NewTestHelper()
+	resp, err := http.PostForm(helper.demoURL, helper.mockFormData)
+	request := resp.Request
+	return *request
+}
+
+// create a stuct that will mirror the data we want to parse
+// https://www.sohamkamani.com/golang/parsing-json/
+
+func parseable(var msg string){
+	if msg := nil || !msg.HasPrefix("[") || !msg.HasSuffix("]")
+	|| msg.Contains("[]") || (msg.Contains(",,"))
+	{
+		return false
+	}
+	return true
+}
 
 func GetTestHelper() *helper {
 	helperOnce.Do(func() {
@@ -63,9 +120,9 @@ func GetTestHelper() *helper {
 				"https://www.noway3is5this1valid2.com/"},
 
 			mockURLSinvalid: []string{"",
-				"noway3is5this1valid2",
-				"ftp:\\www.noway3is5this1valid2.com/",
-				"urn:ISSN:1535–3613"},
+			"noway3is5this1valid2",
+			"ftp:\\www.noway3is5this1valid2.com/",
+			"urn:ISSN:1535–3613"},
 
 			mockFormData: "\"username\": { \" ResurfaceIO \" ",
 		}
