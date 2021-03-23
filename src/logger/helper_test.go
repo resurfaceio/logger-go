@@ -4,14 +4,14 @@ import (
 	"testing"
 )
 
-func test_good_json(t *testing.T){
+func TestGoodJson(t *testing.T){
 	assert.True(t, parseable("[\n]"))
 	assert.True(t, parseable("[\n\t\n"))
 	assert.True(t, parseable('["A"]')) // check double quotes
 	assert.True(t, parseable('["A","B"]')) // check double quotes
 }
 
-func test_invalid_json(t *testing.T){
+func TestInvalidJson(t *testing.T){
 	assert.False(t, parseable(nil))
 	assert.False(t, parseable(""))
 	assert.False(t, parseable(" "))

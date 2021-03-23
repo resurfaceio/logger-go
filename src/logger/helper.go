@@ -127,12 +127,13 @@ func GetTestHelper() *helper {
 				"/noway3is5this1valid2",
 				"https://www.noway3is5this1valid2.com/"},
 
-		mockURLSinvalid: []string{"",
+			mockURLSinvalid: []string{"",
 			"noway3is5this1valid2",
 			"ftp:\\www.noway3is5this1valid2.com/",
 			"urn:ISSN:1535–3613"},
 
-		mockFormData: "\"username\": { \" ResurfaceIO \" ",
+			mockFormData: "\"username\": { \" ResurfaceIO \" ",
+		}
 	})
 
 	return testHelper
