@@ -2,11 +2,11 @@ package logger
 
 import (
 	"bytes"
-	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
 	"sync"
+	"net/url"
+	"strings"
+	"log"
 )
 
 var helperOnce sync.Once
@@ -36,37 +36,51 @@ var testHelper *helper
 //MockGetRequest covers a get request to compare against loggin.
 //https://appdividend.com/2019/12/02/golang-http-example-get-post-http-requests-in-golang/
 func MockGetRequest() http.Request {
-	helper := NewTestHelper()
+	helper := GetTestHelper()
 	resp, err := http.Get(helper.demoURL)
+	if err != nil {
+		log.Fatal(err)
+	}
 	request := resp.Request
 	return *request
 }
 
-func MockDoRequest() http.Request {
-	helper := NewTestHelper()
-	// No do method.
-	//resp, err := http.Do(helper.mockRequest)??
-	request := resp.Request
-	return *request
-}
+// func MockDoRequest() http.Request {
+// 	helper := GetTestHelper()
+// 	resp, err := http.Get(helper.demoURL)
+// 	resp, err = http.Do(resp)
+// 	request := resp.Request
+// 	return *request
+// }
 
 func MockHeadRequest() http.Request {
-	helper := NewTestHelper()
+	helper := GetTestHelper()
 	resp, err := http.Head(helper.demoURL)
+	if err != nil {
+		log.Fatal(err)
+	}
 	request := resp.Request
 	return *request
 }
 
 func MockPostRequest() http.Request {
-	helper := NewTestHelper()
+	helper := GetTestHelper()
 	resp, err := http.Post(helper.demoURL, "html", bytes.NewBuffer([]byte(helper.mockJSON)))
+	if err != nil {
+		log.Fatal(err)
+	}
 	request := resp.Request
 	return *request
 }
 
-func (h *Helper) MockPostFormRequest() {
-	helper := NewTestHelper()
-	resp, err := http.PostForm(helper.demoURL, helper.mockFormData)
+func MockPostFormRequest() http.Request {
+	helper := GetTestHelper()
+	form := url.Values{}
+	form.Add("username", "resurfaceio")
+	resp, err := http.PostForm(helper.demoURL, form)
+	if err != nil {
+		log.Fatal(err)
+	}
 	request := resp.Request
 	return *request
 }
@@ -74,10 +88,8 @@ func (h *Helper) MockPostFormRequest() {
 // create a stuct that will mirror the data we want to parse
 // https://www.sohamkamani.com/golang/parsing-json/
 
-func parseable(var msg string){
-	if msg := nil || !msg.HasPrefix("[") || !msg.HasSuffix("]")
-	|| msg.Contains("[]") || (msg.Contains(",,"))
-	{
+func parseable(msg string) bool{
+	if &msg == nil || !strings.HasPrefix(msg,"[") || !strings.HasSuffix(msg,"]") || strings.Contains(msg,"[]") || strings.Contains(msg,",,"){
 		return false
 	}
 	return true
