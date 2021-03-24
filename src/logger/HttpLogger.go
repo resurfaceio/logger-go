@@ -4,6 +4,14 @@ import (
 	"strings"
 )
 
+type Options struct {
+	rules   string
+	agent   string
+	url     string
+	enabled bool
+	queue   []string
+}
+
 const httpLoggerAgent string = "HttpLogger.go"
 
 //base HttpLogger definition
