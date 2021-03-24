@@ -14,11 +14,11 @@ func TestCreatesInstance(t *testing.T) {
 	helper := GetTestHelper()
 	logger := NewBaseLogger(helper.mockAgent, "", false, nil)
 	assert.NotNil(t, logger)
-	assert.Equal(t, helper.mockAgent, logger.Agent)
+	assert.Equal(t, helper.mockAgent, logger.Agent())
 	assert.False(t, logger.Enableable())
 	assert.False(t, logger.Enabled())
 	assert.Nil(t, logger.Queue())
-	assert.Nil(t, logger.Url())
+	assert.Equal(t, "", logger.Url())
 }
 
 func TestCreatesMultipleInstances(t *testing.T) {
@@ -47,14 +47,14 @@ func TestCreatesMultipleInstances(t *testing.T) {
 	assert.True(t, logger3.Enabled())
 	assert.Equal(t, helper.demoURL, logger3.Url())
 
-	//TODO: implement usage loggers
-	//UsageLoggers.disable();
-	//assert.False(t,UsageLoggers.Enabled())
+	usageLoggers, _ := GetUsageLoggers()
+	usageLoggers.Disable()
+	assert.False(t, usageLoggers.IsEnabled())
 	assert.False(t, logger1.Enabled())
 	assert.False(t, logger2.Enabled())
 	assert.False(t, logger3.Enabled())
-	//UsageLoggers.enable();
-	//assert.True(t,UsageLoggers.Enabled())
+	usageLoggers.Enable()
+	assert.True(t, usageLoggers.IsEnabled())
 	assert.True(t, logger1.Enabled())
 	assert.True(t, logger2.Enabled())
 	assert.True(t, logger3.Enabled())
@@ -77,7 +77,7 @@ func TestHasValidVersion(t *testing.T) {
 	assert.Greater(t, len(version), 0)
 	//replacement of the java "startswith" assertion
 	//won't work rn since version is a dummy string
-	assert.Equal(t, strings.Index(version, "2.0."), 0)
+	assert.True(t, strings.HasPrefix(version, "1."))
 	assert.NotContains(t, version, "\\")
 	assert.NotContains(t, version, "\"")
 	assert.NotContains(t, version, "'")

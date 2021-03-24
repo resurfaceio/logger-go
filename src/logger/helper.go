@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"sync"
 	"strings"
+	"sync"
 )
 
 var helperOnce sync.Once
@@ -88,9 +88,9 @@ func MockPostFormRequest() http.Request {
 
 //https://golang.org/pkg/encoding/json/#example_Unmarshal
 func parseable(msg string) bool {
-	if msg == "" || !strings.HasPrefix(msg, "[") || !strings.HasSuffix(msg, "]") || strings.Contains(msg, "[]") || strings.Contains(msg, ",,"){
+	if msg == "" || !strings.HasPrefix(msg, "[") || !strings.HasSuffix(msg, "]") || strings.Contains(msg, "[]") || strings.Contains(msg, ",,") {
 		return false
-	} 
+	}
 	return json.Valid([]byte(msg))
 }
 
@@ -99,7 +99,7 @@ func GetTestHelper() *helper {
 		testHelper = &helper{
 			demoURL: "https://demo.resurface.io/ping",
 
-			mockAgent: "helper.java",
+			mockAgent: "helper.go",
 
 			mockHTML: "<html>Hello World!</html>",
 
