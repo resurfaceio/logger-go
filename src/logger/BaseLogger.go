@@ -79,9 +79,10 @@ func (logger BaseLogger) Submit(msg string) {
 	} else {
 		// not 100% sure this works (needs testing) and should add some error handling
 		submitRequest, err := http.NewRequest("POST", logger.url, bytes.NewBuffer([]byte(msg)))
-
-		// submitRequest.Method = "POST"
-		// submitRequest.URL = logger.urlParsed
+		if err != nil {
+			fmt.Printf("Error creating submit request: %s", err.Error())
+			atomic.AddInt64(&logger.submitFailures, 1)
+		}
 
 		submitRequest.Header.Set("Content-Type", "application/json; charset=UTF-8")
 		submitRequest.Header.Set("User-Agent", "Resurface/"+logger.version+" ("+logger.agent+")")
@@ -92,12 +93,22 @@ func (logger BaseLogger) Submit(msg string) {
 			var b bytes.Buffer
 			w, err := flate.NewWriter(&b, 0)
 			if err != nil {
-				fmt.Errorf("Error applying deflate compression to message: ", err.Error())
+				fmt.Printf("Error applying deflate compression to message: %s\n", err.Error())
+				atomic.AddInt64(&logger.submitFailures, 1)
 			}
-			w.Write([]byte(msg))
+
+			_, err = w.Write([]byte(msg))
+			if err != nil {
+				fmt.Printf("Error writing message to io.Writer: %s\n", err.Error())
+				atomic.AddInt64(&logger.submitFailures, 1)
+			}
 			w.Close()
 
-			submitRequest.Write(w)
+			err = submitRequest.Write(w)
+			if err != nil {
+				fmt.Printf("Error writing message to request: %s\n", err.Error())
+				atomic.AddInt64(&logger.submitFailures, 1)
+			}
 		}
 
 		submitResponse, err := http.DefaultClient.Do(submitRequest)
