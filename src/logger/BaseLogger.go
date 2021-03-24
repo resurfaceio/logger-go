@@ -25,7 +25,7 @@ func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *
 	var parsingError error
 	//validate url when present
 	if _url != "" {
-		_urlParsed, parsingError = url.Parse(_url)
+		_urlParsed, parsingError = url.ParseRequestURI(_url)
 		if parsingError != nil {
 			_url = ""
 			_urlParsed = nil
@@ -51,7 +51,7 @@ func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *
 }
 
 func (logger BaseLogger) Enable() {
-	logger.enabled = true
+	logger.enabled = logger.enableable
 }
 
 func (logger BaseLogger) Disable() {
