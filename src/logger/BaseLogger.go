@@ -3,6 +3,7 @@ package logger
 import (
 	"bytes"
 	"compress/flate"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -94,7 +95,13 @@ func (logger BaseLogger) Submit(msg string) {
 			if err != nil {
 				fmt.Errorf("Error applying deflate compression to message: ", err.Error())
 			}
-			w.Write([]byte(msg))
+
+			marshalledMsg, err := json.Marshal(msg)
+			if err != nil {
+				atomic.AddInt64(&logger.submitFailures, 1)
+			}
+
+			w.Write(marshalledMsg)
 			w.Close()
 
 			submitRequest.Write(w)
