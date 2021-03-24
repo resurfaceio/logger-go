@@ -15,7 +15,7 @@ func TestGoodJson(t *testing.T) {
 }
 
 func TestInvalidJson(t *testing.T) {
-	//assert.False(t, parseable(nil))
+	assert.False(t, parseable("nil"))
 	assert.False(t, parseable(""))
 	assert.False(t, parseable(" "))
 	assert.False(t, parseable("\n\n\n\n"))

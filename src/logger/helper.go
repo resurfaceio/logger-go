@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"strings"
 	"sync"
+	"strings"
 )
 
 var helperOnce sync.Once
@@ -88,13 +88,10 @@ func MockPostFormRequest() http.Request {
 
 //https://golang.org/pkg/encoding/json/#example_Unmarshal
 func parseable(msg string) bool {
-	if msg == "" || !strings.HasPrefix(msg, "[") || !strings.HasSuffix(msg, "]") || strings.Contains(msg, "[]") || (strings.Contains(msg, ",,")) {
+	if msg == "" || !strings.HasPrefix(msg, "[") || !strings.HasSuffix(msg, "]") || strings.Contains(msg, "[]") || strings.Contains(msg, ",,"){
 		return false
-	} else {
-		bs := []byte(msg)
-		json.Unmarshal(bs, &msg)
-		return true
-	}
+	} 
+	return json.Valid([]byte(msg))
 }
 
 func GetTestHelper() *helper {
