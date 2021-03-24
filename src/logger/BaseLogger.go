@@ -10,14 +10,6 @@ import (
 	"sync/atomic"
 )
 
-type Options struct {
-	rules   string
-	agent   string
-	url     string
-	enabled bool
-	queue   []string
-}
-
 // BaseLogger constructor
 func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *BaseLogger {
 	usageLoggers, _ := GetUsageLoggers()
