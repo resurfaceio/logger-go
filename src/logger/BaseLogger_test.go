@@ -87,11 +87,12 @@ func TestHasValidVersion(t *testing.T) {
 
 func TestPerformsEnablingWhenExpected(t *testing.T) {
 	helper := GetTestHelper()
+	usageLoggers, _ := GetUsageLoggers()
 	logger := NewBaseLogger(helper.mockAgent, helper.demoURL, false, nil)
 	assert.True(t, logger.Enableable())
 	assert.False(t, logger.Enabled())
 	assert.Equal(t, helper.demoURL, logger.Url())
-	assert.True(t, logger.enableable)
+	assert.True(t, usageLoggers.IsEnabled())
 	logger.Enable()
 	assert.True(t, logger.enabled)
 	assert.True(t, logger.Enabled())
