@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -138,7 +139,7 @@ func TestSubmitsToDemoUrl(t *testing.T) {
 	message := [][]string{}
 	message = append(message, []string{"agent", logger.Agent()})
 	message = append(message, []string{"version", logger.Version()})
-	message = append(message, []string{"now", string(helper.mockNow)})
+	message = append(message, []string{"now", string(fmt.Sprint(helper.mockNow))})
 	message = append(message, []string{"protocol", "https"})
 	msg, err := json.Marshal(message)
 	assert.True(t, err == nil)
@@ -154,7 +155,7 @@ func TestSubmitsToDemoUrlViaHttp(t *testing.T) {
 	message := [][]string{}
 	message = append(message, []string{"agent", logger.Agent()})
 	message = append(message, []string{"version", logger.Version()})
-	message = append(message, []string{"now", string(helper.mockNow)})
+	message = append(message, []string{"now", string(fmt.Sprint(helper.mockNow))})
 	message = append(message, []string{"protocol", "http"})
 	msg, err := json.Marshal(message)
 	assert.True(t, err == nil)
@@ -171,7 +172,7 @@ func TestSubmitsToDemoUrlWihoutCompression(t *testing.T) {
 	message := [][]string{}
 	message = append(message, []string{"agent", logger.Agent()})
 	message = append(message, []string{"version", logger.Version()})
-	message = append(message, []string{"now", string(helper.mockNow)})
+	message = append(message, []string{"now", string(fmt.Sprint(helper.mockNow))})
 	message = append(message, []string{"protocol", "https"})
 	message = append(message, []string{"skip_compression", "true"})
 	msg, err := json.Marshal(message)
