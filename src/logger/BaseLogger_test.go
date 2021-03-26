@@ -90,7 +90,9 @@ func TestPerformsEnablingWhenExpected(t *testing.T) {
 	assert.True(t, logger.Enableable())
 	assert.False(t, logger.Enabled())
 	assert.Equal(t, helper.demoURL, logger.Url())
+	assert.True(t, logger.enableable)
 	logger.Enable()
+	assert.True(t, logger.enabled)
 	assert.True(t, logger.Enabled())
 
 	queue := []string{}
