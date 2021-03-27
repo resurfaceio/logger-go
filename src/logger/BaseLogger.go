@@ -33,7 +33,7 @@ func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *
 		}
 	}
 
-	_enableable := (_url != "")
+	_enableable := (_url != "" || _queue != nil)
 
 	constructedBaseLogger := &BaseLogger{
 		agent:           _agent,
