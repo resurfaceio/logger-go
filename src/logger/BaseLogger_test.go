@@ -117,11 +117,13 @@ func TestSkipsEnablingForInvalidUrls(t *testing.T) {
 	}
 }
 
-func TestSkipsEnablingForNullUrl(t *testing.T) {
+func TestSkipsEnablingForEmptyUrl(t *testing.T) {
 	url := ""
 	helper := GetTestHelper()
 	logger := NewBaseLogger(helper.mockAgent, url, true, nil)
 	assert.False(t, logger.Enableable())
+	usageLoggers, _ := GetUsageLoggers()
+	fmt.Println(usageLoggers.IsEnabled())
 	assert.False(t, logger.Enabled())
 	assert.Equal(t, "", logger.Url())
 	logger.Enable()
@@ -189,16 +191,16 @@ func TestSubmitsToDeniedUrl(t *testing.T) {
 func TestSubmitsToQueue(t *testing.T) {
 	helper := GetTestHelper()
 	queue := []string{}
-	logger := NewBaseLogger(helper.mockAgent, "", true, queue)
+	logger := NewBaseLogger(helper.mockAgent, helper.mockURLSdenied[0], true, queue)
 	assert.Equal(t, queue, logger.Queue())
-	assert.Equal(t, "", logger.Url())
+	assert.Equal(t, helper.mockURLSdenied[0], logger.Url())
 	assert.True(t, logger.Enableable())
 	assert.True(t, logger.Enabled())
-	assert.Equal(t, 0, len(queue))
+	assert.Equal(t, 0, len(logger.queue))
 	logger.Submit("{}")
-	assert.Equal(t, 1, len(queue))
+	assert.Equal(t, 1, len(logger.queue))
 	logger.Submit("{}")
-	assert.Equal(t, 2, len(queue))
+	assert.Equal(t, 2, len(logger.queue))
 	assert.Equal(t, int64(0), logger.SubmitFailures())
 	assert.Equal(t, int64(2), logger.SubmitSuccesses())
 }
