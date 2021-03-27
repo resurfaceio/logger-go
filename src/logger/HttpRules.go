@@ -93,7 +93,7 @@ func newHttpRules(rules string) (*HttpRules, error) {
 	}
 
 	//force default rules if necessary
-	regex := regexp.MustCompile("^\\s*include default\\s*$")
+	regex := regexp.MustCompile("(?m)^\\s*include default\\s*$")
 	rules = regex.ReplaceAllString(rules, httpRules.defaultRules)
 	if len(strings.TrimSpace(rules)) == 0 {
 		rules = httpRules.defaultRules
@@ -289,10 +289,15 @@ func parseRule(r string) (*HttpRule, error) {
 	if regexAllowHttpUrl.MatchString(r) {
 		return NewHttpRule("allow_http_url", nil, nil, nil), nil
 	}
-	if regexCopySessionField.MatchString(r) {
-		return NewHttpRule("copy_session_field", nil, nil, nil), nil
+	m := regexCopySessionField.FindAllStringSubmatch(r, -1)
+	if m != nil {
+		parsedRegex, err := parseRegex(r, m[0][1])
+		if err != nil {
+			return nil, err
+		}
+		return NewHttpRule("copy_session_field", nil, parsedRegex, nil), nil
 	}
-	m := regexRemove.FindAllStringSubmatch(r, -1)
+	m = regexRemove.FindAllStringSubmatch(r, -1)
 	if m != nil {
 		parsedRegex, err := parseRegex(r, m[0][1])
 		if err != nil {

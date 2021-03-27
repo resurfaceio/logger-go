@@ -208,10 +208,11 @@ func parseOk(t *testing.T, line string, verb string,
 	scope string, param1 interface{}, param2 interface{}) {
 
 	rule, _ := parseRule(line)
+
 	assert.Equal(t, verb, rule.Verb())
 
 	if rule.Scope() == nil {
-		assert.Nil(t, scope)
+		assert.Equal(t, "", scope)
 	} else {
 		// this may need to change
 		assert.Equal(t, scope, rule.Scope().String())
