@@ -41,7 +41,7 @@ func GetUsageLoggers() (*UsageLoggers, error) {
 /**
 * Enable all usage loggers, except those explicitly disabled.
  */
-func (uLogger UsageLoggers) Enable() {
+func (uLogger *UsageLoggers) Enable() {
 	if !uLogger.bricked {
 		uLogger.disabled = false
 	}
@@ -50,21 +50,21 @@ func (uLogger UsageLoggers) Enable() {
 /**
 * Disable all usage loggers.
  */
-func (uLogger UsageLoggers) Disable() {
+func (uLogger *UsageLoggers) Disable() {
 	uLogger.disabled = true
 }
 
 /**
 * Returns true if usage loggers are generally enabled.
  */
-func (uLogger UsageLoggers) IsEnabled() bool {
+func (uLogger *UsageLoggers) IsEnabled() bool {
 	return !uLogger.disabled
 }
 
 /**
 * Returns url to use by default.
  */
-func (uLogger UsageLoggers) UrlByDefault() string {
+func (uLogger *UsageLoggers) UrlByDefault() string {
 	url := os.Getenv("USAGE_LOGGERS_URL")
 	return url
 }
