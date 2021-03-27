@@ -111,8 +111,6 @@ func TestSkipsEnablingForInvalidUrls(t *testing.T) {
 		assert.False(t, logger.Enabled())
 		assert.Equal(t, "", logger.Url())
 		logger.Enable()
-		logger.Disable()
-		logger.Enable()
 		assert.False(t, logger.Enabled())
 	}
 }
@@ -120,7 +118,7 @@ func TestSkipsEnablingForInvalidUrls(t *testing.T) {
 func TestSkipsEnablingForEmptyUrl(t *testing.T) {
 	url := ""
 	helper := GetTestHelper()
-	logger := NewBaseLogger(helper.mockAgent, url, true, nil)
+	logger := NewBaseLogger(helper.mockAgent, url, false, nil) // should this be false or true because it matters for the test with enabled bool
 	assert.False(t, logger.Enableable())
 	usageLoggers, _ := GetUsageLoggers()
 	fmt.Println(usageLoggers.IsEnabled())
