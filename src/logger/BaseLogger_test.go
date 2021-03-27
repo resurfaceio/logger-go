@@ -141,9 +141,7 @@ func TestSubmitsToDemoUrl(t *testing.T) {
 	message = append(message, []string{"version", logger.Version()})
 	message = append(message, []string{"now", string(fmt.Sprint(helper.mockNow))})
 	message = append(message, []string{"protocol", "https"})
-	msg, err := json.Marshal(message)
-	assert.True(t, err == nil)
-	logger.Submit(string(msg))
+	logger.Submit(msgStringify(message))
 	assert.Equal(t, int64(0), logger.SubmitFailures())
 	assert.Equal(t, int64(1), logger.SubmitSuccesses())
 }
