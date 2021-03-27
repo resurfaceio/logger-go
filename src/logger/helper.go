@@ -1,8 +1,16 @@
 package logger
 
-import "sync"
+import (
+	"bytes"
+	"encoding/json"
+	"log"
+	"net/http"
+	"net/url"
+	"sync"
+	"strings"
+)
 
-var once sync.Once
+var helperOnce sync.Once
 
 type helper struct {
 	demoURL         string
@@ -19,16 +27,79 @@ type helper struct {
 	mockURL         string
 	mockURLSdenied  []string
 	mockURLSinvalid []string
+	mockFormData    string
 }
 
 var testHelper *helper
 
+//This is a rough outline.
+//I am thinking we need to cover the requests rather than the responses.
+//MockGetRequest covers a get request to compare against loggin.
+//https://appdividend.com/2019/12/02/golang-http-example-get-post-http-requests-in-golang/
+func MockGetRequest() http.Request {
+	helper := GetTestHelper()
+	resp, err := http.Get(helper.demoURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	request := resp.Request
+	return *request
+}
+
+// func MockDoRequest() http.Request {
+// 	helper := GetTestHelper()
+// 	resp, err := http.Get(helper.demoURL)
+// 	resp, err = http.Do(resp)
+// 	request := resp.Request
+// 	return *request
+// }
+
+func MockHeadRequest() http.Request {
+	helper := GetTestHelper()
+	resp, err := http.Head(helper.demoURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	request := resp.Request
+	return *request
+}
+
+func MockPostRequest() http.Request {
+	helper := GetTestHelper()
+	resp, err := http.Post(helper.demoURL, "html", bytes.NewBuffer([]byte(helper.mockJSON)))
+	if err != nil {
+		log.Fatal(err)
+	}
+	request := resp.Request
+	return *request
+}
+
+func MockPostFormRequest() http.Request {
+	helper := GetTestHelper()
+	form := url.Values{}
+	form.Add("username", "resurfaceio")
+	resp, err := http.PostForm(helper.demoURL, form)
+	if err != nil {
+		log.Fatal(err)
+	}
+	request := resp.Request
+	return *request
+}
+
+//https://golang.org/pkg/encoding/json/#example_Unmarshal
+func parseable(msg string) bool {
+	if msg == "" || !strings.HasPrefix(msg, "[") || !strings.HasSuffix(msg, "]") || strings.Contains(msg, "[]") || strings.Contains(msg, ",,"){
+		return false
+	} 
+	return json.Valid([]byte(msg))
+}
+
 func GetTestHelper() *helper {
-	once.Do(func() {
+	helperOnce.Do(func() {
 		testHelper = &helper{
 			demoURL: "https://demo.resurface.io/ping",
 
-			mockAgent: "helper.go",
+			mockAgent: "helper.java",
 
 			mockHTML: "<html>Hello World!</html>",
 
@@ -63,6 +134,8 @@ func GetTestHelper() *helper {
 				"noway3is5this1valid2",
 				"ftp:\\www.noway3is5this1valid2.com/",
 				"urn:ISSN:1535–3613"},
+
+			mockFormData: "\"username\": { \" ResurfaceIO \" ",
 		}
 	})
 
