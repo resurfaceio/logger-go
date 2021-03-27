@@ -127,7 +127,7 @@ func TestSkipsEnablingForNullUrl(t *testing.T) {
 	logger := NewBaseLogger(helper.mockAgent, url, true, nil)
 	assert.False(t, logger.Enableable())
 	assert.False(t, logger.Enabled())
-	assert.Nil(t, logger.Url())
+	assert.Equal(t, "", logger.Url())
 	logger.Enable()
 	assert.False(t, logger.Enabled())
 }
