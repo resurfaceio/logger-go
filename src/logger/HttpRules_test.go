@@ -113,13 +113,13 @@ func TestIncludeStandardRules(t *testing.T) {
 
 	rules, _ = newHttpRules(" include standard\ninclude standard")
 	assert.Equal(t, 6, rules.Size())
-	rules, _ = newHttpRules("inlcude standard\nsample 50\ninclude standard")
+	rules, _ = newHttpRules("include standard\nsample 50\ninclude standard")
 	assert.Equal(t, 7, rules.Size())
 
-	httpRules, _ := newHttpRules("")
+	httpRules := GetHttpRules()
 	assert.Equal(t, httpRules.StrictRules(), httpRules.DefaultRules())
 	for {
-		httpRules.SetDefaultRules("inlcude standard")
+		httpRules.SetDefaultRules("include standard")
 		rules, _ = newHttpRules("")
 		if !assert.Equal(t, 3, rules.Size()) {
 			break
@@ -180,19 +180,19 @@ func TestIncludeStrictRules(t *testing.T) {
 }
 
 func TestLoadsRulesFromFile(t *testing.T) {
-	rules, _ := newHttpRules("file://./test/rules1.txt")
+	rules, _ := newHttpRules("file://./rules1.txt")
 	assert.Equal(t, 1, rules.Size())
 	assert.Equal(t, 1, len(rules.Sample()))
 	assert.Equal(t, 55, rules.Sample()[0].Param1())
 
-	rules, _ = newHttpRules("file://./test/rules2.txt")
+	rules, _ = newHttpRules("file://./rules2.txt")
 	assert.Equal(t, 3, rules.Size())
 	assert.True(t, rules.AllowHttpUrl())
 	assert.Equal(t, 1, len(rules.CopySessionField()))
 	assert.Equal(t, 1, len(rules.Sample()))
 	assert.Equal(t, 56, rules.Sample()[0].Param1())
 
-	rules, _ = newHttpRules("file://./test/rules3.txt ")
+	rules, _ = newHttpRules("file://./rules3.txt ")
 	assert.Equal(t, 3, rules.Size())
 	assert.Equal(t, 1, len(rules.Replace()))
 	assert.Equal(t, 1, len(rules.sample))

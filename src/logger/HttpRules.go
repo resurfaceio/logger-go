@@ -116,15 +116,13 @@ func newHttpRules(rules string) (*HttpRules, error) {
 	var prs []*HttpRule
 	for _, rule := range regexp.MustCompile("\\r?\\n").Split(_text, -1) {
 		// fmt.Println(rule)
-		parsed, err := parseRule(rule)
-		if err != nil {
-			return nil, err
-		} else if err == nil && parsed != nil {
+		parsed, _ := parseRule(rule)
+		if parsed != nil {
 			prs = append(prs, parsed)
 		}
 	}
 
-	// fmt.Println(len(prs))g
+	// fmt.Println(len(prs))
 
 	_size := len(prs)
 
@@ -370,7 +368,7 @@ func parseRule(r string) (*HttpRule, error) {
 	if m != nil {
 		m1, err := strconv.Atoi(m[0][1])
 		if err != nil {
-			return nil, fmt.Errorf("irror parsing sample rule: %s", r)
+			return nil, fmt.Errorf("error parsing sample rule: %s", r)
 		}
 		if m1 < 1 || m1 > 99 {
 			return nil, fmt.Errorf("invalid sample percent: %d", m1)
