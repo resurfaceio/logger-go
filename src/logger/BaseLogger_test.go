@@ -143,8 +143,8 @@ func TestSubmitsToDemoUrl(t *testing.T) {
 	msg, err := json.Marshal(message)
 	assert.True(t, err == nil)
 	logger.Submit(string(msg))
-	assert.Equal(t, 0, logger.SubmitFailures())
-	assert.Equal(t, 1, logger.SubmitSuccesses())
+	assert.Equal(t, int64(0), logger.SubmitFailures())
+	assert.Equal(t, int64(1), logger.SubmitSuccesses())
 }
 
 func TestSubmitsToDemoUrlViaHttp(t *testing.T) {
