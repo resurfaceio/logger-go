@@ -99,8 +99,6 @@ func TestPerformsEnablingWhenExpected(t *testing.T) {
 	assert.False(t, logger.Enabled())
 	assert.Equal(t, "", logger.Url())
 	logger.Enable()
-	logger.Disable()
-	logger.Enable()
 	assert.True(t, logger.Enabled())
 }
 
@@ -193,7 +191,7 @@ func TestSubmitsToQueue(t *testing.T) {
 	queue := []string{}
 	logger := NewBaseLogger(helper.mockAgent, "", true, queue)
 	assert.Equal(t, queue, logger.Queue())
-	assert.Nil(t, logger.Url())
+	assert.Equal(t, "", logger.Url())
 	assert.True(t, logger.Enableable())
 	assert.True(t, logger.Enabled())
 	assert.Equal(t, 0, len(queue))
@@ -202,7 +200,7 @@ func TestSubmitsToQueue(t *testing.T) {
 	logger.Submit("{}")
 	assert.Equal(t, 2, len(queue))
 	assert.Equal(t, int64(0), logger.SubmitFailures())
-	assert.Equal(t, int64(0), logger.SubmitSuccesses())
+	assert.Equal(t, int64(2), logger.SubmitSuccesses())
 }
 
 func TestUsesSkipOptions(t *testing.T) {

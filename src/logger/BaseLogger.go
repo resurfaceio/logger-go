@@ -18,7 +18,8 @@ func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *
 
 	if _url == "" {
 		_url = usageLoggers.UrlByDefault()
-		if _url == "" {
+		// WIP 03.26.21
+		if _url != "" {
 			_enabled = false
 		}
 	}
@@ -32,7 +33,7 @@ func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *
 		if parsingError != nil || !isUrl {
 			_url = ""
 			_urlParsed = nil
-			_enabled = false
+			_enabled = (_queue != nil)
 		}
 	}
 
@@ -71,12 +72,14 @@ func (logger *BaseLogger) Submit(msg string) {
 	} else if logger.queue != nil {
 		logger.queue = append(logger.queue, msg)
 		atomic.AddInt64(&logger.submitSuccesses, 1)
+		return
 	} else {
 		// not 100% sure this works (needs testing) and should add some error handling
 		submitRequest, err := http.NewRequest("POST", logger.url, bytes.NewBuffer([]byte(msg)))
 		if err != nil {
 			fmt.Printf("Error creating submit request: %s", err.Error())
 			atomic.AddInt64(&logger.submitFailures, 1)
+			return
 		}
 
 		submitRequest.Header.Set("Content-Type", "application/json; charset=UTF-8")
@@ -90,12 +93,14 @@ func (logger *BaseLogger) Submit(msg string) {
 			if err != nil {
 				fmt.Printf("Error applying deflate compression to message: %s\n", err.Error())
 				atomic.AddInt64(&logger.submitFailures, 1)
+				return
 			}
 
 			_, err = w.Write([]byte(msg))
 			if err != nil {
 				fmt.Printf("Error writing message to io.Writer: %s\n", err.Error())
 				atomic.AddInt64(&logger.submitFailures, 1)
+				return
 			}
 			w.Close()
 
@@ -103,18 +108,22 @@ func (logger *BaseLogger) Submit(msg string) {
 			if err != nil {
 				fmt.Printf("Error writing message to request: %s\n", err.Error())
 				atomic.AddInt64(&logger.submitFailures, 1)
+				return
 			}
 		}
 
 		submitResponse, err := http.DefaultClient.Do(submitRequest)
 		if err != nil {
 			atomic.AddInt64(&logger.submitFailures, 1)
+			return
 		}
 
 		if submitResponse.StatusCode == 204 {
 			atomic.AddInt64(&logger.submitSuccesses, 1)
+			return
 		} else {
 			atomic.AddInt64(&logger.submitFailures, 1)
+			return
 		}
 	}
 }
