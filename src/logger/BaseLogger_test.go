@@ -188,12 +188,12 @@ func TestSubmitsToQueue(t *testing.T) {
 	helper := GetTestHelper()
 	queue := []string{}
 	logger := NewBaseLogger(helper.mockAgent, "", true, queue)
-	assert.Equal(t, queue, logger.Queue())
+	assert.Equal(t, logger.queue, logger.Queue())
 	assert.Equal(t, "", logger.Url())
 	assert.True(t, logger.Enableable())
 	assert.True(t, logger.Enabled())
 	assert.Equal(t, 0, len(logger.queue)) // should these be logger.queue or queue its late i don't know -----Devin
-	logger.Submit("lawl")
+	logger.Submit("{}")
 	assert.Equal(t, 1, len(logger.queue)) // should these be logger.queue or queue its late i don't know -----Devin
 	logger.Submit("{}")
 	assert.Equal(t, 2, len(logger.queue)) // should these be logger.queue or queue its late i don't know -----Devin
