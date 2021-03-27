@@ -155,10 +155,10 @@ func (logger *BaseLogger) Url() string            { return logger.url }
 func (logger *BaseLogger) UrlParsed() *url.URL    { return logger.urlParsed }
 func (logger *BaseLogger) Version() string        { return logger.version }
 
-func (logger BaseLogger) SetSkipCompression(_skipCompression bool) {
+func (logger *BaseLogger) SetSkipCompression(_skipCompression bool) {
 	logger.skipCompression = _skipCompression
 }
-func (logger BaseLogger) SetSkipSubmission(_skipSubmission bool) {
+func (logger *BaseLogger) SetSkipSubmission(_skipSubmission bool) {
 	logger.skipSubmission = _skipSubmission
 }
 

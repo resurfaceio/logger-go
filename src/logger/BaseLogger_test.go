@@ -7,8 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"strings"
-
-	"encoding/json"
 )
 
 func TestCreatesInstance(t *testing.T) {
@@ -148,23 +146,23 @@ func TestSubmitsToDemoUrl(t *testing.T) {
 
 func TestSubmitsToDemoUrlViaHttp(t *testing.T) {
 	helper := GetTestHelper()
-	logger := NewBaseLogger(helper.mockAgent, strings.Replace(helper.demoURL, "https://", "http://", 1), true, nil)
+	queue := []string{}
+	logger := NewBaseLogger(helper.mockAgent, strings.Replace(helper.demoURL, "https://", "http://", 1), true, queue)
 	assert.Equal(t, 0, strings.Index(logger.Url(), "http://"))
 	message := [][]string{}
 	message = append(message, []string{"agent", logger.Agent()})
 	message = append(message, []string{"version", logger.Version()})
 	message = append(message, []string{"now", string(fmt.Sprint(helper.mockNow))})
 	message = append(message, []string{"protocol", "http"})
-	msg, err := json.Marshal(message)
-	assert.True(t, err == nil)
-	logger.Submit(string(msg))
-	assert.Equal(t, 0, logger.SubmitFailures())
-	assert.Equal(t, 1, logger.SubmitSuccesses())
+	logger.Submit(msgStringify(message))
+	assert.Equal(t, int64(0), logger.SubmitFailures())
+	assert.Equal(t, int64(1), logger.SubmitSuccesses())
 }
 
 func TestSubmitsToDemoUrlWihoutCompression(t *testing.T) {
 	helper := GetTestHelper()
-	logger := NewBaseLogger(helper.mockAgent, helper.demoURL, true, nil)
+	queue := []string{}
+	logger := NewBaseLogger(helper.mockAgent, helper.demoURL, true, queue)
 	logger.SetSkipCompression(true)
 	assert.True(t, logger.SkipCompression())
 	message := [][]string{}
@@ -173,11 +171,9 @@ func TestSubmitsToDemoUrlWihoutCompression(t *testing.T) {
 	message = append(message, []string{"now", string(fmt.Sprint(helper.mockNow))})
 	message = append(message, []string{"protocol", "https"})
 	message = append(message, []string{"skip_compression", "true"})
-	msg, err := json.Marshal(message)
-	assert.True(t, err == nil)
-	logger.Submit(string(msg))
-	assert.Equal(t, 0, logger.SubmitFailures)
-	assert.Equal(t, 1, logger.SubmitSuccesses)
+	logger.Submit(msgStringify(message))
+	assert.Equal(t, int64(0), logger.SubmitFailures())
+	assert.Equal(t, int64(1), logger.SubmitSuccesses())
 }
 
 func TestSubmitsToDeniedUrl(t *testing.T) {
@@ -187,8 +183,8 @@ func TestSubmitsToDeniedUrl(t *testing.T) {
 		assert.True(t, logger.Enableable())
 		assert.True(t, logger.Enabled())
 		logger.Submit("{}")
-		assert.Equal(t, 1, logger.SubmitFailures())
-		assert.Equal(t, 0, logger.SubmitSuccesses())
+		assert.Equal(t, int64(1), logger.SubmitFailures())
+		assert.Equal(t, int64(0), logger.SubmitSuccesses())
 	}
 }
 
@@ -205,8 +201,8 @@ func TestSubmitsToQueue(t *testing.T) {
 	assert.Equal(t, 1, len(queue))
 	logger.Submit("{}")
 	assert.Equal(t, 2, len(queue))
-	assert.Equal(t, 0, logger.SubmitFailures())
-	assert.Equal(t, 0, logger.SubmitSuccesses())
+	assert.Equal(t, int64(0), logger.SubmitFailures())
+	assert.Equal(t, int64(0), logger.SubmitSuccesses())
 }
 
 func TestUsesSkipOptions(t *testing.T) {

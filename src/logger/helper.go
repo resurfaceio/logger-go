@@ -126,9 +126,10 @@ func GetTestHelper() *helper {
 
 			mockURL: "http://something.com:3000/index.html",
 
-			mockURLSdenied: []string{"https://demo.resurface.io/ping",
-				"/noway3is5this1valid2",
-				"https://www.noway3is5this1valid2.com/"},
+			mockURLSdenied: []string{
+				"https://demo.resurface.io/ping/noway3is5this1valid2",
+				"https://www.noway3is5this1valid2.com/",
+			},
 
 			mockURLSinvalid: []string{"",
 				"noway3is5this1valid2",
