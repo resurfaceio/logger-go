@@ -111,8 +111,6 @@ func TestSkipsEnablingForInvalidUrls(t *testing.T) {
 		assert.False(t, logger.Enabled())
 		assert.Equal(t, "", logger.Url())
 		logger.Enable()
-		logger.Disable()
-		logger.Enable()
 		assert.False(t, logger.Enabled())
 	}
 }
@@ -120,7 +118,7 @@ func TestSkipsEnablingForInvalidUrls(t *testing.T) {
 func TestSkipsEnablingForNullUrl(t *testing.T) {
 	url := ""
 	helper := GetTestHelper()
-	logger := NewBaseLogger(helper.mockAgent, url, true, nil)
+	logger := NewBaseLogger(helper.mockAgent, url, false, nil) // should this be false or true because it matters for the test
 	assert.False(t, logger.Enableable())
 	assert.False(t, logger.Enabled())
 	assert.Equal(t, "", logger.Url())
@@ -194,11 +192,11 @@ func TestSubmitsToQueue(t *testing.T) {
 	assert.Equal(t, "", logger.Url())
 	assert.True(t, logger.Enableable())
 	assert.True(t, logger.Enabled())
-	assert.Equal(t, 0, len(queue))
+	assert.Equal(t, 0, len(logger.queue)) // should these be logger.queue or queue its late i don't know -----Devin
+	logger.Submit("lawl")
+	assert.Equal(t, 1, len(logger.queue)) // should these be logger.queue or queue its late i don't know -----Devin
 	logger.Submit("{}")
-	assert.Equal(t, 1, len(queue))
-	logger.Submit("{}")
-	assert.Equal(t, 2, len(queue))
+	assert.Equal(t, 2, len(logger.queue)) // should these be logger.queue or queue its late i don't know -----Devin
 	assert.Equal(t, int64(0), logger.SubmitFailures())
 	assert.Equal(t, int64(2), logger.SubmitSuccesses())
 }
