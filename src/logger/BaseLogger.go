@@ -8,6 +8,8 @@ import (
 	"net/url"
 	"os"
 	"sync/atomic"
+
+	"github.com/asaskevich/govalidator"
 )
 
 // BaseLogger constructor
@@ -26,7 +28,8 @@ func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *
 	//validate url when present
 	if _url != "" {
 		_urlParsed, parsingError = url.ParseRequestURI(_url)
-		if parsingError != nil {
+		isUrl := govalidator.IsURL(_url)
+		if parsingError != nil || isUrl == false {
 			_url = ""
 			_urlParsed = nil
 			_enabled = false
