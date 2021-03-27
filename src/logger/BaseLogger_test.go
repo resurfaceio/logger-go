@@ -134,7 +134,8 @@ func TestSkipsEnablingForNullUrl(t *testing.T) {
 
 func TestSubmitsToDemoUrl(t *testing.T) {
 	helper := GetTestHelper()
-	logger := NewBaseLogger(helper.mockAgent, helper.demoURL, true, nil)
+	queue := []string{}
+	logger := NewBaseLogger(helper.mockAgent, helper.demoURL, true, queue)
 	message := [][]string{}
 	message = append(message, []string{"agent", logger.Agent()})
 	message = append(message, []string{"version", logger.Version()})
