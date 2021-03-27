@@ -50,18 +50,18 @@ func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *
 	return constructedBaseLogger
 }
 
-func (logger BaseLogger) Enable() {
+func (logger *BaseLogger) Enable() {
 	logger.enabled = logger.enableable
 }
 
-func (logger BaseLogger) Disable() {
+func (logger *BaseLogger) Disable() {
 	logger.enabled = false
 }
 
 /**
  * Submits JSON message to intended destination.
  */
-func (logger BaseLogger) Submit(msg string) {
+func (logger *BaseLogger) Submit(msg string) {
 	//woah congrats you submitted the message
 	if msg == "" || logger.SkipSubmission() || !logger.Enabled() {
 		//do nothing
