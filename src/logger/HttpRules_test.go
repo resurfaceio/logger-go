@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -10,7 +11,10 @@ import (
 func TestChangesDefaultRules(t *testing.T) {
 	httpRules := GetHttpRules()
 	for {
-		rules, _ := newHttpRules("")
+		rules, err := newHttpRules("")
+		if err != nil {
+			fmt.Println(err.Error())
+		}
 		if !assert.Equal(t, rules.StrictRules(), httpRules.DefaultRules()) {
 			break
 		}
