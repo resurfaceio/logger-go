@@ -10,7 +10,7 @@ import (
 
 func TestChangesDefaultRules(t *testing.T) {
 	httpRules := GetHttpRules()
-	for true {
+	for {
 		rules, err := newHttpRules("")
 		if err != nil {
 			fmt.Println(err.Error())
@@ -80,7 +80,7 @@ func TestIncludeDebugRules(t *testing.T) {
 	assert.Equal(t, httpRules.StrictRules(), httpRules.DefaultRules())
 	httpRules.SetDefaultRules("include debug")
 	rules, _ = newHttpRules("")
-	for true {
+	for {
 		if !assert.Equal(t, 2, rules.Size()) {
 			break
 		}
@@ -91,9 +91,10 @@ func TestIncludeDebugRules(t *testing.T) {
 
 		if !assert.Equal(t, 1, len(rules.CopySessionField())) {
 			break
+		} else {
+			break
 		}
 
-		break
 	}
 
 	httpRules.SetDefaultRules(httpRules.StrictRules())
@@ -131,9 +132,10 @@ func TestIncludeStandardRules(t *testing.T) {
 
 		if !assert.Equal(t, 2, len(rules.Replace())) {
 			break
+		} else {
+			break
 		}
 
-		break
 	}
 
 	httpRules.SetDefaultRules(httpRules.StrictRules())
@@ -171,9 +173,9 @@ func TestIncludeStrictRules(t *testing.T) {
 
 		if !assert.Equal(t, 1, len(rules.Replace())) {
 			break
+		} else {
+			break
 		}
-
-		break
 	}
 
 	httpRules.SetDefaultRules(httpRules.StrictRules())
