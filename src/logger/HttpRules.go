@@ -87,7 +87,7 @@ func newHttpRules(rules string) (*HttpRules, error) {
 		// read rules from file
 		buffer, err := ioutil.ReadFile(rfile)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to load rules: %s", rfile)
 		}
 		rules = string(buffer)
 	}
@@ -116,9 +116,11 @@ func newHttpRules(rules string) (*HttpRules, error) {
 	var prs []*HttpRule
 	for _, rule := range regexp.MustCompile("\\r?\\n").Split(_text, -1) {
 		// fmt.Println(rule)
-		parsed, _ := parseRule(rule)
+		parsed, err := parseRule(rule)
 		if parsed != nil {
 			prs = append(prs, parsed)
+		} else if parsed == nil && err != nil {
+			return nil, err
 		}
 	}
 
@@ -451,7 +453,7 @@ func parseRule(r string) (*HttpRule, error) {
 func parseRegex(r string, regex string) (*regexp.Regexp, error) {
 	s, err := parseString(r, regex)
 	if err != nil {
-		return nil, fmt.Errorf("invalid regex (%s) in rule: %s", regex, r)
+		return nil, err
 	}
 	if "*" == s || "+" == s || "?" == s {
 		return nil, fmt.Errorf("invalid regex (%s) in rule: %s", regex, r)
@@ -474,7 +476,7 @@ func parseRegex(r string, regex string) (*regexp.Regexp, error) {
 func parseRegexFind(r string, regex string) (*regexp.Regexp, error) {
 	parsedString, err := parseString(r, regex)
 	if err != nil {
-		return nil, fmt.Errorf("invalid regex (%s) in rule: %s", regex, r)
+		return nil, err
 	}
 	regexp, err := regexp.Compile(parsedString)
 	if err != nil {
@@ -494,7 +496,7 @@ func parseString(r string, expr string) (string, error) {
 			regex = regexp.MustCompile(fmt.Sprintf("^[%s].*|.*[^\\\\][%s].*", sep, sep))
 			if regex.MatchString(m1) {
 				// return error '"Unescaped separator (%s) in rule: %s", sep, r'
-				return "", fmt.Errorf("inescaped separator (%s) in rule: %s", sep, r)
+				return "", fmt.Errorf("unescaped separator (%s) in rule: %s", sep, r)
 			}
 			return strings.Replace(m1, "\\"+sep, sep, -1), nil
 		}

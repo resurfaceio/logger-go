@@ -923,21 +923,22 @@ func TestParsesStopUnlessFoundRules(t *testing.T) {
 func TestReturnsExpectedErrors(t *testing.T) {
 
 	_, err := newHttpRules("file://~/bleepblorpbleepblorp12345")
-	assert.Equal(t, "Failed to load rules: ~/bleepblorpbleepblorp12345", err.Error())
+	assert.Equal(t, "failed to load rules: ~/bleepblorpbleepblorp12345", err.Error())
 
 	_, err = newHttpRules("/*! stop")
-	assert.Equal(t, "Invalid expression (/*!) in rule: /*! stop", err.Error())
+	fmt.Println(err.Error())
+	assert.Equal(t, "invalid expression (/*!) in rule: /*! stop", err.Error())
 
 	_, err = newHttpRules("/*/ stop")
-	assert.Equal(t, "Invalid expression (/*!) in rule: /*! stop", err.Error())
+	assert.Equal(t, "invalid regex (/*/) in rule: /*/ stop", err.Error())
 
 	_, err = newHttpRules("/boo")
-	assert.Equal(t, "Invalid rule: /boo", err.Error())
+	assert.Equal(t, "invalid rule: /boo", err.Error())
 
 	_, err = newHttpRules("sample 123")
-	assert.Equal(t, "Invalid sample percent: 123", err.Error())
+	assert.Equal(t, "invalid sample percent: 123", err.Error())
 
 	_, err = newHttpRules("!!! stop")
-	assert.Equal(t, "Unescaped separator (!) in rule: !!! stop", err.Error())
+	assert.Equal(t, "unescaped separator (!) in rule: !!! stop", err.Error())
 
 }
