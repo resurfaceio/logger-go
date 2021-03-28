@@ -3,7 +3,6 @@ package logger
 import (
 	"fmt"
 	"io/ioutil"
-	"math/rand"
 	"regexp"
 	"strconv"
 	"strings"
@@ -504,107 +503,6 @@ func parseString(r string, expr string) (string, error) {
 	return "", fmt.Errorf("invalid expression (%s) in rule: %s", expr, r)
 }
 
-// Apply current rules to message details.
-func (rules *HttpRules) apply(details [][]string) [][]string {
-	// stop rules come first
-	for _, r := range rules.stop {
-		for _, d := range details {
-			if r.scope.FindAllStringSubmatch(d[0], -1) != nil {
-				return nil
-			}
-		}
-	}
-	for _, r := range rules.stopIfFound {
-		for _, d := range details {
-			regex := r.param1.(regexp.Regexp)
-			if r.scope.FindAllStringSubmatch(d[0], -1) != nil && regex.FindAllStringSubmatch(d[1], -1) != nil {
-				return nil
-			}
-		}
-	}
-	for _, r := range rules.stopIf {
-		for _, d := range details {
-			regex := r.param1.(regexp.Regexp)
-			if r.scope.FindAllStringSubmatch(d[0], -1) != nil && regex.FindAllStringSubmatch(d[1], -1) != nil {
-				return nil
-			}
-		}
-	}
-	passed := 0
-	for _, r := range rules.stopUnlessFound {
-		for _, d := range details {
-			regex := r.param1.(regexp.Regexp)
-			if r.scope.FindAllStringSubmatch(d[0], -1) != nil && regex.FindAllStringSubmatch(d[1], -1) != nil {
-				passed++
-			}
-		}
-	}
-	if passed != len(rules.stopUnlessFound) {
-		return nil
-	}
-	passed = 0
-	for _, r := range rules.stopUnless {
-		for _, d := range details {
-			regex := r.param1.(regexp.Regexp)
-			if r.scope.FindAllStringSubmatch(d[0], -1) != nil && regex.FindAllStringSubmatch(d[1], -1) != nil {
-				passed++
-			}
-		}
-	}
-	if passed != len(rules.stopUnlessFound) {
-		return nil
-	}
-
-	// do sampling if configured
-	if len(rules.sample) == 1 && rand.Intn(100) >= rules.sample[0].param1.(int) {
-		return nil
-	}
-
-	// winnow sensitive details based on remove rules if configured
-	for _, r := range rules.remove {
-		details = removeDetailIf(details, []*regexp.Regexp{r.scope})
-	}
-	for _, r := range rules.removeUnlessFound {
-		details = removeDetailIf(details, []*regexp.Regexp{r.scope, r.param1.(*regexp.Regexp)})
-	}
-	for _, r := range rules.removeIfFound {
-		details = removeDetailIf(details, []*regexp.Regexp{r.scope, r.param1.(*regexp.Regexp)})
-	}
-	for _, r := range rules.removeUnless {
-		details = removeDetailIf(details, []*regexp.Regexp{r.scope, r.param1.(*regexp.Regexp)})
-	}
-	for _, r := range rules.removeIf {
-		details = removeDetailIf(details, []*regexp.Regexp{r.scope, r.param1.(*regexp.Regexp)})
-	}
-	if len(details) == 0 {
-		return nil
-	}
-
-	// mask sensitive details based on replace rules if configured
-	for _, r := range rules.replace {
-		for _, d := range details {
-			if r.scope.FindAllStringSubmatch(d[0], -1) != nil {
-				r.param1.(*regexp.Regexp).ReplaceAllLiteralString(d[1], r.param2.(string))
-			}
-		}
-	}
-
-	// remove any details with empty values
-	i := 0
-	for _, d := range details {
-		if d[1] != "" {
-			details[i] = d
-			i++
-		}
-	}
-	details = details[:i]
-	if len(details) == 0 {
-		return nil
-	}
-
-	return details
-}
-
 /*
 The following unexported Regexps should be treat as constants
 and remain unchanged throughout package usage
@@ -644,30 +542,4 @@ func ruleFilter(parsedRules []*HttpRule, ruleString string, cond func(string, st
 		}
 	}
 	return result
-}
-
-// https://stackoverflow.com/questions/20545743/delete-entries-from-a-slice-while-iterating-over-it-in-go/20551116
-// remove detail form details slice if all regexp.Regexp are matched from the given slice of *regexp.Regexp
-func removeDetailIf(details [][]string, regex []*regexp.Regexp) [][]string {
-	i := 0
-	for _, d := range details {
-		allMatched := true
-		for _, exp := range regex {
-			if exp.FindAllStringSubmatch(d[0], -1) == nil {
-				allMatched = false
-			}
-		}
-		/*
-			for current details item, no
-			expression was matched so
-			include it in the details
-			slice
-		*/
-		if !allMatched {
-			details[i] = d
-			i++
-		}
-	}
-	details = details[:i]
-	return details
 }
