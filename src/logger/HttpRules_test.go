@@ -208,7 +208,6 @@ func parseOk(t *testing.T, line string, verb string,
 	scope string, param1 interface{}, param2 interface{}) {
 
 	rule, _ := parseRule(line)
-
 	assert.Equal(t, verb, rule.Verb())
 
 	if rule.Scope() == nil {
@@ -219,20 +218,20 @@ func parseOk(t *testing.T, line string, verb string,
 	}
 
 	ruleParam1 := rule.Param1()
-	_, notRegexp := ruleParam1.(regexp.Regexp)
+	_, isRegexp := ruleParam1.(*regexp.Regexp)
 	if ruleParam1 == nil {
 		assert.Nil(t, param1)
-	} else if !notRegexp {
+	} else if isRegexp {
 		assert.Equal(t, ruleParam1.(*regexp.Regexp).String(), param1)
 	} else {
 		assert.Equal(t, ruleParam1, param1)
 	}
 
 	ruleParam2 := rule.Param2()
-	_, notRegexp = ruleParam2.(*regexp.Regexp)
+	_, isRegexp = ruleParam2.(*regexp.Regexp)
 	if ruleParam2 == nil {
 		assert.Nil(t, param2)
-	} else if !notRegexp {
+	} else if isRegexp {
 		assert.Equal(t, ruleParam2.(*regexp.Regexp).String(), param2)
 	} else {
 		assert.Equal(t, ruleParam2, param2)
