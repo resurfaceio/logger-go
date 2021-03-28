@@ -14,7 +14,7 @@ func TestCreateInstance(t *testing.T) {
 	httpLogger := NewHttpLogger(Options{})
 	assert.NotNil(t, httpLogger)
 	assert.Equal(t, HttpLogger.agent, httpLogger.Agent())
-	assert.False(t, httpLogger.Enablable())
+	assert.False(t, httpLogger.Enableable())
 	assert.False(t, httpLogger.Enabled())
 	assert.Nil(t, httpLogger.Queue())
 	assert.Nil(t, httpLogger.Url())
@@ -27,13 +27,13 @@ func TestCreateMultipleInstances(t *testing.T) {
 	url2 := "https://whatever.com"
 	helper := GetTestHelper()
 	options1 := Options{
-		url := url1
+		url: url1,
 	}
 	options2 := Options{
-		url := url2
+		url: url2,
 	}
 	options3 := Options{
-		url := helper.demoURL
+		url: helper.demoURL,
 	}
 
 	logger1 := NewHttpLogger(options1)
@@ -42,50 +42,50 @@ func TestCreateMultipleInstances(t *testing.T) {
 
 	//Logger 1
 	assert.NotNil(t, logger1)
-	assert.Equal(t, HttpLogger.agent, logger1.AGENT())
-	assert.True(t, logger1.Enablable())
+	assert.Equal(t, httpLoggerAgent, logger1.Agent())
+	assert.True(t, logger1.Enableable())
 	assert.True(t, logger1.Enabled())
 	assert.Equal(t, url1, logger1.Url())
 
 	//Logger 2
 	assert.NotNil(t, logger2)
-	assert.Equal(t, HttpLogger.agent, logger2.Agent())
-	assert.True(t, logger2.Enablable())
+	assert.Equal(t, httpLoggerAgent, logger2.Agent())
+	assert.True(t, logger2.Enableable())
 	assert.True(t, logger2.Enabled())
 	assert.Equal(t, url2, logger2.Url())
 
 	//Logger 3
 	assert.NotNil(t, logger3)
-	assert.Equal(t, HttpLogger.agent, logger3.Agent())
-	assert.True(t, logger3.Enablable())
+	assert.Equal(t, httpLoggerAgent, logger3.Agent())
+	assert.True(t, logger3.Enableable())
 	assert.True(t, logger3.Enabled())
 	assert.Equal(t, helper.demoURL, logger3.Url())
 
 	//Testing Usage Logger
 	//Disable
-	UsageLoggers.Disable()
-	assert.False(t, UsageLoggers.isEnabled())
-	assert.False(t, logger1.isEnabled())
-	assert.False(t, logger2.isEnabled())
-	assert.False(t, logger3.isEnabled())
+	usageLoggers, _ := GetUsageLoggers()
+	usageLoggers.Disable()
+	assert.False(t, usageLoggers.IsEnabled())
+	assert.False(t, logger1.Enabled())
+	assert.False(t, logger2.Enabled())
+	assert.False(t, logger3.Enabled())
 	//Enable
-	UsageLoggers.Enable()
-	assert.True(t, UsageLoggers.isEnabled())
-	assert.True(t, logger1.isEnabled())
-	assert.True(t, logger2.isEnabled())
-	assert.True(t, logger3.isEnabled())
+	usageLoggers.Enable()
+	assert.True(t, usageLoggers.IsEnabled())
+	assert.True(t, logger1.Enabled())
+	assert.True(t, logger2.Enabled())
+	assert.True(t, logger3.Enabled())
 }
 
 func TestHasValidAgent(t *testing.T) {
 	//Has Valid Agent Test
 	httpLogger := NewHttpLogger(Options{})
 
-	agent := HttpLogger.agent
-	assert.Greater(t, len(agent), 0)
-	assert.Equal(t, ".go", agent[len(agent)-3:])
-	assert.NotContains(t, agent, "\\")
-	assert.NotContains(t, agent, "\"")
-	assert.NotContains(t, agent, "'")
-	assert.Equal(t, agent, httpLogger.Agent())
+	assert.Greater(t, len(httpLoggerAgent), 0)
+	assert.Equal(t, ".go", httpLoggerAgent[len(httpLoggerAgent)-3:])
+	assert.NotContains(t, httpLoggerAgent, "\\")
+	assert.NotContains(t, httpLoggerAgent, "\"")
+	assert.NotContains(t, httpLoggerAgent, "'")
+	assert.Equal(t, httpLoggerAgent, httpLogger.Agent())
 
 }
