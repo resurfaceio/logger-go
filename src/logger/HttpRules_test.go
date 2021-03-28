@@ -51,8 +51,9 @@ func TestChangesDefaultRules(t *testing.T) {
 		}
 		if !assert.Equal(t, 1, len(rules.Sample())) {
 			break
+		} else {
+			break
 		}
-		break
 	}
 
 	httpRules.SetDefaultRules(httpRules.StrictRules())
