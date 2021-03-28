@@ -13,7 +13,7 @@ func TestCreateInstance(t *testing.T) {
 	//Creating a single instance
 	httpLogger := NewHttpLogger(Options{})
 	assert.NotNil(t, httpLogger)
-	assert.Equal(t, HttpLogger.agent, httpLogger.Agent())
+	assert.Equal(t, httpLoggerAgent, httpLogger.Agent())
 	assert.False(t, httpLogger.Enableable())
 	assert.False(t, httpLogger.Enabled())
 	assert.Nil(t, httpLogger.Queue())
