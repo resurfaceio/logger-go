@@ -10,7 +10,7 @@ import (
 
 func TestChangesDefaultRules(t *testing.T) {
 	httpRules := GetHttpRules()
-	for {
+	for true {
 		rules, err := newHttpRules("")
 		if err != nil {
 			fmt.Println(err.Error())
@@ -80,7 +80,7 @@ func TestIncludeDebugRules(t *testing.T) {
 	assert.Equal(t, httpRules.StrictRules(), httpRules.DefaultRules())
 	httpRules.SetDefaultRules("include debug")
 	rules, _ = newHttpRules("")
-	for {
+	for true {
 		if !assert.Equal(t, 2, rules.Size()) {
 			break
 		}
