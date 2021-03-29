@@ -21,8 +21,10 @@ func NewNetHttpClientLoggerOptions(options Options) *NetHttpClientLogger {
 
 // construct new logger without options
 func NewNetHttpClientLogger() *NetHttpClientLogger {
+	options := Options{
+	}
 	return &NetHttpClientLogger{
-		httpLogger: NewHttpLogger(),
+		httpLogger: NewHttpLogger(options),
 	}
 }
 
