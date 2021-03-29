@@ -45,15 +45,3 @@ func NewHttpLogger(options Options) *HttpLogger {
 func (logger *HttpLogger) Rules() *HttpRules {
 	return logger.rules
 }
-
-func (logger *HttpLogger) submitIfPassing(details [][]string) {
-	details = logger.rules.apply(details)
-
-	if details == nil {
-		return
-	}
-
-	details = append(details, []string{"host", logger.host})
-
-	logger.Submit(msgStringify(details))
-}
