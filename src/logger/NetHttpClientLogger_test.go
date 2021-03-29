@@ -17,12 +17,12 @@ func TestLogsGet(t *testing.T) {
 	options := Options{
 		queue: queue,
 	}
-	netLogger := NewNetHttpClientLogger(options)
+	netLogger := NewNetHttpClientLoggerOptions(options)
 	helper := GetTestHelper()
 
-	resp, err = netLogger.GET(helper.demoURL)
+	resp,_ = netLogger.GET(helper.demoURL)
 
-	assert.True(t, helper.parsable(resp))
+	assert.True(t, helper.parseable(resp))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_method\",\"GET\"]"))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_url\",\""+helper.demoURL+"\"]"))
 	//Dependding on what the get actually gets this could change the response body
@@ -43,12 +43,12 @@ func TestLogsPost(t *testing.T) {
 	options := Options{
 		queue: queue,
 	}
-	netLogger := NewNetHttpClientLogger(options)
+	netLogger := NewNetHttpClientLoggerOptions(options)
 	helper := GetTestHelper()
 
-	resp, err := netLogger.Post(helper.demoURL, "text/html", bytes.NewBuffer([]byte(helper.mockJSON)))
+	resp,_ := netLogger.Post(helper.demoURL, "text/html", bytes.NewBuffer([]byte(helper.mockJSON)))
 
-	assert.True(t, parsable(resp))
+	assert.True(t, parseable(resp))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_header:content-type\",\"Application/JSON\"]"))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_method\",\"POST\"]"))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_param:message\",\""+helper.mockJSONescaped+"\"]"))
@@ -64,12 +64,12 @@ func TestLogsHead(t *testing.T) {
 	options := Options{
 		queue: queue,
 	}
-	netLogger := NewNetHttpClientLogger(options)
+	netLogger := NewNetHttpClientLoggerOptions(options)
 	helper := GetTestHelper()
 
-	resp, err := netLogger.Head(helper.demoURL)
+	resp,_ := netLogger.Head(helper.demoURL)
 
-	assert.True(t, helper.parsable(resp))
+	assert.True(t, helper.parseable(resp))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_method\",\"HEAD\"]"))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_url\",\""+helper.demoURL+"\"]"))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"response_code\",\"200\"]"))
@@ -87,14 +87,14 @@ func TestLogsPostForm(t *testing.T) {
 	options := Options{
 		queue: queue,
 	}
-	netLogger := NewNetHttpClientLogger(options)
+	netLogger := NewNetHttpClientLoggerOptions(options)
 	helper := GetTestHelper()
 	form := url.Values{}
 	form.Add(helper.mockFormData)
 
 	resp, err := netLogger.PostForm(helper.demoURL, "text/html", bytes.NewBuffer([]byte(helper.mockFormData)))
 
-	assert.True(t, parsable(resp))
+	assert.True(t, parseable(resp))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_header:content-type\",\"application/x-www-form-urlencoded\"]"))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_method\",\"POST\"]"))
 	//Not sure where postform data is held in the param message or within the url. Will have to wait to see exactly
