@@ -6,7 +6,6 @@ import (
 
 type Options struct {
 	rules   string
-	agent   string
 	url     string
 	enabled bool
 	queue   []string
