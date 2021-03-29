@@ -5,7 +5,6 @@ import (
 	"net/url"
 	"strings"
 	"testing"
-
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,9 +19,9 @@ func TestLogsGet(t *testing.T) {
 	netLogger := NewNetHttpClientLoggerOptions(options)
 	helper := GetTestHelper()
 
-	resp,_ = netLogger.GET(helper.demoURL)
+	netLogger.Get(helper.demoURL)
 
-	assert.True(t, helper.parseable(resp))
+	assert.True(t, helper.parseable(queue[0]))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_method\",\"GET\"]"))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_url\",\""+helper.demoURL+"\"]"))
 	//Dependding on what the get actually gets this could change the response body
@@ -46,9 +45,9 @@ func TestLogsPost(t *testing.T) {
 	netLogger := NewNetHttpClientLoggerOptions(options)
 	helper := GetTestHelper()
 
-	resp,_ := netLogger.Post(helper.demoURL, "text/html", bytes.NewBuffer([]byte(helper.mockJSON)))
+	netLogger.Post(helper.demoURL, "text/html", bytes.NewBuffer([]byte(helper.mockJSON)))
 
-	assert.True(t, parseable(resp))
+	assert.True(t, helper.parseable(queue[0]))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_header:content-type\",\"Application/JSON\"]"))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_method\",\"POST\"]"))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_param:message\",\""+helper.mockJSONescaped+"\"]"))
@@ -67,9 +66,9 @@ func TestLogsHead(t *testing.T) {
 	netLogger := NewNetHttpClientLoggerOptions(options)
 	helper := GetTestHelper()
 
-	resp,_ := netLogger.Head(helper.demoURL)
+	netLogger.Head(helper.demoURL)
 
-	assert.True(t, helper.parseable(resp))
+	assert.True(t, helper.parseable(queue[0]))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_method\",\"HEAD\"]"))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_url\",\""+helper.demoURL+"\"]"))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"response_code\",\"200\"]"))
@@ -90,11 +89,11 @@ func TestLogsPostForm(t *testing.T) {
 	netLogger := NewNetHttpClientLoggerOptions(options)
 	helper := GetTestHelper()
 	form := url.Values{}
-	form.Add(helper.mockFormData)
+	form.Add("username:", "resurfaceio")
 
-	resp, err := netLogger.PostForm(helper.demoURL, "text/html", bytes.NewBuffer([]byte(helper.mockFormData)))
+	netLogger.PostForm(helper.demoURL, form)
 
-	assert.True(t, parseable(resp))
+	assert.True(t, helper.parseable(queue[0]))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_header:content-type\",\"application/x-www-form-urlencoded\"]"))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_method\",\"POST\"]"))
 	//Not sure where postform data is held in the param message or within the url. Will have to wait to see exactly

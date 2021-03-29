@@ -36,9 +36,8 @@ var testHelper *helper
 //I am thinking we need to cover the requests rather than the responses.
 //MockGetRequest covers a get request to compare against loggin.
 //https://appdividend.com/2019/12/02/golang-http-example-get-post-http-requests-in-golang/
-func MockGetRequest() http.Request {
-	helper := GetTestHelper()
-	resp, err := http.Get(helper.demoURL)
+func (testHelper *helper) MockGetRequest() http.Request {
+	resp, err := http.Get(testHelper.demoURL)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -54,9 +53,8 @@ func MockGetRequest() http.Request {
 // 	return *request
 // }
 
-func MockHeadRequest() http.Request {
-	helper := GetTestHelper()
-	resp, err := http.Head(helper.demoURL)
+func (testHelper *helper) MockHeadRequest() http.Request {
+	resp, err := http.Head(testHelper.demoURL)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -64,9 +62,8 @@ func MockHeadRequest() http.Request {
 	return *request
 }
 
-func MockPostRequest() http.Request {
-	helper := GetTestHelper()
-	resp, err := http.Post(helper.demoURL, "html", bytes.NewBuffer([]byte(helper.mockJSON)))
+func (testHelper *helper) MockPostRequest() http.Request {
+	resp, err := http.Post(testHelper.demoURL, "html", bytes.NewBuffer([]byte(testHelper.mockJSON)))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -74,11 +71,10 @@ func MockPostRequest() http.Request {
 	return *request
 }
 
-func MockPostFormRequest() http.Request {
-	helper := GetTestHelper()
+func (testHelper *helper) MockPostFormRequest() http.Request {
 	form := url.Values{}
 	form.Add("username", "resurfaceio")
-	resp, err := http.PostForm(helper.demoURL, form)
+	resp, err := http.PostForm(testHelper.demoURL, form)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -87,7 +83,7 @@ func MockPostFormRequest() http.Request {
 }
 
 //https://golang.org/pkg/encoding/json/#example_Unmarshal
-func parseable(msg string) bool {
+func (testHelper *helper) parseable(msg string) bool {
 	if msg == "" || !strings.HasPrefix(msg, "[") || !strings.HasSuffix(msg, "]") || strings.Contains(msg, "[]") || strings.Contains(msg, ",,") {
 		return false
 	}
