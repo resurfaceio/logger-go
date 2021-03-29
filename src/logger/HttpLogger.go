@@ -17,14 +17,14 @@ const httpLoggerAgent string = "HttpLogger.go"
 //base HttpLogger definition
 type HttpLogger struct {
 	*BaseLogger
-	rules HttpRules
+	rules *HttpRules
 }
 
 // initialize HttpLogger
 func NewHttpLogger(options Options) *HttpLogger {
 	baseLogger := NewBaseLogger(options.agent, options.url, options.enabled, options.queue)
 
-	loggerRules := newHttpRules(options.rules)
+	loggerRules, _ := newHttpRules(options.rules)
 
 	logger := &HttpLogger{
 		baseLogger,
@@ -56,20 +56,5 @@ func (logger *HttpLogger) submitIfPassing(details [][]string) {
 
 	details = append(details, []string{"host", logger.host})
 
-	logger.submit(msgStringify(details))
-}
-
-// method for converting message details to string format
-func msgStringify(msg [][]string) string {
-	stringified := ""
-	n := len(msg)
-	for i, val := range msg {
-		stringified += "[" + strings.Join(val, ", ") + "]"
-		if i != n-1 {
-			stringified += ","
-		}
-	}
-	stringified = "[" + stringified + "]"
-
-	return stringified
+	logger.Submit(msgStringify(details))
 }
