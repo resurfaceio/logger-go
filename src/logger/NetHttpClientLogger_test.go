@@ -2,18 +2,19 @@ package logger
 
 import (
 	"bytes"
+	"fmt"
 	"net/url"
 	"strings"
 	"testing"
+
 	"github.com/stretchr/testify/assert"
-	"fmt"
 )
 
 //Testing NET HTTP Logger
 
 func TestLogsGet(t *testing.T) {
-	
-	queue := make([]string, 0)
+
+	queue := make([]string, 1)
 	options := Options{
 		queue: queue,
 	}
@@ -24,8 +25,9 @@ func TestLogsGet(t *testing.T) {
 
 	//netLogger.httpLogger.Queue()[0]
 	//I believe this is correct however not sure if its functioning properly as nothing is in the queue.
-	fmt.Println(netLogger.httpLogger.Queue()[0])
+	fmt.Println(netLogger.httpLogger.queue[0])
 
+	fmt.Println(netLogger.httpLogger.Queue()[0])
 	assert.True(t, parseable(netLogger.httpLogger.Queue()[0]))
 	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.Queue()[0], "[\"request_method\",\"GET\"]"))
 	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.Queue()[0], "[\"request_url\",\""+helper.demoURL+"\"]"))
