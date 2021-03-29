@@ -12,8 +12,9 @@ func TestChangesDefaultRules(t *testing.T) {
 	httpRules := GetHttpRules()
 	for {
 		rules, err := newHttpRules("")
-		if err != nil {
+		if !assert.Nil(t, err) {
 			fmt.Println(err.Error())
+			break
 		}
 		if !assert.Equal(t, rules.StrictRules(), httpRules.DefaultRules()) {
 			break
@@ -929,7 +930,6 @@ func TestReturnsExpectedErrors(t *testing.T) {
 	assert.Equal(t, "failed to load rules: ~/bleepblorpbleepblorp12345", err.Error())
 
 	_, err = newHttpRules("/*! stop")
-	fmt.Println(err.Error())
 	assert.Equal(t, "invalid expression (/*!) in rule: /*! stop", err.Error())
 
 	_, err = newHttpRules("/*/ stop")

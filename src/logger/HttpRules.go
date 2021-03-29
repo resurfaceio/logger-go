@@ -114,7 +114,6 @@ func newHttpRules(rules string) (*HttpRules, error) {
 	// parse all rules
 	var prs []*HttpRule
 	for _, rule := range regexp.MustCompile(`\r?\n`).Split(_text, -1) {
-		// fmt.Println(rule)
 		parsed, err := parseRule(rule)
 		if parsed != nil {
 			prs = append(prs, parsed)
@@ -122,8 +121,6 @@ func newHttpRules(rules string) (*HttpRules, error) {
 			return nil, err
 		}
 	}
-
-	// fmt.Println(len(prs))
 
 	_size := len(prs)
 
