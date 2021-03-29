@@ -6,12 +6,13 @@ import (
 	"strings"
 	"testing"
 	"github.com/stretchr/testify/assert"
+	"fmt"
 )
 
 //Testing NET HTTP Logger
 
 func TestLogsGet(t *testing.T) {
-
+	
 	queue := make([]string, 0)
 	options := Options{
 		queue: queue,
@@ -19,11 +20,15 @@ func TestLogsGet(t *testing.T) {
 	netLogger := NewNetHttpClientLoggerOptions(options)
 	helper := GetTestHelper()
 
-	netLogger.Get(helper.demoURL)
+	netLogger.Get("google.com")
 
-	assert.True(t, parseable(queue[0]))
-	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_method\",\"GET\"]"))
-	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_url\",\""+helper.demoURL+"\"]"))
+	//netLogger.httpLogger.Queue()[0]
+	//I believe this is correct however not sure if its functioning properly as nothing is in the queue.
+	fmt.Println(netLogger.httpLogger.Queue()[0])
+
+	assert.True(t, parseable(netLogger.httpLogger.Queue()[0]))
+	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.Queue()[0], "[\"request_method\",\"GET\"]"))
+	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.Queue()[0], "[\"request_url\",\""+helper.demoURL+"\"]"))
 	//Dependding on what the get actually gets this could change the response body
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"response_body\",\""+helper.mockHTML+"\"]"))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"response_code\",\"200\"]"))
