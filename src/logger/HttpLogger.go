@@ -22,7 +22,7 @@ type HttpLogger struct {
 
 // initialize HttpLogger
 func NewHttpLogger(options Options) *HttpLogger {
-	baseLogger := NewBaseLogger(options.agent, options.url, options.enabled, options.queue)
+	baseLogger := NewBaseLogger(httpLoggerAgent, options.url, options.enabled, options.queue)
 
 	loggerRules, _ := newHttpRules(options.rules)
 

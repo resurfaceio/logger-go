@@ -17,7 +17,7 @@ func TestCreateInstance(t *testing.T) {
 	assert.False(t, httpLogger.Enableable())
 	assert.False(t, httpLogger.Enabled())
 	assert.Nil(t, httpLogger.Queue())
-	assert.Nil(t, httpLogger.Url())
+	assert.Equal(t, "", httpLogger.Url())
 
 }
 
@@ -27,13 +27,16 @@ func TestCreateMultipleInstances(t *testing.T) {
 	url2 := "https://whatever.com"
 	helper := GetTestHelper()
 	options1 := Options{
-		url: url1,
+		url:     url1,
+		enabled: true,
 	}
 	options2 := Options{
-		url: url2,
+		url:     url2,
+		enabled: true,
 	}
 	options3 := Options{
-		url: helper.demoURL,
+		url:     helper.demoURL,
+		enabled: true,
 	}
 
 	logger1 := NewHttpLogger(options1)
