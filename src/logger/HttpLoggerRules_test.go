@@ -20,12 +20,12 @@ func TestOverrideDefaultRules(t *testing.T) {
 	assert.Equal(t, httpRules.StrictRules, httpRules.DefaultRules, "HTTP default rules are not strict rules")
 
 	options := Options{
-		url: "https://mysite.com"
+		url: "https://mysite.com",
 	}
 	logger := NewHttpLogger(options)
 	assert.Equal(t, httpRules.StrictRules, logger.rules.text, "logger rules are not set to default rules")
 	options = Options{
-		url: "https://mysite.com"
+		url:   "https://mysite.com",
 		rules: "# 123",
 	}
 	logger = NewHttpLogger(options)
@@ -33,18 +33,18 @@ func TestOverrideDefaultRules(t *testing.T) {
 
 	httpRules.SetDefaultRules("")
 	options = Options{
-		url: "https://mysite.com"
+		url: "https://mysite.com",
 	}
 	logger = NewHttpLogger(options)
 	assert.Equal(t, "", logger.rules.text, "logger default rules were not applied")
 	options = Options{
-		url: "https://mysite.com",
+		url:   "https://mysite.com",
 		rules: "   ",
 	}
 	logger = NewHttpLogger(Options{})
 	assert.Equal(t, "", logger.rules.text, "logger default rules not overriden or blank space not ignored")
 	options = Options{
-		url: "https://mysite.com",
+		url:   "https://mysite.com",
 		rules: " sample 42",
 	}
 	logger = NewHttpLogger(Options{})
@@ -57,7 +57,7 @@ func TestOverrideDefaultRules(t *testing.T) {
 	logger = NewHttpLogger(options)
 	assert.Equal(t, "skip_compression", logger.rules.text, "logger default rules not applied")
 	options = Options{
-		url: "https://mysite.com",
+		url:   "https://mysite.com",
 		rules: "include default\nskip_submission\n",
 	}
 	logger = NewHttpLogger(options)
@@ -70,13 +70,13 @@ func TestOverrideDefaultRules(t *testing.T) {
 	logger = NewHttpLogger(options)
 	assert.Equal(t, "sample 42\n", logger.rules.text, "logger default rules not applied")
 	options = Options{
-		url: "https://mysite.com",
+		url:   "https://mysite.com",
 		rules: "   ",
 	}
 	logger = NewHttpLogger(options)
 	assert.Equal(t, "sample 42\n", logger.rules.text, "white space not ignored")
 	options = Options{
-		url: "https://mysite.com",
+		url:   "https://mysite.com",
 		rules: "include default\nskip_submission\n",
 	}
 	logger = NewHttpLogger(options)
@@ -84,13 +84,13 @@ func TestOverrideDefaultRules(t *testing.T) {
 
 	httpRules.SetDefaultRules("inlude debug")
 	options = Options{
-		url: "https://mysite.com",
-		rules: httpRules.StrictRules,
+		url:   "https://mysite.com",
+		rules: httpRules.strictRules,
 	}
 	logger = NewHttpLogger(Options{})
 	assert.Equal(t, httpRules.StrictRules, logger.rules.text, "logger default rules not overriden")
 
-	httpRules.SetDefaultRules(httpRules.StrictRules)
+	httpRules.SetDefaultRules(httpRules.strictRules)
 }
 
 // test uses allow http url rules
@@ -104,7 +104,7 @@ func TestUsesAllowHttpUrlRules(t *testing.T) {
 	assert.Equal(t, false, logger.Enableable(), "Logger enableable flag should be set to false")
 
 	options = Options{
-		url: "https://mysite.com",
+		url:   "https://mysite.com",
 		rules: "",
 	}
 	logger = NewHttpLogger(options)
@@ -117,14 +117,14 @@ func TestUsesAllowHttpUrlRules(t *testing.T) {
 	assert.Equal(t, true, logger.Enableable(), "Logger enableable flag should be set to true")
 
 	options = Options{
-		url: "https://mysite.com",
+		url:   "https://mysite.com",
 		rules: "allow_http_url",
 	}
 	logger = NewHttpLogger(options)
 	assert.Equal(t, true, logger.Enableable(), "Logger enableable flag should be set to true")
 
 	options = Options{
-		url: "https://mysite.com",
+		url:   "https://mysite.com",
 		rules: "allow_http_url\nallow_http_url",
 	}
 	logger = NewHttpLogger(options)
