@@ -19,53 +19,75 @@ import (
 func TestOverrideDefaultRules(t *testing.T) {
 	assert.Equal(t, httpRules.StrictRules, httpRules.DefaultRules, "HTTP default rules are not strict rules")
 
-	logger := NewHttpLogger(Options{})
-	logger.SetUrl("https://mysite.com")
-	assert.Equal(t, httpRules.StrictRules, logger.rules.Text, "logger rules are not set to default rules")
-	logger = NewHttpLogger(Options{})
-	logger.SetUrl("https://mysite.com")
-	logger.SetRules("# 123")
-	assert.Equal(t, "# 123", logger.rules.Text, "logger default rules not overriden")
+	options := Options{
+		url: "https://mysite.com"
+	}
+	logger := NewHttpLogger(options)
+	assert.Equal(t, httpRules.StrictRules, logger.rules.text, "logger rules are not set to default rules")
+	options = Options{
+		url: "https://mysite.com"
+		rules: "# 123",
+	}
+	logger = NewHttpLogger(options)
+	assert.Equal(t, "# 123", logger.rules.text, "logger default rules not overriden")
 
 	httpRules.SetDefaultRules("")
+	options = Options{
+		url: "https://mysite.com"
+	}
+	logger = NewHttpLogger(options)
+	assert.Equal(t, "", logger.rules.text, "logger default rules were not applied")
+	options = Options{
+		url: "https://mysite.com",
+		rules: "   ",
+	}
 	logger = NewHttpLogger(Options{})
-	logger.SetUrl("https://mysite.com")
-	assert.Equal(t, "", logger.rules.Text, "logger default rules were not applied")
+	assert.Equal(t, "", logger.rules.text, "logger default rules not overriden or blank space not ignored")
+	options = Options{
+		url: "https://mysite.com",
+		rules: " sample 42",
+	}
 	logger = NewHttpLogger(Options{})
-	logger.SetUrl("https://mysite.com")
-	logger.SetRules("   ")
-	assert.Equal(t, "", logger.rules.Text, "logger default rules not overriden or blank space not ignored")
-	logger = NewHttpLogger(Options{})
-	logger.SetUrl("https://mysite.com")
-	logger.SetRules(" sample 42")
-	assert.Equal(t, " sample 42", logger.rules.Text, "logger default rules not overriden")
+	assert.Equal(t, " sample 42", logger.rules.text, "logger default rules not overriden")
 
 	httpRules.SetDefaultRules("skip_compression")
-	logger = NewHttpLogger(Options{})
-	logger.SetUrl("https://mysite.com")
-	assert.Equal(t, "skip_compression", logger.rules.Text, "logger default rules not applied")
-	logger = NewHttpLogger(Options{})
-	logger.SetUrl("https://mysite.com")
-	logger.SetRules("include default\nskip_submission\n")
-	assert.Equal(t, "include default\nskip_submission\n", logger.rules.Text, ":logger default rules not overriden")
+	options = Options{
+		url: "https://mysite.com",
+	}
+	logger = NewHttpLogger(options)
+	assert.Equal(t, "skip_compression", logger.rules.text, "logger default rules not applied")
+	options = Options{
+		url: "https://mysite.com",
+		rules: "include default\nskip_submission\n",
+	}
+	logger = NewHttpLogger(options)
+	assert.Equal(t, "include default\nskip_submission\n", logger.rules.text, ":logger default rules not overriden")
 
 	httpRules.SetDefaultRules("sample 42\n")
-	logger = NewHttpLogger(Options{})
-	logger.SetUrl("https://mysite.com")
-	assert.Equal(t, "sample 42\n", logger.rules.Text, "logger default rules not applied")
-	logger = NewHttpLogger(Options{})
-	logger.SetUrl("https://mysite.com")
-	logger.SetRules("   ")
-	assert.Equal(t, "sample 42\n", logger.rules.Text, "white space not ignored")
-	logger = NewHttpLogger(Options{})
-	logger.SetUrl("https://mysite.com")
-	logger.SetRules("include default\nskip_submission\n")
-	assert.Equal(t, "sample 42\n\nskip_submission\n", logger.rules.Text, "logger rules not applied correctly")
+	options = Options{
+		url: "https://mysite.com",
+	}
+	logger = NewHttpLogger(options)
+	assert.Equal(t, "sample 42\n", logger.rules.text, "logger default rules not applied")
+	options = Options{
+		url: "https://mysite.com",
+		rules: "   ",
+	}
+	logger = NewHttpLogger(options)
+	assert.Equal(t, "sample 42\n", logger.rules.text, "white space not ignored")
+	options = Options{
+		url: "https://mysite.com",
+		rules: "include default\nskip_submission\n",
+	}
+	logger = NewHttpLogger(options)
+	assert.Equal(t, "sample 42\n\nskip_submission\n", logger.rules.text, "logger rules not applied correctly")
 
 	httpRules.SetDefaultRules("inlude debug")
+	options = Options{
+		url: "https://mysite.com",
+		rules: httpRules.StrictRules,
+	}
 	logger = NewHttpLogger(Options{})
-	logger.SetUrl("https://mysite.com")
-	logger.SetRules(httpRules.StrictRules)
 	assert.Equal(t, httpRules.StrictRules, logger.rules.text, "logger default rules not overriden")
 
 	httpRules.SetDefaultRules(httpRules.StrictRules)
@@ -75,27 +97,37 @@ func TestOverrideDefaultRules(t *testing.T) {
 
 func TestUsesAllowHttpUrlRules(t *testing.T) {
 	// requires url, rules, and enableable to be in logger struct !!!
-	logger := NewHttpLogger(Options{})
-	logger.SetUrl("http://mysite.com")
+	options := Options{
+		url: "https://mysite.com",
+	}
+	logger := NewHttpLogger(options)
 	assert.Equal(t, false, logger.Enableable(), "Logger enableable flag should be set to false")
 
-	logger = NewHttpLogger(Options{})
-	logger.SetUrl("http://mysite.com")
-	logger.SetRules("")
+	options = Options{
+		url: "https://mysite.com",
+		rules: "",
+	}
+	logger = NewHttpLogger(options)
 	assert.Equal(t, false, logger.Enableable(), "Logger enableable flag should be set to false")
 
-	logger = NewHttpLogger(Options{})
-	logger.SetUrl("https://mysite.com")
+	options = Options{
+		url: "https://mysite.com",
+	}
+	logger = NewHttpLogger(options)
 	assert.Equal(t, true, logger.Enableable(), "Logger enableable flag should be set to true")
 
-	logger = NewHttpLogger(Options{})
-	logger.SetUrl("http://mysite.com")
-	logger.SetRules("allow_http_url")
+	options = Options{
+		url: "https://mysite.com",
+		rules: "allow_http_url",
+	}
+	logger = NewHttpLogger(options)
 	assert.Equal(t, true, logger.Enableable(), "Logger enableable flag should be set to true")
 
-	logger = NewHttpLogger(Options{})
-	logger.SetUrl("http://mysite.com")
-	logger.SetRules("allow_http_url\nallow_http_url")
+	options = Options{
+		url: "https://mysite.com",
+		rules: "allow_http_url\nallow_http_url",
+	}
+	logger = NewHttpLogger(options)
 	assert.Equal(t, true, logger.Enableable(), "Logger enableable flag should be set to true")
 }
 
@@ -123,7 +155,7 @@ func TestUsesCopySessionFieldRules(t *testing.T) {
 		rules: "copy_session_field /.*/",
 		queue: _queue,
 	}
-	logger := NewHttpLogger(Options)
+	logger := NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
 	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
 	assert.Equal(t, true, strings.Contains(_queue[0], "[\"session_field:butterfly\",\"poison\"]"), "_queue did not contain expected values")
@@ -145,7 +177,7 @@ func TestUsesCopySessionFieldRules(t *testing.T) {
 		rules: "copy_session_field /session_id/",
 		queue: _queue,
 	}
-	logger = NewHttpLoggerQueueRules(_queue, "copy_session_field /blah/")
+	logger = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
 	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
 	assert.Equal(t, false, strings.Contains(_queue[0], "[\"session_field:"), "_queue contains unexpected value")
