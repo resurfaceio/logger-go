@@ -5,9 +5,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
-	"strconv"
 )
 
 /*
@@ -45,11 +45,11 @@ func sendNetHttpClientRequestResponseMessage(logger *HttpLogger, resp *http.Resp
 
 	// append time of logging
 	now := time.Now().UnixNano() / int64(time.Millisecond)
-	message = append(message, []string{"now", strconv.FormatInt(now,10)})
+	message = append(message, []string{"now", strconv.FormatInt(now, 10)})
 
 	// append interval noting the time it took to log
 	interval := now - start
-	message = append(message, []string{"interval", strconv.FormatInt(interval,10)})
+	message = append(message, []string{"interval", strconv.FormatInt(interval, 10)})
 
 	logger.submitIfPassing(message)
 }
