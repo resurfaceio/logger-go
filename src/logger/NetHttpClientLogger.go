@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -21,8 +22,7 @@ func NewNetHttpClientLoggerOptions(options Options) *NetHttpClientLogger {
 
 // construct new logger without options
 func NewNetHttpClientLogger() *NetHttpClientLogger {
-	options := Options{
-	}
+	options := Options{}
 	return &NetHttpClientLogger{
 		httpLogger: NewHttpLogger(options),
 	}
@@ -61,16 +61,18 @@ func (clientLogger *NetHttpClientLogger) Do(req *http.Request) (resp *http.Respo
 func (clientLogger *NetHttpClientLogger) Get(url string) (resp *http.Response, err error) {
 	// start time for logging interval
 	start := time.Now().UnixNano() / int64(time.Millisecond)
+	fmt.Println("inside Get function")
 
 	logger := clientLogger.httpLogger
 
 	// capture the response or error
+	// Devin 03/31/2021
+	// Something happens here with the .Get where err does return an error = "unsupported protocol scheme"
 	resp, err = clientLogger.Client.Get(url)
 
 	if err != nil {
 		return resp, err
 	}
-
 	// send logging message
 	sendNetHttpClientRequestResponseMessage(logger, resp, start)
 

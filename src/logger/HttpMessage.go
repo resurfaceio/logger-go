@@ -19,10 +19,8 @@ func sendNetHttpClientRequestResponseMessage(logger *HttpLogger, resp *http.Resp
 	if !logger.Enabled() {
 		return
 	}
-
 	// copy details from request & response
 	message := buildNetHttpClientMessage(request, resp)
-
 	copySessionField := logger.rules.CopySessionField()
 
 	// copy data from session if configured
@@ -42,7 +40,6 @@ func sendNetHttpClientRequestResponseMessage(logger *HttpLogger, resp *http.Resp
 			}
 		}
 	}
-
 	// append time of logging
 	now := time.Now().UnixNano() / int64(time.Millisecond)
 	message = append(message, []string{"now", strconv.FormatInt(now, 10)})

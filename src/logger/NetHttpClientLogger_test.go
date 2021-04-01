@@ -14,7 +14,7 @@ import (
 
 func TestLogsGet(t *testing.T) {
 
-	queue := make([]string, 0)
+	queue := make([]string, 1) // argument of 1 vs 0
 	options := Options{
 		queue: queue,
 	}
@@ -22,12 +22,12 @@ func TestLogsGet(t *testing.T) {
 	helper := GetTestHelper()
 
 	netLogger.Get("google.com")
-
-	queue = append(queue, "[\"request_method\",\"GET\"]") // this is for testing that the queue can hold strings
-	assert.Equal(t, 1, len(queue), " queue length is not 1")
+	fmt.Println(netLogger)
+	fmt.Println(netLogger.Get("google.com")) // actually capturing an error
+	//queue = append(queue, "[\"request_method\",\"GET\"]") // this is for testing that the queue can hold strings
 	//Populate the queue by building these requests and responses
 	fmt.Println(queue)
-
+	assert.Equal(t, 1, len(queue), " queue length is not 1")
 	assert.True(t, parseable(queue[0]))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_method\",\"GET\"]"))
 	assert.Equal(t, true, strings.Contains(queue[0], "[\"request_url\",\""+helper.demoURL+"\"]"))
