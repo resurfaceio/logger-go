@@ -140,8 +140,8 @@ func TestUsesCopySessionFieldRules(t *testing.T) {
 	request := helper.MockRequestWithJson2()
 	mockResponse := helper.MockResponseWithHtml()
 
-	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
 	mockResponse.Request = request
 
 	var c1 *http.Cookie = &http.Cookie{Name: "butterfly", Value: "poison"}

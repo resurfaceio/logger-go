@@ -86,6 +86,16 @@ func MockPostFormRequest() http.Request {
 	return *request
 }
 
+func (h *helper) MockRequestWithJson() *http.Request {
+	request, _ := http.NewRequest("POST", h.mockURL, requestBody)
+	request.Header.Add("Content-Type", "Application/JSON")
+	request.PostForm.Add("message", "{ \"hello\" : \"world\" }")
+}
+
+func MockRequestWithJson2() *http.Request {
+	request := n
+}
+
 //https://golang.org/pkg/encoding/json/#example_Unmarshal
 func parseable(msg string) bool {
 	if msg == "" || !strings.HasPrefix(msg, "[") || !strings.HasSuffix(msg, "]") || strings.Contains(msg, "[]") || strings.Contains(msg, ",,") {
