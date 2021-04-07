@@ -2,6 +2,7 @@ package logger
 
 import (
 	"bytes"
+	"fmt"
 	"net/url"
 	"strings"
 	"testing"
@@ -22,17 +23,18 @@ func TestLogsGet(t *testing.T) {
 	netLogger := NewNetHttpClientLoggerOptions(options)
 	helper := GetTestHelper()
 
-	netLogger.Get("https://www.google.com")
+	netLogger.Get("https://www.google.com?q=something")
 	//queue = append(queue, "[\"request_method\",\"GET\"]") // this is for testing that the queue can hold strings
 	//Populate the queue by building these requests and responses
 	assert.True(t, parseable(netLogger.httpLogger.queue[0]))
-	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.queue[0], "[\"request_method\",\"GET\"]"))
-	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.queue[0], "[\"request_url\",\""+helper.demoURL+"\"]"))
+	fmt.Println(netLogger.httpLogger.queue[0])
+	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.queue[0], "[\"request_method\", \"GET\"]"))
+	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.queue[0], "[\"request_url\", \""+helper.demoURL+"\"]"))
 	//Dependding on what the get actually gets this could change the response body
-	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.queue[0], "[\"response_body\",\""+helper.mockHTML+"\"]"))
-	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.queue[0], "[\"response_code\",\"200\"]"))
-	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.queue[0], "[\"response_header:a\",\"Z\"]"))
-	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.queue[0], "[\"response_header:content-type\",\"text/html\"]"))
+	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.queue[0], "[\"response_body\", \""+helper.mockHTML+"\"]"))
+	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.queue[0], "[\"response_code\", \"200\"]"))
+	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.queue[0], "[\"response_header:a\", \"Z\"]"))
+	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.queue[0], "[\"response_header:content-type\", \"text/html\"]"))
 	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.queue[0], "[\"now\",\""))
 	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.queue[0], "[\"interval\",\""))
 	assert.NotEqual(t, true, strings.Contains(netLogger.httpLogger.queue[0], "request_body"))

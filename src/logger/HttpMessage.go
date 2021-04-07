@@ -64,7 +64,7 @@ func buildNetHttpClientMessage(req *http.Request, resp *http.Response) [][]strin
 		message = append(message, []string{"request_method", method})
 	}
 
-	message = append(message, []string{"request_url", req.URL.RequestURI()})
+	message = append(message, []string{"request_url", req.URL.String()})
 	message = append(message, []string{"response_code", fmt.Sprint(resp.StatusCode)})
 
 	appendRequestHeaders(&message, req)
