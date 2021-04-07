@@ -87,13 +87,21 @@ func MockPostFormRequest() http.Request {
 }
 
 func (h *helper) MockRequestWithJson() *http.Request {
-	request, _ := http.NewRequest("POST", h.mockURL, requestBody)
-	request.Header.Add("Content-Type", "Application/JSON")
-	request.PostForm.Add("message", "{ \"hello\" : \"world\" }")
+	// request, _ := http.NewRequest("POST", h.mockURL, requestBody)
+	// request.Header.Add("Content-Type", "Application/JSON")
+	// request.PostForm.Add("message", "{ \"hello\" : \"world\" }")
+	request, _ := http.NewRequest("POST", "www.legitwebsite.com", strings.NewReader("stuff"))
+	return request
 }
 
-func MockRequestWithJson2() *http.Request {
-	request := n
+func (h *helper) MockRequestWithJson2() *http.Request {
+	request, _ := http.NewRequest("POST", "www.legitwebsite.com", strings.NewReader("stuff"))
+	return request
+}
+
+func (h *helper) MockResponseWithHtml() *http.Response {
+	response := http.Response{}
+	return &response
 }
 
 //https://golang.org/pkg/encoding/json/#example_Unmarshal
