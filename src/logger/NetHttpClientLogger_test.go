@@ -2,7 +2,6 @@ package logger
 
 import (
 	"bytes"
-	"fmt"
 	"net/url"
 	"strings"
 	"testing"
@@ -14,8 +13,9 @@ import (
 
 func TestLogsGet(t *testing.T) {
 
-	queue := make([]string, 1) // argument of 1 vs 0
+	queue := make([]string, 0) // argument of 1 vs 0
 	options := Options{
+		url:     "https://www.google.com",
 		queue:   queue,
 		enabled: true,
 	}
@@ -23,13 +23,9 @@ func TestLogsGet(t *testing.T) {
 	helper := GetTestHelper()
 
 	netLogger.Get("https://www.google.com")
-	fmt.Println(netLogger)
 	//queue = append(queue, "[\"request_method\",\"GET\"]") // this is for testing that the queue can hold strings
 	//Populate the queue by building these requests and responses
-	fmt.Println(netLogger.httpLogger.queue)
-	assert.Equal(t, 1, len(netLogger.httpLogger.queue), " queue length is not 1")
 	assert.True(t, parseable(netLogger.httpLogger.queue[0]))
-	fmt.Println(netLogger.httpLogger.queue[0])
 	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.queue[0], "[\"request_method\",\"GET\"]"))
 	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.queue[0], "[\"request_url\",\""+helper.demoURL+"\"]"))
 	//Dependding on what the get actually gets this could change the response body

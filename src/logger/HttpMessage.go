@@ -71,10 +71,12 @@ func buildNetHttpClientMessage(req *http.Request, resp *http.Response) [][]strin
 	appendRequestParams(&message, req)
 	appendResponseHeaders(&message, resp)
 
-	reqBodyBytes, err := ioutil.ReadAll(req.Body)
-	reqBody := string(reqBodyBytes)
-	if err != nil && reqBody != "" {
-		message = append(message, []string{"request_body", reqBody})
+	if req.Body != nil {
+		reqBodyBytes, err := ioutil.ReadAll(req.Body)
+		reqBody := string(reqBodyBytes)
+		if err != nil && reqBody != "" {
+			message = append(message, []string{"request_body", reqBody})
+		}
 	}
 
 	respBodyBytes, err := ioutil.ReadAll(resp.Body)
