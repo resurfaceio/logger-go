@@ -14,6 +14,7 @@ var helperOnce sync.Once
 
 type helper struct {
 	demoURL         string
+	demoURL1        string
 	mockAgent       string
 	mockHTML        string
 	mockHTML2       string
@@ -94,6 +95,8 @@ func GetTestHelper() *helper {
 	helperOnce.Do(func() {
 		testHelper = &helper{
 			demoURL: "https://demo.resurface.io/ping",
+
+			demoURL1: "https://demo.resurface.io",
 
 			mockAgent: "helper.go",
 

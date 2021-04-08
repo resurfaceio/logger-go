@@ -15,11 +15,10 @@ import (
  */
 func sendNetHttpClientRequestResponseMessage(logger *HttpLogger, resp *http.Response, start int64) /* maybe return error */ {
 	request := resp.Request
-	fmt.Println("sendNetHttpClientRequestResponseMessage")
 	if !logger.Enabled() {
 		return
 	}
-	fmt.Println("sendNetHttpClientRequestResponseMessage")
+
 	// copy details from request & response
 	message := buildNetHttpClientMessage(request, resp)
 	copySessionField := logger.rules.CopySessionField()
@@ -59,7 +58,7 @@ func buildNetHttpClientMessage(req *http.Request, resp *http.Response) [][]strin
 	var message [][]string
 
 	method := resp.Request.Method
-	fmt.Printf("HttpMesage: request method = %s\n", method)
+
 	if method != "" {
 		message = append(message, []string{"request_method", method})
 	}
