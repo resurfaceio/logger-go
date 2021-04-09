@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -61,7 +60,6 @@ func (clientLogger *NetHttpClientLogger) Do(req *http.Request) (resp *http.Respo
 func (clientLogger *NetHttpClientLogger) Get(url string) (resp *http.Response, err error) {
 	// start time for logging interval
 	start := time.Now().UnixNano() / int64(time.Millisecond)
-	fmt.Println("inside Get function")
 
 	logger := clientLogger.httpLogger
 
@@ -73,6 +71,7 @@ func (clientLogger *NetHttpClientLogger) Get(url string) (resp *http.Response, e
 	if err != nil {
 		return resp, err
 	}
+
 	// send logging message
 	sendNetHttpClientRequestResponseMessage(logger, resp, start)
 
@@ -108,7 +107,7 @@ func (clientLogger *NetHttpClientLogger) Post(url string, contentType string, bo
 
 	// capture the response or error
 	resp, err = clientLogger.Client.Post(url, contentType, body)
-
+	
 	if err != nil {
 		return resp, err
 	}
