@@ -62,12 +62,14 @@ func TestLogsPost(t *testing.T) {
 
 //Similar to Get Just doesn't return a body.
 func TestLogsHead(t *testing.T) {
+	helper := GetTestHelper()
 	queue := make([]string, 0)
 	options := Options{
-		queue: queue,
+		url:     helper.demoURL,
+		queue:   queue,
+		enabled: true,
 	}
 	netLogger := NewNetHttpClientLoggerOptions(options)
-	helper := GetTestHelper()
 
 	netLogger.Head(helper.demoURL)
 
