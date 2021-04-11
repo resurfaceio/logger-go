@@ -836,7 +836,7 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 
 	mockHtml := strings.Replace(helper.mockJSON, "World", "rob@resurface.io", 1)
 
-	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
+	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
 	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(mockHtml))
 	mockResponse.Request = request
 
@@ -846,9 +846,9 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 		queue: _queue,
 	}
 	logger := NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"response_body\",\"<html>Hello x@y.com!</html>\"],"), "email not replaced in _queue")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>Hello x@y.com!</html>\"],"), "email not replaced in _queue")
 
 	mockHtml = strings.Replace(helper.mockJSON, "World", "123-45-1343", 1)
 
@@ -860,11 +860,11 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"response_body\",\"<html>Hello xyxy!</html>\"],"), "custom string not replaced in _queue")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>Hello xyxy!</html>\"],"), "custom string not replaced in _queue")
 
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -872,9 +872,9 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"response_body\",\"<html>Hello <b>World</b>!</html>\"],"), "custom string not replaced in _queue")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>Hello <b>World</b>!</html>\"],"), "custom string not replaced in _queue")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -882,11 +882,11 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"response_body\",\"<html>Hello <b>World</b>!</html>\"],"), "custom string not replaced in _queue")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>Hello <b>World</b>!</html>\"],"), "custom string not replaced in _queue")
 
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml5))
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML5))
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -894,9 +894,9 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"response_body\",\"<html>\\n<input type=\\\"hidden\\\"></input>\\n<input class='foo' type=\\\"hidden\\\"></input>\\n</html>\"],"), "custom string not replaced in _queue")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>\\n<input type=\\\"hidden\\\"></input>\\n<input class='foo' type=\\\"hidden\\\"></input>\\n</html>\"],"), "custom string not replaced in _queue")
 }
 
 // test uses sample rules
@@ -907,8 +907,8 @@ func TestUsesSampleRules(t *testing.T) {
 	request := helper.MockRequestWithJson2()
 	mockResponse := helper.MockResponseWithHtml()
 
-	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
 	mockResponse.Request = request
 
 	_queue := make([]string, 0)
@@ -935,43 +935,55 @@ func TestUsesSampleRules(t *testing.T) {
 	for i := 1; i <= 100; i++ {
 		sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	}
-	assert.GreaterOrEqual(t, len(_queue), 2, "sample amount is less than specified 10")
-	assert.LessOrEqual(t, len(_queue), 20, "sample amount is greater than specified 10")
+	assert.GreaterOrEqual(t, len(logger.BaseLogger.queue), 2, "sample amount is less than specified 10")
+	assert.LessOrEqual(t, len(logger.BaseLogger.queue), 20, "sample amount is greater than specified 10")
 }
 
 // test uses skip compression rules
 
 func TestUsesSkipCompressionRules(t *testing.T) {
-	logger := NewHttpLogger(Options{})
-	logger.SetUrl("http://mysite.com")
+	options := Options{
+		url: "http://mysite.com",
+	}
+	logger := NewHttpLogger(options)
 	assert.Equal(t, false, logger.SkipCompression(), "Logger skipCompression flag should be set to false")
 
-	logger = NewHttpLogger(Options{})
-	logger.SetUrl("http://mysite.com")
-	logger.SetRules("")
+	options = Options{
+		url:   "http://mysite.com",
+		rules: "",
+	}
+	logger = NewHttpLogger(options)
 	assert.Equal(t, false, logger.SkipCompression(), "Logger skipCompression flag should be set to false")
 
+	options = Options{
+		url:   "http://mysite.com",
+		rules: "skip_compression",
+	}
 	logger = NewHttpLogger(Options{})
-	logger.SetUrl("http://mysite.com")
-	logger.SetRules("skip_compression")
 	assert.Equal(t, true, logger.SkipCompression(), "Logger skipCompression flag should be set to true")
 }
 
 // test uses skip submission rules
 
 func TestUsesSkipSubmission(t *testing.T) {
-	logger := NewHttpLogger(Options{})
-	logger.SetUrl("http://mysite.com")
+	options := Options{
+		url: "http://mysite.com",
+	}
+	logger := NewHttpLogger(options)
 	assert.Equal(t, false, logger.SkipSubmission(), "Logger skipSubmission flag should be set to false")
 
-	logger = NewHttpLogger(Options{})
-	logger.SetUrl("http://mysite.com")
-	logger.SetRules("")
+	options = Options{
+		url:   "http://mysite.com",
+		rules: "",
+	}
+	logger = NewHttpLogger(options)
 	assert.Equal(t, false, logger.SkipSubmission(), "Logger skipSubmission flag should be set to false")
 
-	logger = NewHttpLogger(Options{})
-	logger.SetUrl("http://mysite.com")
-	logger.SetRules("skip_submission")
+	options = Options{
+		url:   "http://mysite.com",
+		rules: "skip_submission",
+	}
+	logger = NewHttpLogger(options)
 	assert.Equal(t, true, logger.SkipSubmission(), "Logger skipSubmission flag should be set to true")
 }
 
