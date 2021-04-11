@@ -16,12 +16,9 @@ import (
 func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *BaseLogger {
 	usageLoggers, _ := GetUsageLoggers()
 
-	if _url == "" {
+	if _queue == nil && _url == "" {
 		_url = usageLoggers.UrlByDefault()
-		// WIP 03.26.21
-		if _url == "" {
-			_enabled = false
-		}
+		_enabled = (len(_url) > 0)
 	}
 
 	var _urlParsed *url.URL
@@ -47,6 +44,8 @@ func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *
 		queue:           _queue,
 		skipCompression: false,
 		skipSubmission:  false,
+		submitFailures:  0,
+		submitSuccesses: 0,
 		url:             _url,
 		urlParsed:       _urlParsed,
 		version:         versionLookup(),
