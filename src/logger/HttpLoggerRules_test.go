@@ -391,8 +391,8 @@ func TestUsesRemoveIfRules(t *testing.T) {
 	request := helper.MockRequestWithJson2()
 	mockResponse := helper.MockResponseWithHtml()
 
-	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
 	mockResponse.Request = request
 
 	_queue := make([]string, 0)
@@ -401,7 +401,7 @@ func TestUsesRemoveIfRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger := NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(_queue), "length of _queue is not 1")
 
 	_queue = make([]string, 0)
@@ -410,7 +410,7 @@ func TestUsesRemoveIfRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 0, len(_queue), "_queue is not empty")
 
 	_queue = make([]string, 0)
@@ -419,10 +419,10 @@ func TestUsesRemoveIfRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
-	assert.Equal(t, false, strings.Contains(_logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not removed")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
+	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not removed")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -430,10 +430,10 @@ func TestUsesRemoveIfRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
-	assert.Equal(t, false, strings.Contains(_logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not removed")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
+	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not removed")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -441,10 +441,10 @@ func TestUsesRemoveIfRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
-	assert.Equal(t, false, strings.Contains(_logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not removed")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
+	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not removed")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -452,10 +452,10 @@ func TestUsesRemoveIfRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -463,10 +463,10 @@ func TestUsesRemoveIfRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
-	assert.Equal(t, false, strings.Contains(_logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not removed")
-	assert.Equal(t, false, strings.Contains(_logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not removed")
+	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not removed")
+	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not removed")
 }
 
 // test uses remove if found rules
@@ -476,8 +476,8 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 	request := helper.MockRequestWithJson2()
 	mockResponse := helper.MockResponseWithHtml()
 
-	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
 	mockResponse.Request = request
 
 	_queue := make([]string, 0)
@@ -486,7 +486,7 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger := NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
 
 	_queue = make([]string, 0)
@@ -495,7 +495,7 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 0, len(_queue), "_queue is not empty")
 
 	_queue = make([]string, 0)
@@ -504,10 +504,10 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
-	assert.Equal(t, false, strings.Contains(_logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not removed")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
+	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not removed")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -515,10 +515,10 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
-	assert.Equal(t, false, strings.Contains(_logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not removed")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
+	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not removed")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -526,10 +526,10 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
-	assert.Equal(t, false, strings.Contains(_logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not removed")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
+	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not removed")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -537,10 +537,10 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
-	assert.Equal(t, false, strings.Contains(_logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not removed")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
+	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not removed")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -548,10 +548,10 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
 }
 
 // test uses remove unless rules
@@ -562,8 +562,8 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 	request := helper.MockRequestWithJson2()
 	mockResponse := helper.MockResponseWithHtml()
 
-	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
 	mockResponse.Request = request
 
 	_queue := make([]string, 0)
@@ -572,7 +572,7 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger := NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
 
 	_queue = make([]string, 0)
@@ -581,7 +581,7 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 0, len(_queue), "_queue is not empty")
 
 	_queue = make([]string, 0)
@@ -590,10 +590,10 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
-	assert.Equal(t, false, strings.Contains(_logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not removed")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
+	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not removed")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -601,10 +601,10 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
-	assert.Equal(t, false, strings.Contains(_logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not removed")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
+	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not removed")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -612,10 +612,10 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
-	assert.Equal(t, false, strings.Contains(_logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not removed")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
+	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not removed")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -623,10 +623,10 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -634,10 +634,10 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
-	assert.Equal(t, true, strings.Contains(_logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
 }
 
 // test uses remove unless found rules
