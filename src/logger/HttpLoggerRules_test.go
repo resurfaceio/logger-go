@@ -940,7 +940,6 @@ func TestUsesSampleRules(t *testing.T) {
 }
 
 // test uses skip compression rules
-
 func TestUsesSkipCompressionRules(t *testing.T) {
 	options := Options{
 		url: "http://mysite.com",
@@ -959,7 +958,7 @@ func TestUsesSkipCompressionRules(t *testing.T) {
 		url:   "http://mysite.com",
 		rules: "skip_compression",
 	}
-	logger = NewHttpLogger(Options{})
+	logger = NewHttpLogger(options)
 	assert.Equal(t, true, logger.SkipCompression(), "Logger skipCompression flag should be set to true")
 }
 
@@ -996,7 +995,7 @@ func TestUsesStopRules(t *testing.T) {
 	mockResponse := helper.MockResponseWithHtml()
 
 	request.Body = nil
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
 	mockResponse.Request = request
 
 	_queue := make([]string, 0)
@@ -1005,10 +1004,10 @@ func TestUsesStopRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger := NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
 
-	mockResponse.Request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
+	mockResponse.Request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -1016,8 +1015,8 @@ func TestUsesStopRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 0, len(_queue), "_queue is not empty")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 0, len(logger.BaseLogger.queue), "_queue is not empty")
 
 	mockResponse.Body = nil
 
@@ -1027,10 +1026,10 @@ func TestUsesStopRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 0, len(_queue), "_queue is not empty")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 0, len(logger.BaseLogger.queue), "_queue is not empty")
 
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
 	mockResponse.Request.Body = nil
 
 	_queue = make([]string, 0)
@@ -1039,11 +1038,11 @@ func TestUsesStopRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 0, len(_queue), "_queue is not empty")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 0, len(logger.BaseLogger.queue), "_queue is not empty")
 
 	mockResponse.Body = nil
-	mockResponse.Request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
+	mockResponse.Request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -1051,8 +1050,8 @@ func TestUsesStopRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 0, len(_queue), "_queue is not empty")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 0, len(logger.BaseLogger.queue), "_queue is not empty")
 }
 
 // test uses stop if rules
@@ -1064,7 +1063,7 @@ func TestUsesStopIfRules(t *testing.T) {
 	mockResponse := helper.MockResponseWithHtml()
 
 	request.Body = nil
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
 	mockResponse.Request = request
 
 	_queue := make([]string, 0)
@@ -1073,10 +1072,10 @@ func TestUsesStopIfRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger := NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
 
-	mockResponse.Request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
+	mockResponse.Request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -1084,8 +1083,8 @@ func TestUsesStopIfRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 0, len(_queue), "_queue is not empty")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 0, len(logger.BaseLogger.queue), "_queue is not empty")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -1093,8 +1092,8 @@ func TestUsesStopIfRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 0, len(_queue), "_queue is not empty")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 0, len(logger.BaseLogger.queue), "_queue is not empty")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -1102,8 +1101,8 @@ func TestUsesStopIfRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
 }
 
 // test uses stop if found rules
@@ -1115,7 +1114,7 @@ func TestUsesStopIfFoundRules(t *testing.T) {
 	mockResponse := helper.MockResponseWithHtml()
 
 	request.Body = nil
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
 	mockResponse.Request = request
 
 	_queue := make([]string, 0)
@@ -1124,10 +1123,10 @@ func TestUsesStopIfFoundRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger := NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
 
-	mockResponse.Request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJson))
+	mockResponse.Request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -1135,8 +1134,8 @@ func TestUsesStopIfFoundRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 0, len(_queue), "_queue is not empty")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 0, len(logger.BaseLogger.queue), "_queue is not empty")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -1144,8 +1143,8 @@ func TestUsesStopIfFoundRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 0, len(_queue), "_queue is not empty")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 0, len(logger.BaseLogger.queue), "_queue is not empty")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -1153,8 +1152,8 @@ func TestUsesStopIfFoundRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 0, len(_queue), "_queue is not empty")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 0, len(logger.BaseLogger.queue), "_queue is not empty")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -1162,8 +1161,8 @@ func TestUsesStopIfFoundRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
 }
 
 // test uses stop unless rules
@@ -1175,7 +1174,7 @@ func TestUsesStopUnlessRules(t *testing.T) {
 	mockResponse := helper.MockResponseWithHtml()
 
 	request.Body = nil
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
 	mockResponse.Request = request
 
 	_queue := make([]string, 0)
@@ -1184,8 +1183,8 @@ func TestUsesStopUnlessRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger := NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 0, len(_queue), "_queue is not empty")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 0, len(logger.BaseLogger.queue), "_queue is not empty")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -1193,8 +1192,8 @@ func TestUsesStopUnlessRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -1202,8 +1201,8 @@ func TestUsesStopUnlessRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -1211,8 +1210,8 @@ func TestUsesStopUnlessRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 0, len(_queue), "_queue is not empty")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 0, len(logger.BaseLogger.queue), "_queue is not empty")
 }
 
 // test uses stop unless found rules
@@ -1224,7 +1223,7 @@ func TestUsesStopUnlessFoundRules(t *testing.T) {
 	mockResponse := helper.MockResponseWithHtml()
 
 	request.Body = nil
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHtml))
+	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
 	mockResponse.Request = request
 
 	_queue := make([]string, 0)
@@ -1233,8 +1232,8 @@ func TestUsesStopUnlessFoundRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger := NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 0, len(_queue), "_queue is not empty")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 0, len(logger.BaseLogger.queue), "_queue is not empty")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -1242,8 +1241,8 @@ func TestUsesStopUnlessFoundRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -1251,8 +1250,8 @@ func TestUsesStopUnlessFoundRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -1260,8 +1259,8 @@ func TestUsesStopUnlessFoundRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 1, len(_queue), "_queue length is not 1")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -1269,6 +1268,6 @@ func TestUsesStopUnlessFoundRules(t *testing.T) {
 		queue: _queue,
 	}
 	logger = NewHttpLogger(options)
-	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0, 0)
-	assert.Equal(t, 0, len(_queue), "_queue is not empty")
+	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
+	assert.Equal(t, 0, len(logger.BaseLogger.queue), "_queue is not empty")
 }
