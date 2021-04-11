@@ -88,6 +88,11 @@ func parseable(msg string) bool {
 	if msg == "" || !strings.HasPrefix(msg, "[") || !strings.HasSuffix(msg, "]") || strings.Contains(msg, "[]") || strings.Contains(msg, ",,") {
 		return false
 	}
+	/* json.Valid won't work with our custom json formatted
+	we need to test our custom string over the wire first
+	then see if we can use Go native methods like json.Marshal
+	and json.Unmarshal
+	*/
 	return json.Valid([]byte(msg))
 }
 
