@@ -17,13 +17,14 @@ import (
 // test override default rules
 
 func TestOverrideDefaultRules(t *testing.T) {
-	assert.Equal(t, httpRules.StrictRules, httpRules.DefaultRules, "HTTP default rules are not strict rules")
+	rules := GetHttpRules()
+	assert.Equal(t, rules.strictRules, rules.defaultRules, "HTTP default rules are not strict rules")
 
 	options := Options{
 		url: "https://mysite.com",
 	}
 	logger := NewHttpLogger(options)
-	assert.Equal(t, httpRules.StrictRules, logger.rules.text, "logger rules are not set to default rules")
+	assert.Equal(t, httpRules.StrictRules(), logger.rules.text, "logger rules are not set to default rules")
 	options = Options{
 		url:   "https://mysite.com",
 		rules: "# 123",
@@ -41,13 +42,13 @@ func TestOverrideDefaultRules(t *testing.T) {
 		url:   "https://mysite.com",
 		rules: "   ",
 	}
-	logger = NewHttpLogger(Options{})
+	logger = NewHttpLogger(options)
 	assert.Equal(t, "", logger.rules.text, "logger default rules not overriden or blank space not ignored")
 	options = Options{
 		url:   "https://mysite.com",
 		rules: " sample 42",
 	}
-	logger = NewHttpLogger(Options{})
+	logger = NewHttpLogger(options)
 	assert.Equal(t, " sample 42", logger.rules.text, "logger default rules not overriden")
 
 	httpRules.SetDefaultRules("skip_compression")
@@ -56,6 +57,7 @@ func TestOverrideDefaultRules(t *testing.T) {
 	}
 	logger = NewHttpLogger(options)
 	assert.Equal(t, "skip_compression", logger.rules.text, "logger default rules not applied")
+
 	options = Options{
 		url:   "https://mysite.com",
 		rules: "include default\nskip_submission\n",
