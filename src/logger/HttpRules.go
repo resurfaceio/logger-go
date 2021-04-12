@@ -93,7 +93,7 @@ func newHttpRules(rules string) (*HttpRules, error) {
 	}
 
 	//force default rules if necessary
-	regex := regexp.MustCompile(`(?m)^\s*include default\s*$`)
+	regex := regexp.MustCompile(`include default`)
 	rules = regex.ReplaceAllString(rules, httpRules.defaultRules)
 	if len(strings.TrimSpace(rules)) == 0 {
 		rules = httpRules.defaultRules
@@ -101,24 +101,26 @@ func newHttpRules(rules string) (*HttpRules, error) {
 
 	//expand rule includes
 	//include debug rules
-	regex = regexp.MustCompile(`(?m)^\s*include debug\s*$`)
+	regex = regexp.MustCompile(`include debug`)
 	rules = regex.ReplaceAllString(rules, httpRules.debugRules)
 	// include standard rules
-	regex = regexp.MustCompile(`(?m)^\s*include standard\s*$`)
+	regex = regexp.MustCompile(`include standard`)
 	rules = regex.ReplaceAllString(rules, httpRules.standardRules)
 	// include strict rules
-	regex = regexp.MustCompile(`(?m)^\s*include strict\s*$`)
+	regex = regexp.MustCompile(`include strict`)
 	rules = regex.ReplaceAllString(rules, httpRules.strictRules)
 
 	_text := rules
-
+	// fmt.Println("_text: " + _text)
 	// parse all rules
 	var prs []*HttpRule
 	for _, rule := range regexp.MustCompile(`\r?\n`).Split(_text, -1) {
+		// fmt.Println("for each rule: " + rules)
 		parsed, err := parseRule(rule)
 		if parsed != nil {
 			prs = append(prs, parsed)
 		} else if parsed == nil && err != nil {
+			fmt.Println("for each rule error: " + err.Error())
 			return nil, err
 		}
 	}

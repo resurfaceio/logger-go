@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -23,7 +24,10 @@ type HttpLogger struct {
 func NewHttpLogger(options Options) *HttpLogger {
 	baseLogger := NewBaseLogger(httpLoggerAgent, options.url, options.enabled, options.queue)
 
-	loggerRules, _ := newHttpRules(options.rules)
+	loggerRules, err := newHttpRules(options.rules)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 
 	logger := &HttpLogger{
 		baseLogger,
