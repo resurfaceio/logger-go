@@ -540,3 +540,29 @@ func ruleFilter(parsedRules []*HttpRule, ruleString string, cond func(string, st
 	}
 	return result
 }
+
+// https://stackoverflow.com/questions/20545743/delete-entries-from-a-slice-while-iterating-over-it-in-go/20551116
+// remove detail form details slice if all regexp.Regexp are matched from the given slice of *regexp.Regexp
+func removeDetailIf(details [][]string, regex []*regexp.Regexp) [][]string {
+	i := 0
+	for _, d := range details {
+		allMatched := true
+		for _, exp := range regex {
+			if exp.FindAllStringSubmatch(d[0], -1) == nil {
+				allMatched = false
+			}
+		}
+		/*
+			for current details item, no
+			expression was matched so
+			include it in the details
+			slice
+		*/
+		if !allMatched {
+			details[i] = d
+			i++
+		}
+	}
+	details = details[:i]
+	return details
+}

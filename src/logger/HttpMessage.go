@@ -15,7 +15,7 @@ import (
 func sendNetHttpClientRequestResponseMessage(logger *HttpLogger, resp *http.Response, start int64) /* maybe return error */ {
 	request := resp.Request
 
-	if !logger.isEnabled() {
+	if !logger.Enabled() {
 		return
 	}
 
@@ -31,7 +31,7 @@ func sendNetHttpClientRequestResponseMessage(logger *HttpLogger, resp *http.Resp
 			for _, r := range copySessionField {
 				for _, cookie := range sessionCookies {
 					name := strings.ToLower(cookie.Name)
-					matched, err := regexp.MatchString(r.param1, name)
+					matched, err := regexp.MatchString(r.param1.(string), name)
 					if err == nil && matched == true {
 						cookieVal := cookie.Value
 						message = append(message,
