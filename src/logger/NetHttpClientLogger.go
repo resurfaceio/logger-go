@@ -21,8 +21,9 @@ func NewNetHttpClientLoggerOptions(options Options) *NetHttpClientLogger {
 
 // construct new logger without options
 func NewNetHttpClientLogger() *NetHttpClientLogger {
+	options := Options{}
 	return &NetHttpClientLogger{
-		httpLogger: NewHttpLogger(Options{}),
+		httpLogger: NewHttpLogger(options),
 	}
 }
 
@@ -63,6 +64,8 @@ func (clientLogger *NetHttpClientLogger) Get(url string) (resp *http.Response, e
 	logger := clientLogger.httpLogger
 
 	// capture the response or error
+	// Devin 03/31/2021
+	// Something happens here with the .Get where err does return an error = "unsupported protocol scheme"
 	resp, err = clientLogger.Client.Get(url)
 
 	if err != nil {

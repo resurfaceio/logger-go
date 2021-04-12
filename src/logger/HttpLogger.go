@@ -47,7 +47,7 @@ func (logger *HttpLogger) Rules() *HttpRules {
 }
 
 func (logger *HttpLogger) submitIfPassing(details [][]string) {
-	details = logger.rules.Apply(details)
+	details = logger.rules.apply(details)
 
 	if details == nil {
 		return
