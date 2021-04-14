@@ -107,7 +107,7 @@ func (clientLogger *NetHttpClientLogger) Post(url string, contentType string, bo
 
 	// capture the response or error
 	resp, err = clientLogger.Client.Post(url, contentType, body)
-	
+
 	if err != nil {
 		return resp, err
 	}
