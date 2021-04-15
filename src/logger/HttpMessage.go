@@ -31,7 +31,7 @@ func sendNetHttpClientRequestResponseMessage(logger *HttpLogger, resp *http.Resp
 				for _, cookie := range sessionCookies {
 					name := strings.ToLower(cookie.Name)
 					matched, err := regexp.MatchString(r.param1.(string), name)
-					if err == nil && matched == true {
+					if err == nil && matched {
 						cookieVal := cookie.Value
 						message = append(message,
 							[]string{"session_field:" + name, cookieVal})
