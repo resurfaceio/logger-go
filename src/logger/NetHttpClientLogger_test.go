@@ -21,9 +21,13 @@ func TestLogsGet(t *testing.T) {
 		rules:   "include debug",
 	}
 	netLogger := NewNetHttpClientLoggerOptions(options)
+
+	_,err := netLogger.Get(helper.demoURL1)
+	if err != nil {
+		t.Fail()
+	}
 	//fmt.Println(netLogger.httpLogger.queue[0])
 
-	netLogger.Get(helper.demoURL1)
 	assert.True(t, parseable(netLogger.httpLogger.queue[0]))
 	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.queue[0], "[\"request_method\",\"GET\"]"))
 	assert.Equal(t, true, strings.Contains(netLogger.httpLogger.queue[0], "[\"request_url\",\""+helper.demoURL1+"\"]"))
@@ -49,7 +53,10 @@ func TestLogsPost(t *testing.T) {
 	}
 	netLogger := NewNetHttpClientLoggerOptions(options)
 
-	netLogger.Post(helper.demoURL, "Application/JSON", bytes.NewBuffer([]byte(helper.mockJSON)))
+	_,err := netLogger.Post(helper.demoURL, "Application/JSON", bytes.NewBuffer([]byte(helper.mockJSON)))
+	if err != nil {
+		t.Fail()
+	}
 	//fmt.Println(netLogger.httpLogger.queue[0])
 
 	assert.True(t, parseable(netLogger.httpLogger.queue[0]))
@@ -74,7 +81,10 @@ func TestLogsHead(t *testing.T) {
 	}
 	netLogger := NewNetHttpClientLoggerOptions(options)
 
-	netLogger.Head(helper.demoURL1)
+	_,err := netLogger.Head(helper.demoURL1)
+	if err != nil {
+		t.Fail()
+	}
 	//fmt.Println(netLogger.httpLogger.queue[0])
 
 	assert.True(t, parseable(netLogger.httpLogger.queue[0]))
@@ -104,7 +114,10 @@ func TestLogsPostForm(t *testing.T) {
 	form := url.Values{}
 	form.Add("username:", "resurfaceio")
 
-	netLogger.PostForm(helper.demoURL, form)
+	_,err := netLogger.PostForm(helper.demoURL, form)
+	if err != nil {
+		t.Fail()
+	}
 	//fmt.Println(netLogger.httpLogger.queue[0])
 	
 	assert.True(t, parseable(netLogger.httpLogger.queue[0]))
