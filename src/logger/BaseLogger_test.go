@@ -7,6 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"strings"
+
+	"encoding/json"
 )
 
 func TestCreatesInstance(t *testing.T) {
@@ -135,7 +137,8 @@ func TestSubmitsToDemoUrl(t *testing.T) {
 	message = append(message, []string{"version", logger.Version()})
 	message = append(message, []string{"now", string(fmt.Sprint(helper.mockNow))})
 	message = append(message, []string{"protocol", "https"})
-	logger.Submit(msgStringify(message))
+	marshalled, _ := json.Marshal(message)
+	logger.Submit(string(marshalled))
 	assert.Equal(t, int64(0), logger.SubmitFailures())
 	assert.Equal(t, int64(1), logger.SubmitSuccesses())
 }
@@ -150,7 +153,8 @@ func TestSubmitsToDemoUrlViaHttp(t *testing.T) {
 	message = append(message, []string{"version", logger.Version()})
 	message = append(message, []string{"now", string(fmt.Sprint(helper.mockNow))})
 	message = append(message, []string{"protocol", "http"})
-	logger.Submit(msgStringify(message))
+	marshalled, _ := json.Marshal(message)
+	logger.Submit(string(marshalled))
 	assert.Equal(t, int64(0), logger.SubmitFailures())
 	assert.Equal(t, int64(1), logger.SubmitSuccesses())
 }
@@ -167,7 +171,8 @@ func TestSubmitsToDemoUrlWihoutCompression(t *testing.T) {
 	message = append(message, []string{"now", string(fmt.Sprint(helper.mockNow))})
 	message = append(message, []string{"protocol", "https"})
 	message = append(message, []string{"skip_compression", "true"})
-	logger.Submit(msgStringify(message))
+	marshalled, _ := json.Marshal(message)
+	logger.Submit(string(marshalled))
 	assert.Equal(t, int64(0), logger.SubmitFailures())
 	assert.Equal(t, int64(1), logger.SubmitSuccesses())
 }

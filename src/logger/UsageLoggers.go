@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-//name change since helper uses the name "once"
+// sync.Once for UsageLoggers
 var onceUsageLoggers sync.Once
 
 type UsageLoggers struct {
@@ -20,16 +20,13 @@ var usageLoggers *UsageLoggers
 
 func GetUsageLoggers() (*UsageLoggers, error) {
 	//var envError error
-	var parseError error = nil
+	var parseError error
 	onceUsageLoggers.Do(func() {
 		//lookup returns a false bool is it fails, along with a nil value.
 		//We can ignore this because parsebool will throw an error anyway if this fails
-		envLookup := os.Getenv("USAGE_LOGGERS_DISABLE")
+		envLookup, _ := os.LookupEnv("USAGE_LOGGERS_DISABLE")
 		_bricked, err := strconv.ParseBool(envLookup)
-		if err != nil {
-			parseError = err
-			_bricked = false
-		}
+		parseError = err
 		usageLoggers = &UsageLoggers{
 			bricked:  _bricked,
 			disabled: _bricked,

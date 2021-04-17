@@ -58,7 +58,6 @@ func buildNetHttpClientMessage(req *http.Request, resp *http.Response) [][]strin
 	var message [][]string
 
 	method := resp.Request.Method
-
 	if method != "" {
 		message = append(message, []string{"request_method", method})
 	}
