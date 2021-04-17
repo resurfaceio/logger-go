@@ -30,6 +30,8 @@ func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *
 	if _url != "" {
 		_urlParsed, parsingError = url.ParseRequestURI(_url)
 		isUrl := govalidator.IsURL(_url)
+		// fmt.Println("parsed url: " + _urlParsed.String())
+		// fmt.Println("is Url:" + strconv.FormatBool(isUrl))
 		if parsingError != nil || !isUrl {
 			_url = ""
 			_urlParsed = nil

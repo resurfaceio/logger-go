@@ -99,13 +99,13 @@ func TestOverrideDefaultRules(t *testing.T) {
 func TestUsesAllowHttpUrlRules(t *testing.T) {
 	// requires url, rules, and enableable to be in logger struct !!!
 	options := Options{
-		url: "https://mysite.com",
+		url: "http://mysite.com",
 	}
 	logger := NewHttpLogger(options)
 	assert.Equal(t, false, logger.Enableable(), "Logger enableable flag should be set to false")
 
 	options = Options{
-		url:   "https://mysite.com",
+		url:   "http://mysite.com",
 		rules: "",
 	}
 	logger = NewHttpLogger(options)
