@@ -3,21 +3,14 @@ package logger
 import (
 	"bytes"
 	"compress/flate"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"os"
 	"sync/atomic"
-)
 
-type Options struct {
-	rules   string
-	agent   string
-	url     string
-	enabled bool
-	queue   []string
-}
+	"github.com/asaskevich/govalidator"
+)
 
 // BaseLogger constructor
 func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *BaseLogger {
@@ -25,6 +18,7 @@ func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *
 
 	if _url == "" {
 		_url = usageLoggers.UrlByDefault()
+		// WIP 03.26.21
 		if _url == "" {
 			_enabled = false
 		}
@@ -34,15 +28,16 @@ func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *
 	var parsingError error
 	//validate url when present
 	if _url != "" {
-		_urlParsed, parsingError = url.Parse(_url)
-		if parsingError != nil {
+		_urlParsed, parsingError = url.ParseRequestURI(_url)
+		isUrl := govalidator.IsURL(_url)
+		if parsingError != nil || !isUrl {
 			_url = ""
 			_urlParsed = nil
 			_enabled = false
 		}
 	}
 
-	_enableable := (_url != "")
+	_enableable := (_url != "" || _queue != nil)
 
 	constructedBaseLogger := &BaseLogger{
 		agent:           _agent,
@@ -59,30 +54,33 @@ func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *
 	return constructedBaseLogger
 }
 
-func (logger BaseLogger) Enable() {
-	logger.enabled = true
+func (logger *BaseLogger) Enable() {
+	logger.enabled = logger.enableable
 }
 
-func (logger BaseLogger) Disable() {
+func (logger *BaseLogger) Disable() {
 	logger.enabled = false
 }
 
 /**
  * Submits JSON message to intended destination.
  */
-func (logger BaseLogger) Submit(msg string) {
+func (logger *BaseLogger) Submit(msg string) {
 	//woah congrats you submitted the message
 	if msg == "" || logger.SkipSubmission() || !logger.Enabled() {
 		//do nothing
 	} else if logger.queue != nil {
 		logger.queue = append(logger.queue, msg)
 		atomic.AddInt64(&logger.submitSuccesses, 1)
+		return
 	} else {
 		// not 100% sure this works (needs testing) and should add some error handling
 		submitRequest, err := http.NewRequest("POST", logger.url, bytes.NewBuffer([]byte(msg)))
-
-		// submitRequest.Method = "POST"
-		// submitRequest.URL = logger.urlParsed
+		if err != nil {
+			fmt.Printf("Error creating submit request: %s", err.Error())
+			atomic.AddInt64(&logger.submitFailures, 1)
+			return
+		}
 
 		submitRequest.Header.Set("Content-Type", "application/json; charset=UTF-8")
 		submitRequest.Header.Set("User-Agent", "Resurface/"+logger.version+" ("+logger.agent+")")
@@ -93,29 +91,39 @@ func (logger BaseLogger) Submit(msg string) {
 			var b bytes.Buffer
 			w, err := flate.NewWriter(&b, 0)
 			if err != nil {
-				fmt.Errorf("Error applying deflate compression to message: ", err.Error())
-			}
-
-			marshalledMsg, err := json.Marshal(msg)
-			if err != nil {
+				fmt.Printf("Error applying deflate compression to message: %s\n", err.Error())
 				atomic.AddInt64(&logger.submitFailures, 1)
+				return
 			}
 
-			w.Write(marshalledMsg)
+			_, err = w.Write([]byte(msg))
+			if err != nil {
+				fmt.Printf("Error writing message to io.Writer: %s\n", err.Error())
+				atomic.AddInt64(&logger.submitFailures, 1)
+				return
+			}
 			w.Close()
 
-			submitRequest.Write(w)
+			err = submitRequest.Write(w)
+			if err != nil {
+				fmt.Printf("Error writing message to request: %s\n", err.Error())
+				atomic.AddInt64(&logger.submitFailures, 1)
+				return
+			}
 		}
 
 		submitResponse, err := http.DefaultClient.Do(submitRequest)
 		if err != nil {
 			atomic.AddInt64(&logger.submitFailures, 1)
+			return
 		}
 
 		if submitResponse.StatusCode == 204 {
 			atomic.AddInt64(&logger.submitSuccesses, 1)
+			return
 		} else {
 			atomic.AddInt64(&logger.submitFailures, 1)
+			return
 		}
 	}
 }
@@ -156,10 +164,10 @@ func (logger *BaseLogger) Url() string            { return logger.url }
 func (logger *BaseLogger) UrlParsed() *url.URL    { return logger.urlParsed }
 func (logger *BaseLogger) Version() string        { return logger.version }
 
-func (logger BaseLogger) SetSkipCompression(_skipCompression bool) {
+func (logger *BaseLogger) SetSkipCompression(_skipCompression bool) {
 	logger.skipCompression = _skipCompression
 }
-func (logger BaseLogger) SetSkipSubmission(_skipSubmission bool) {
+func (logger *BaseLogger) SetSkipSubmission(_skipSubmission bool) {
 	logger.skipSubmission = _skipSubmission
 }
 

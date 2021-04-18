@@ -1,22 +1,30 @@
 package logger
 
 import (
+	"encoding/json"
 	"strings"
 )
+
+type Options struct {
+	rules   string
+	url     string
+	enabled bool
+	queue   []string
+}
 
 const httpLoggerAgent string = "HttpLogger.go"
 
 //base HttpLogger definition
 type HttpLogger struct {
 	*BaseLogger
-	rules HttpRules
+	rules *HttpRules
 }
 
 // initialize HttpLogger
 func NewHttpLogger(options Options) *HttpLogger {
-	baseLogger := NewBaseLogger(options.agent, options.url, options.enabled, options.queue)
+	baseLogger := NewBaseLogger(httpLoggerAgent, options.url, options.enabled, options.queue)
 
-	loggerRules := NewHttpRules(options.rules)
+	loggerRules, _ := newHttpRules(options.rules)
 
 	logger := &HttpLogger{
 		baseLogger,
@@ -48,20 +56,7 @@ func (logger *HttpLogger) submitIfPassing(details [][]string) {
 
 	details = append(details, []string{"host", logger.host})
 
-	logger.Submit(msgStringify(details))
-}
+	byteStr, _ := json.Marshal(details)
 
-// method for converting message details to string format
-func msgStringify(msg [][]string) string {
-	stringified := ""
-	n := len(msg)
-	for i, val := range msg {
-		stringified += "[\"" + strings.Join(val, "\", \"") + "\"]"
-		if i != n-1 {
-			stringified += ","
-		}
-	}
-	stringified = "[" + stringified + "]"
-
-	return stringified
+	logger.Submit(string(byteStr))
 }

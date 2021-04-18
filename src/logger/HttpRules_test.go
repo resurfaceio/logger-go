@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -10,7 +11,12 @@ import (
 func TestChangesDefaultRules(t *testing.T) {
 	httpRules := GetHttpRules()
 	for {
-		if !assert.Equal(t, newHttpRules("").StrictRules(), httpRules.DefaultRules()) {
+		rules, err := newHttpRules("")
+		if !assert.Nil(t, err) {
+			fmt.Println(err.Error())
+			break
+		}
+		if !assert.Equal(t, rules.StrictRules(), httpRules.DefaultRules()) {
 			break
 		}
 
@@ -18,7 +24,8 @@ func TestChangesDefaultRules(t *testing.T) {
 		if !assert.Equal(t, "", httpRules.DefaultRules()) {
 			break
 		}
-		if !assert.Equal(t, 0, newHttpRules(httpRules.DefaultRules()).Size()) {
+		rules, _ = newHttpRules(httpRules.DefaultRules())
+		if !assert.Equal(t, 0, rules.Size()) {
 			break
 		}
 
@@ -33,19 +40,21 @@ func TestChangesDefaultRules(t *testing.T) {
 		}
 
 		httpRules.SetDefaultRules("include default\ninclude default\n")
-		if !assert.Equal(t, 0, newHttpRules(httpRules.DefaultRules()).Size()) {
+		rules, _ = newHttpRules(httpRules.DefaultRules())
+		if !assert.Equal(t, 0, rules.Size()) {
 			break
 		}
 
 		httpRules.SetDefaultRules("include default\ninclude default\nsample 42")
-		rules := newHttpRules(httpRules.DefaultRules())
+		rules, _ = newHttpRules(httpRules.DefaultRules())
 		if !assert.Equal(t, 1, rules.Size()) {
 			break
 		}
 		if !assert.Equal(t, 1, len(rules.Sample())) {
 			break
+		} else {
+			break
 		}
-		break
 	}
 
 	httpRules.SetDefaultRules(httpRules.StrictRules())
@@ -53,26 +62,26 @@ func TestChangesDefaultRules(t *testing.T) {
 }
 
 func TestIncludeDebugRules(t *testing.T) {
-	rules := newHttpRules("include debug")
+	rules, _ := newHttpRules("include debug")
 	assert.Equal(t, 2, rules.Size())
 	assert.True(t, rules.AllowHttpUrl())
 	assert.Equal(t, 1, len(rules.CopySessionField()))
 
-	rules = newHttpRules("include debug\n")
+	rules, _ = newHttpRules("include debug\n")
 	assert.Equal(t, 2, rules.Size())
-	rules = newHttpRules("include debug\nsample 50")
+	rules, _ = newHttpRules("include debug\nsample 50")
 	assert.Equal(t, 3, rules.Size())
 	assert.Equal(t, 1, len(rules.Sample()))
 
-	rules = newHttpRules(" include debug\ninclude debug")
+	rules, _ = newHttpRules(" include debug\ninclude debug")
 	assert.Equal(t, 4, rules.Size())
-	rules = newHttpRules("include debug\nsample 50\ninclude debug")
+	rules, _ = newHttpRules("include debug\nsample 50\ninclude debug")
 	assert.Equal(t, 5, rules.Size())
 
 	httpRules := GetHttpRules()
 	assert.Equal(t, httpRules.StrictRules(), httpRules.DefaultRules())
 	httpRules.SetDefaultRules("include debug")
-	rules = newHttpRules("")
+	rules, _ = newHttpRules("")
 	for {
 		if !assert.Equal(t, 2, rules.Size()) {
 			break
@@ -84,36 +93,37 @@ func TestIncludeDebugRules(t *testing.T) {
 
 		if !assert.Equal(t, 1, len(rules.CopySessionField())) {
 			break
+		} else {
+			break
 		}
 
-		break
 	}
 
 	httpRules.SetDefaultRules(httpRules.StrictRules())
 }
 
 func TestIncludeStandardRules(t *testing.T) {
-	rules := newHttpRules("include standard")
+	rules, _ := newHttpRules("include standard")
 	assert.Equal(t, 3, rules.Size())
 	assert.Equal(t, 1, len(rules.Remove()))
 	assert.Equal(t, 2, len(rules.Replace()))
 
-	rules = newHttpRules("include standard\n")
+	rules, _ = newHttpRules("include standard\n")
 	assert.Equal(t, 3, rules.Size())
-	rules = newHttpRules("include standard\nsample 50")
+	rules, _ = newHttpRules("include standard\nsample 50")
 	assert.Equal(t, 4, rules.Size())
 	assert.Equal(t, 1, len(rules.Sample()))
 
-	rules = newHttpRules(" include standard\ninclude standard")
+	rules, _ = newHttpRules(" include standard\ninclude standard")
 	assert.Equal(t, 6, rules.Size())
-	rules = newHttpRules("inlcude standard\nsample 50\ninclude standard")
+	rules, _ = newHttpRules("include standard\nsample 50\ninclude standard")
 	assert.Equal(t, 7, rules.Size())
 
-	httpRules, _ := NewHttpRules()
+	httpRules := GetHttpRules()
 	assert.Equal(t, httpRules.StrictRules(), httpRules.DefaultRules())
 	for {
-		httpRules.SetDefaultRules("inlcude standard")
-		rules = newHttpRules("")
+		httpRules.SetDefaultRules("include standard")
+		rules, _ = newHttpRules("")
 		if !assert.Equal(t, 3, rules.Size()) {
 			break
 		}
@@ -124,36 +134,37 @@ func TestIncludeStandardRules(t *testing.T) {
 
 		if !assert.Equal(t, 2, len(rules.Replace())) {
 			break
+		} else {
+			break
 		}
 
-		break
 	}
 
 	httpRules.SetDefaultRules(httpRules.StrictRules())
 }
 
 func TestIncludeStrictRules(t *testing.T) {
-	rules := newHttpRules("include strict")
+	rules, _ := newHttpRules("include strict")
 	assert.Equal(t, 2, rules.Size())
 	assert.Equal(t, 1, len(rules.Remove()))
 	assert.Equal(t, 1, len(rules.Replace()))
 
-	rules = newHttpRules("include strict\n")
+	rules, _ = newHttpRules("include strict\n")
 	assert.Equal(t, 2, rules.Size())
-	rules = newHttpRules("include strict\nsample 50")
+	rules, _ = newHttpRules("include strict\nsample 50")
 	assert.Equal(t, 3, rules.Size())
 	assert.Equal(t, 1, len(rules.Sample()))
 
-	rules = newHttpRules(" include strict\ninclude strict")
+	rules, _ = newHttpRules(" include strict\ninclude strict")
 	assert.Equal(t, 4, rules.Size())
-	rules = newHttpRules(" include strict\nsample 50\ninclude strict")
+	rules, _ = newHttpRules(" include strict\nsample 50\ninclude strict")
 	assert.Equal(t, 5, rules.Size())
 
-	httpRules, _ := NewHttpRules()
-	assert.Equal(t, httpRules.GetStrictRules(), httpRules.GetDefaultRules())
+	httpRules, _ := newHttpRules("")
+	assert.Equal(t, httpRules.StrictRules(), httpRules.DefaultRules())
 	for {
 		httpRules.SetDefaultRules("include strict")
-		rules = newHttpRules("")
+		rules, _ = newHttpRules("")
 		if !assert.Equal(t, 2, rules.Size()) {
 			break
 		}
@@ -164,88 +175,91 @@ func TestIncludeStrictRules(t *testing.T) {
 
 		if !assert.Equal(t, 1, len(rules.Replace())) {
 			break
+		} else {
+			break
 		}
-
-		break
 	}
 
 	httpRules.SetDefaultRules(httpRules.StrictRules())
 }
 
 func TestLoadsRulesFromFile(t *testing.T) {
-	rules := newHttpRules("file://./test/rules1.txt")
+	rules, _ := newHttpRules("file://./rules1.txt")
 	assert.Equal(t, 1, rules.Size())
 	assert.Equal(t, 1, len(rules.Sample()))
 	assert.Equal(t, 55, rules.Sample()[0].Param1())
 
-	rules = newHttpRules("file://./test/rules2.txt")
+	rules, _ = newHttpRules("file://./rules2.txt")
 	assert.Equal(t, 3, rules.Size())
 	assert.True(t, rules.AllowHttpUrl())
 	assert.Equal(t, 1, len(rules.CopySessionField()))
 	assert.Equal(t, 1, len(rules.Sample()))
 	assert.Equal(t, 56, rules.Sample()[0].Param1())
 
-	rules = newHttpRules("file://./test/rules3.txt ")
+	rules, _ = newHttpRules("file://./rules3.txt ")
 	assert.Equal(t, 3, rules.Size())
 	assert.Equal(t, 1, len(rules.Replace()))
-	assert.Equal(t, 1, len(rules.Sample))
+	assert.Equal(t, 1, len(rules.sample))
 	assert.Equal(t, 57, rules.Sample()[0].Param1())
 }
 
 func parseFail(t *testing.T, line string) {
-	httpRules, _ := NewHttpRules()
-	httpRule, err := httpRules.ParseRule(line)
+	_, err := parseRule(line)
 	assert.NotNil(t, err)
 }
 
 func parseOk(t *testing.T, line string, verb string,
 	scope string, param1 interface{}, param2 interface{}) {
 
-	httpRules, _ := NewHttpRules()
-	rule := httpRules.ParseRule(line)
+	rule, _ := parseRule(line)
 	assert.Equal(t, verb, rule.Verb())
 
 	if rule.Scope() == nil {
-		assert.Nil(t, scope)
+		assert.Equal(t, "", scope)
 	} else {
 		// this may need to change
 		assert.Equal(t, scope, rule.Scope().String())
 	}
 
 	ruleParam1 := rule.Param1()
-	_, notRegexp := ruleParam1.(regexp.Regexp)
+	_, isRegexp := ruleParam1.(*regexp.Regexp)
 	if ruleParam1 == nil {
 		assert.Nil(t, param1)
-	} else if !notRegexp {
-		assert.Equal(t, ruleParam1.(regexp.Regexp).String(), param1)
+	} else if isRegexp {
+		assert.Equal(t, ruleParam1.(*regexp.Regexp).String(), param1)
 	} else {
 		assert.Equal(t, ruleParam1, param1)
 	}
 
 	ruleParam2 := rule.Param2()
-	_, notRegexp = ruleParam2.(regexp.Regexp)
+	_, isRegexp = ruleParam2.(*regexp.Regexp)
 	if ruleParam2 == nil {
 		assert.Nil(t, param2)
-	} else if !notRegexp {
-		assert.Equal(t, ruleParam2.(regexp.Regexp).String(), param2)
+	} else if isRegexp {
+		assert.Equal(t, ruleParam2.(*regexp.Regexp).String(), param2)
 	} else {
 		assert.Equal(t, ruleParam2, param2)
 	}
 }
 
 func TestParsesEmptyRules(t *testing.T) {
-	assert.Equal(t, 2, newHttpRules(nil).Size())
-	assert.Equal(t, 2, newHttpRules("").Size())
-	assert.Equal(t, 2, newHttpRules(" ").Size())
-	assert.Equal(t, 2, newHttpRules("\t").Size())
-	assert.Equal(t, 2, newHttpRules("\n").Size())
+	rules, _ := newHttpRules("")
+	assert.Equal(t, 2, rules.Size())
+	rules, _ = newHttpRules(" ")
+	assert.Equal(t, 2, rules.Size())
+	rules, _ = newHttpRules("\t")
+	assert.Equal(t, 2, rules.Size())
+	rules, _ = newHttpRules("\n")
+	assert.Equal(t, 2, rules.Size())
 
-	httpRules, _ := NewHttpRules()
-	assert.Nil(t, httpRules.ParseRule(nil))
-	assert.Nil(t, httpRules.ParseRule(""))
-	assert.Nil(t, httpRules.ParseRule(" "))
-	assert.Nil(t, httpRules.ParseRule("\t"))
-	assert.Nil(t, httpRules.ParseRule("\n"))
+	parsedRule, _ := parseRule("")
+	assert.Nil(t, parsedRule)
+	parsedRule, _ = parseRule(" ")
+	assert.Nil(t, parsedRule)
+	parsedRule, _ = parseRule("\t")
+	assert.Nil(t, parsedRule)
+	parsedRule, _ = parseRule("\n")
+	assert.Nil(t, parsedRule)
 }
 
 func TestParsesRulesWithBadVerbs(t *testing.T) {
@@ -912,22 +926,22 @@ func TestParsesStopUnlessFoundRules(t *testing.T) {
 
 func TestReturnsExpectedErrors(t *testing.T) {
 
-	_, err := NewHttpRules("file://~/bleepblorpbleepblorp12345")
-	assert.Equal(t, "Failed to load rules: ~/bleepblorpbleepblorp12345", err.Error())
+	_, err := newHttpRules("file://~/bleepblorpbleepblorp12345")
+	assert.Equal(t, "failed to load rules: ~/bleepblorpbleepblorp12345", err.Error())
 
-	_, err = NewHttpRules("/*! stop")
-	assert.Equal(t, "Invalid expression (/*!) in rule: /*! stop", err.Error())
+	_, err = newHttpRules("/*! stop")
+	assert.Equal(t, "invalid expression (/*!) in rule: /*! stop", err.Error())
 
-	_, err = NewHttpRules("/*/ stop")
-	assert.Equal(t, "Invalid expression (/*!) in rule: /*! stop", err.Error())
+	_, err = newHttpRules("/*/ stop")
+	assert.Equal(t, "invalid regex (/*/) in rule: /*/ stop", err.Error())
 
-	_, err = NewHttpRules("/boo")
-	assert.Equal(t, "Invalid rule: /boo", err.Error())
+	_, err = newHttpRules("/boo")
+	assert.Equal(t, "invalid rule: /boo", err.Error())
 
-	_, err = NewHttpRules("sample 123")
-	assert.Equal(t, "Invalid sample percent: 123", err.Error())
+	_, err = newHttpRules("sample 123")
+	assert.Equal(t, "invalid sample percent: 123", err.Error())
 
-	_, err = NewHttpRules("!!! stop")
-	assert.Equal(t, "Unescaped separator (!) in rule: !!! stop", err.Error())
+	_, err = newHttpRules("!!! stop")
+	assert.Equal(t, "unescaped separator (!) in rule: !!! stop", err.Error())
 
 }

@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -14,14 +15,12 @@ import (
  */
 func sendNetHttpClientRequestResponseMessage(logger *HttpLogger, resp *http.Response, start int64) /* maybe return error */ {
 	request := resp.Request
-
-	if !logger.isEnabled() {
+	if !logger.Enabled() {
 		return
 	}
 
 	// copy details from request & response
 	message := buildNetHttpClientMessage(request, resp)
-
 	copySessionField := logger.rules.CopySessionField()
 
 	// copy data from session if configured
@@ -31,8 +30,8 @@ func sendNetHttpClientRequestResponseMessage(logger *HttpLogger, resp *http.Resp
 			for _, r := range copySessionField {
 				for _, cookie := range sessionCookies {
 					name := strings.ToLower(cookie.Name)
-					matched, err := regexp.MatchString(r.param1, name)
-					if err == nil && matched == true {
+					matched, err := regexp.MatchString(r.param1.(string), name)
+					if err == nil && matched {
 						cookieVal := cookie.Value
 						message = append(message,
 							[]string{"session_field:" + name, cookieVal})
@@ -41,14 +40,13 @@ func sendNetHttpClientRequestResponseMessage(logger *HttpLogger, resp *http.Resp
 			}
 		}
 	}
-
 	// append time of logging
 	now := time.Now().UnixNano() / int64(time.Millisecond)
-	message = append(message, []string{"now", string(now)})
+	message = append(message, []string{"now", strconv.FormatInt(now, 10)})
 
 	// append interval noting the time it took to log
 	interval := now - start
-	message = append(message, []string{"interval", fmt.Sprint(interval)})
+	message = append(message, []string{"interval", strconv.FormatInt(interval, 10)})
 
 	logger.submitIfPassing(message)
 }
@@ -64,17 +62,19 @@ func buildNetHttpClientMessage(req *http.Request, resp *http.Response) [][]strin
 		message = append(message, []string{"request_method", method})
 	}
 
-	message = append(message, []string{"request_url", req.URL.RequestURI()})
+	message = append(message, []string{"request_url", req.URL.String()})
 	message = append(message, []string{"response_code", fmt.Sprint(resp.StatusCode)})
 
 	appendRequestHeaders(&message, req)
 	appendRequestParams(&message, req)
 	appendResponseHeaders(&message, resp)
 
-	reqBodyBytes, err := ioutil.ReadAll(req.Body)
-	reqBody := string(reqBodyBytes)
-	if err != nil && reqBody != "" {
-		message = append(message, []string{"request_body", reqBody})
+	if req.Body != nil {
+		reqBodyBytes, err := ioutil.ReadAll(req.Body)
+		reqBody := string(reqBodyBytes)
+		if err != nil && reqBody != "" {
+			message = append(message, []string{"request_body", reqBody})
+		}
 	}
 
 	respBodyBytes, err := ioutil.ReadAll(resp.Body)

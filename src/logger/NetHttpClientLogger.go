@@ -21,8 +21,9 @@ func NewNetHttpClientLoggerOptions(options Options) *NetHttpClientLogger {
 
 // construct new logger without options
 func NewNetHttpClientLogger() *NetHttpClientLogger {
+	options := Options{}
 	return &NetHttpClientLogger{
-		httpLogger: NewHttpLogger(),
+		httpLogger: NewHttpLogger(options),
 	}
 }
 
@@ -50,7 +51,7 @@ func (clientLogger *NetHttpClientLogger) Do(req *http.Request) (resp *http.Respo
 	}
 
 	// send logging message
-	sendNetHttpClientMessage(logger, resp, start)
+	sendNetHttpClientRequestResponseMessage(logger, resp, start)
 
 	return resp, err
 }
@@ -63,6 +64,8 @@ func (clientLogger *NetHttpClientLogger) Get(url string) (resp *http.Response, e
 	logger := clientLogger.httpLogger
 
 	// capture the response or error
+	// Devin 03/31/2021
+	// Something happens here with the .Get where err does return an error = "unsupported protocol scheme"
 	resp, err = clientLogger.Client.Get(url)
 
 	if err != nil {
@@ -70,7 +73,7 @@ func (clientLogger *NetHttpClientLogger) Get(url string) (resp *http.Response, e
 	}
 
 	// send logging message
-	sendNetHttpClientMessage(logger, resp, start)
+	sendNetHttpClientRequestResponseMessage(logger, resp, start)
 
 	return resp, err
 }
@@ -90,7 +93,7 @@ func (clientLogger *NetHttpClientLogger) Head(url string) (resp *http.Response, 
 	}
 
 	// send logging message
-	sendNetHttpClientMessage(logger, resp, start)
+	sendNetHttpClientRequestResponseMessage(logger, resp, start)
 
 	return resp, err
 }
@@ -110,7 +113,7 @@ func (clientLogger *NetHttpClientLogger) Post(url string, contentType string, bo
 	}
 
 	// send logging message
-	sendNetHttpClientMessage(logger, resp, start)
+	sendNetHttpClientRequestResponseMessage(logger, resp, start)
 
 	return resp, err
 }
@@ -130,7 +133,7 @@ func (clientLogger *NetHttpClientLogger) PostForm(url string, data url.Values) (
 	}
 
 	// send logging message
-	sendNetHttpClientMessage(logger, resp, start)
+	sendNetHttpClientRequestResponseMessage(logger, resp, start)
 
 	return resp, err
 }
