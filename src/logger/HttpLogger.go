@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"encoding/json"
 	"strings"
 )
 
@@ -44,4 +45,18 @@ func NewHttpLogger(options Options) *HttpLogger {
 // getter for rules
 func (logger *HttpLogger) Rules() *HttpRules {
 	return logger.rules
+}
+
+func (logger *HttpLogger) submitIfPassing(details [][]string) {
+	details = logger.rules.apply(details)
+
+	if details == nil {
+		return
+	}
+
+	details = append(details, []string{"host", logger.host})
+
+	byteStr, _ := json.Marshal(details)
+
+	logger.Submit(string(byteStr))
 }
