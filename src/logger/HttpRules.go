@@ -583,7 +583,7 @@ func (rules *HttpRules) apply(details [][]string) [][]string {
 	for _, r := range rules.replace {
 		for _, d := range details {
 			if r.scope.FindAllStringSubmatch(d[0], -1) != nil {
-				d[1] = r.param1.(*regexp.Regexp).ReplaceAllLiteralString(d[1], r.param2.(string))
+				d[1] = r.param1.(*regexp.Regexp).ReplaceAllString(d[1], r.param2.(string))
 			}
 		}
 	}
