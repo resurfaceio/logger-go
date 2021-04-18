@@ -829,15 +829,10 @@ func TestUsesReplaceRules(t *testing.T) {
 func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 	helper := GetTestHelper()
 
-	request := helper.MockRequestWithJson2()
 	mockResponse := helper.MockResponseWithHtml()
 
-	mockHtml := strings.Replace(helper.mockJSON, "World", "rob@resurface.io", 1)
-
-	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
+	mockHtml := strings.Replace(helper.mockHTML, "World", "rob@resurface.io", 1)
 	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(mockHtml))
-	mockResponse.Request = request
-
 	_queue := make([]string, 0)
 	options := Options{
 		rules: "/response_body/ replace /[a-zA-Z0-9.!#$%&’*+\\/=?^_'{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)/, /x@y.com/",
@@ -846,12 +841,11 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 	logger := NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>Hello x@y.com!</html>\"],"), "email not replaced in _queue")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"<html>Hello x@y.com!</html>\"],"), "email not replaced in _queue")
 
+	mockResponse = helper.MockResponseWithHtml()
 	mockHtml = strings.Replace(helper.mockJSON, "World", "123-45-1343", 1)
-
 	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(mockHtml))
-
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "/response_body/ replace /[0-9\\.\\-\\/]{9,}/, /xyxy/",
@@ -860,10 +854,10 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 	logger = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>Hello xyxy!</html>\"],"), "custom string not replaced in _queue")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"<html>Hello xyxy!</html>\"],"), "custom string not replaced in _queue")
 
+	mockResponse = helper.MockResponseWithHtml()
 	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
-
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!response_body! replace !World!, !<b>$&</b>!",
@@ -872,8 +866,9 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 	logger = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>Hello <b>World</b>!</html>\"],"), "custom string not replaced in _queue")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"<html>Hello <b>World</b>!</html>\"],"), "custom string not replaced in _queue")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!response_body! replace !(World)!, !<b>$1</b>!",
@@ -882,10 +877,10 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 	logger = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>Hello <b>World</b>!</html>\"],"), "custom string not replaced in _queue")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"<html>Hello <b>World</b>!</html>\"],"), "custom string not replaced in _queue")
 
+	mockResponse = helper.MockResponseWithHtml()
 	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML5))
-
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!response_body! replace !<input([^>]*)>([^<]*)</input>!, !<input$1></input>!",
@@ -894,7 +889,7 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 	logger = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>\\n<input type=\\\"hidden\\\"></input>\\n<input class='foo' type=\\\"hidden\\\"></input>\\n</html>\"],"), "custom string not replaced in _queue")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"<html>\\n<input type=\\\"hidden\\\"></input>\\n<input class='foo' type=\\\"hidden\\\"></input>\\n</html>\"],"), "custom string not replaced in _queue")
 }
 
 // test uses sample rules
