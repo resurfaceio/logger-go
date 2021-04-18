@@ -159,8 +159,8 @@ func TestUsesCopySessionFieldRules(t *testing.T) {
 	logger, _ := NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"session_field:butterfly\", \"poison\"]"), "_queue did not contain expected values")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"session_field:session_id\", \"asdf1234\"]"), "_queue did not contain expected values")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"session_field:butterfly\",\"poison\"]"), "_queue did not contain expected values")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "_queue did not contain expected values")
 	// tests copy specifically session_id
 	_queue = make([]string, 0)
 	options = Options{
@@ -170,8 +170,8 @@ func TestUsesCopySessionFieldRules(t *testing.T) {
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"session_field:butterfly\", \"poison\"]"), "_queue contains unexpected value")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"session_field:session_id\", \"asdf1234\"]"), "_queue did not contain expected values")
+	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"session_field:butterfly\",\"poison\"]"), "_queue contains unexpected value")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "_queue did not contain expected values")
 	// tests copy non matching term
 	_queue = make([]string, 0)
 	options = Options{
@@ -191,8 +191,8 @@ func TestUsesCopySessionFieldRules(t *testing.T) {
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"session_field:butterfly\", \"poison\"]"), "_queue did not contain expected values")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"session_field:session_id\", \"asdf1234\"]"), "_queue did not contain expected values")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"session_field:butterfly\",\"poison\"]"), "_queue did not contain expected values")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "_queue did not contain expected values")
 }
 
 // test uses copy session field and remove rules test
@@ -233,7 +233,7 @@ func TestUsesCopySessionFieldAndRemoveRules(t *testing.T) {
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
 	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"session_field:butterfly\","), "_queue contains unexpected values")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"session_field:session_id\", \"asdf1234\"]"), "_queue did not contain expected value")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "_queue did not contain expected value")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -244,7 +244,7 @@ func TestUsesCopySessionFieldAndRemoveRules(t *testing.T) {
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
 	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"session_field:butterfly\","), "_queue contains unexpected values")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"session_field:session_id\", \"asdf1234\"]"), "_queue did not contain expected value")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "_queue did not contain expected value")
 
 	_queue = make([]string, 0)
 	options = Options{
@@ -752,7 +752,7 @@ func TestUsesReplaceRules(t *testing.T) {
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"<html>Hello Mundo!</html>\"],"), "_queue was not altered")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>Hello Mundo!</html>\"],"), "_queue was not altered")
 
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
@@ -763,8 +763,8 @@ func TestUsesReplaceRules(t *testing.T) {
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\", \"ZZZZZ\"],"), "_queue was not altered")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"ZZZZZ\"],"), "_queue was not altered")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\",\"ZZZZZ\"],"), "_queue was not altered")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"ZZZZZ\"],"), "_queue was not altered")
 
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
@@ -775,8 +775,8 @@ func TestUsesReplaceRules(t *testing.T) {
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\", \"QQ\"],"), "_queue was not altered")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"SS\"],"), "_queue was not altered")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\",\"QQ\"],"), "_queue was not altered")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"SS\"],"), "_queue was not altered")
 
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
@@ -787,7 +787,7 @@ func TestUsesReplaceRules(t *testing.T) {
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"<html>Hello !</html>\"],"), "_queue was not altered")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>Hello !</html>\"],"), "_queue was not altered")
 
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
@@ -810,7 +810,7 @@ func TestUsesReplaceRules(t *testing.T) {
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"<html>1 Z 2 Z Red Z Blue Z!</html>\"],"), "_queue was not altered")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>1 Z 2 Z Red Z Blue Z!</html>\"],"), "_queue was not altered")
 
 	mockResponse = helper.MockResponseWithHtml()
 	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML4)) //change html used from helper to mockHtml4
@@ -822,11 +822,10 @@ func TestUsesReplaceRules(t *testing.T) {
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"<html>1 Z\\n2 Z\\nRed Z \\nBlue Z!\\n</html>\"],"), "_queue was not altered")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>1 Z\\n2 Z\\nRed Z \\nBlue Z!\\n</html>\"],"), "_queue was not altered")
 }
 
 // test uses replace rules with complex expressions
-
 func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 	helper := GetTestHelper()
 
@@ -842,7 +841,7 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 	logger, _ := NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"<html>Hello x@y.com!</html>\"],"), "email not replaced in _queue")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>Hello x@y.com!</html>\"],"), "email not replaced in _queue")
 
 	mockResponse = helper.MockResponseWithHtml()
 	mockHtml = strings.Replace(helper.mockHTML, "World", "123-45-1343", 1)
@@ -855,7 +854,7 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"<html>Hello xyxy!</html>\"],"), "custom string not replaced in _queue")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>Hello xyxy!</html>\"],"), "custom string not replaced in _queue")
 
 	mockResponse = helper.MockResponseWithHtml()
 	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
@@ -867,7 +866,7 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"<html>Hello <b>World</b>!</html>\"],"), "custom string not replaced in _queue")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>Hello <b>World</b>!</html>\"],"), "custom string not replaced in _queue")
 
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
@@ -878,7 +877,7 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"<html>Hello <b>World</b>!</html>\"],"), "custom string not replaced in _queue")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>Hello <b>World</b>!</html>\"],"), "custom string not replaced in _queue")
 
 	mockResponse = helper.MockResponseWithHtml()
 	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML5))
@@ -890,7 +889,7 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"<html>\\n<input type=\"hidden\"></input>\\n<input class='foo' type=\"hidden\"></input>\\n</html>\"],"), "custom string not replaced in _queue")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>\\n<input type=\\\"hidden\\\"></input>\\n<input class='foo' type=\\\"hidden\\\"></input>\\n</html>\"],"), "custom string not replaced in _queue")
 }
 
 // test uses sample rules

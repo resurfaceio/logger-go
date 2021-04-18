@@ -19,7 +19,10 @@ func NewBaseLogger(_agent string, _url string, _enabled interface{}, _queue []st
 	_enabled = (_enabled == nil) || (_enabled.(bool) == true)
 	if _queue == nil && _url == "" {
 		_url = usageLoggers.UrlByDefault()
-		_enabled = (len(_url) > 0)
+		// WIP 03.26.21
+		if _url == "" {
+			_enabled = false
+		}
 	}
 
 	var _urlParsed *url.URL

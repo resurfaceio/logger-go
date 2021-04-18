@@ -148,9 +148,9 @@ func GetTestHelper() *helper {
 
 			mockHTML3: "<html>1 World 2 World Red World Blue World!</html>",
 
-			mockHTML4: "<html>1 World\\n2 World\\nRed World \\nBlue World!\\n</html>",
+			mockHTML4: "<html>1 World\n2 World\nRed World \nBlue World!\n</html>",
 
-			mockHTML5: "<html>\\n<input type=\"hidden\">SENSITIVE</input>\\n<input class='foo' type=\"hidden\">\\nSENSITIVE\\n</input>\\n</html>",
+			mockHTML5: "<html>\n<input type=\"hidden\">SENSITIVE</input>\n<input class='foo' type=\"hidden\">\nSENSITIVE\n</input>\n</html>",
 
 			mockJSON: `{ \"hello\" : \"world\" }`,
 

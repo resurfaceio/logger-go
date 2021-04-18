@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"encoding/json"
 	"strings"
 )
 
@@ -58,5 +59,10 @@ func (logger *HttpLogger) submitIfPassing(details [][]string) {
 
 	details = append(details, []string{"host", logger.host})
 
-	logger.Submit(msgStringify(details))
+	byteStr, _ := json.Marshal(details)
+
+	detailsString := string(byteStr)
+	detailsString = strings.Replace(detailsString, "\\u003c", "<", -1)
+	detailsString = strings.Replace(detailsString, "\\u003e", ">", -1)
+	logger.Submit(detailsString)
 }
