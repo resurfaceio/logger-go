@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -21,12 +20,12 @@ type HttpLogger struct {
 }
 
 // initialize HttpLogger
-func NewHttpLogger(options Options) *HttpLogger {
+func NewHttpLogger(options Options) (*HttpLogger, error) {
 	baseLogger := NewBaseLogger(httpLoggerAgent, options.url, options.enabled, options.queue)
 
 	loggerRules, err := newHttpRules(options.rules)
 	if err != nil {
-		fmt.Println(err.Error())
+		return nil, err
 	}
 
 	logger := &HttpLogger{
@@ -42,7 +41,7 @@ func NewHttpLogger(options Options) *HttpLogger {
 		logger.enabled = false
 	}
 
-	return logger
+	return logger, nil
 }
 
 // getter for rules

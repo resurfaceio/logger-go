@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -889,11 +890,13 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 	logger = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"<html>\\n<input type=\\\"hidden\\\"></input>\\n<input class='foo' type=\\\"hidden\\\"></input>\\n</html>\"],"), "custom string not replaced in _queue")
+	fmt.Println(helper.mockHTML5)
+	fmt.Println(logger.BaseLogger.queue[0])
+	fmt.Println("[\"response_body\", \"<html>\\n<input type=\\\"hidden\\\"></input>\\n<input class='foo' type=\\\"hidden\\\"></input>\\n</html>\"],")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"<html>\\n<input type=\"hidden\"></input>\\n<input class='foo' type=\"hidden\"></input>\\n</html>\"],"), "custom string not replaced in _queue")
 }
 
 // test uses sample rules
-
 func TestUsesSampleRules(t *testing.T) {
 	helper := GetTestHelper()
 

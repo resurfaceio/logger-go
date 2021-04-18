@@ -150,12 +150,7 @@ func GetTestHelper() *helper {
 
 			mockHTML4: "<html>1 World\\n2 World\\nRed World \\nBlue World!\\n</html>",
 
-			mockHTML5: `<html>\n
-			<input type=\"hidden\">SENSITIVE</input>\n
-			<input class='foo' type=\"hidden\">\n
-			SENSITIVE\n
-			</input>\n
-			</html>`,
+			mockHTML5: "<html>\\n<input type=\"hidden\">SENSITIVE</input>\\n<input class='foo' type=\"hidden\">\\nSENSITIVE\\n</input>\\n</html>",
 
 			mockJSON: `{ \"hello\" : \"world\" }`,
 
