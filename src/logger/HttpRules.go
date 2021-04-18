@@ -515,7 +515,7 @@ func (rules *HttpRules) apply(details [][]string) [][]string {
 	}
 	for _, r := range rules.stopIfFound {
 		for _, d := range details {
-			regex := r.param1.(regexp.Regexp)
+			regex := r.param1.(*regexp.Regexp)
 			if r.scope.FindAllStringSubmatch(d[0], -1) != nil && regex.FindAllStringSubmatch(d[1], -1) != nil {
 				return nil
 			}
@@ -523,7 +523,7 @@ func (rules *HttpRules) apply(details [][]string) [][]string {
 	}
 	for _, r := range rules.stopIf {
 		for _, d := range details {
-			regex := r.param1.(regexp.Regexp)
+			regex := r.param1.(*regexp.Regexp)
 			if r.scope.FindAllStringSubmatch(d[0], -1) != nil && regex.FindAllStringSubmatch(d[1], -1) != nil {
 				return nil
 			}
@@ -532,7 +532,7 @@ func (rules *HttpRules) apply(details [][]string) [][]string {
 	passed := 0
 	for _, r := range rules.stopUnlessFound {
 		for _, d := range details {
-			regex := r.param1.(regexp.Regexp)
+			regex := r.param1.(*regexp.Regexp)
 			if r.scope.FindAllStringSubmatch(d[0], -1) != nil && regex.FindAllStringSubmatch(d[1], -1) != nil {
 				passed++
 			}
@@ -544,13 +544,13 @@ func (rules *HttpRules) apply(details [][]string) [][]string {
 	passed = 0
 	for _, r := range rules.stopUnless {
 		for _, d := range details {
-			regex := r.param1.(regexp.Regexp)
+			regex := r.param1.(*regexp.Regexp)
 			if r.scope.FindAllStringSubmatch(d[0], -1) != nil && regex.FindAllStringSubmatch(d[1], -1) != nil {
 				passed++
 			}
 		}
 	}
-	if passed != len(rules.stopUnlessFound) {
+	if passed != len(rules.stopUnless) {
 		return nil
 	}
 
@@ -561,19 +561,19 @@ func (rules *HttpRules) apply(details [][]string) [][]string {
 
 	// winnow sensitive details based on remove rules if configured
 	for _, r := range rules.remove {
-		details = removeDetailIf(details, []*regexp.Regexp{r.scope})
+		details = removeDetailIf(details, [][]interface{}{{true, r.scope}})
 	}
 	for _, r := range rules.removeUnlessFound {
-		details = removeDetailIf(details, []*regexp.Regexp{r.scope, r.param1.(*regexp.Regexp)})
+		details = removeDetailIf(details, [][]interface{}{{true, r.scope}, {false, r.param1.(*regexp.Regexp)}})
 	}
 	for _, r := range rules.removeIfFound {
-		details = removeDetailIf(details, []*regexp.Regexp{r.scope, r.param1.(*regexp.Regexp)})
+		details = removeDetailIf(details, [][]interface{}{{true, r.scope}, {true, r.param1.(*regexp.Regexp)}})
 	}
 	for _, r := range rules.removeUnless {
-		details = removeDetailIf(details, []*regexp.Regexp{r.scope, r.param1.(*regexp.Regexp)})
+		details = removeDetailIf(details, [][]interface{}{{true, r.scope}, {false, r.param1.(*regexp.Regexp)}})
 	}
 	for _, r := range rules.removeIf {
-		details = removeDetailIf(details, []*regexp.Regexp{r.scope, r.param1.(*regexp.Regexp)})
+		details = removeDetailIf(details, [][]interface{}{{true, r.scope}, {true, r.param1.(*regexp.Regexp)}})
 	}
 	if len(details) == 0 {
 		return nil
@@ -647,12 +647,12 @@ func ruleFilter(parsedRules []*HttpRule, ruleString string, cond func(string, st
 
 // https://stackoverflow.com/questions/20545743/delete-entries-from-a-slice-while-iterating-over-it-in-go/20551116
 // remove detail form details slice if all regexp.Regexp are matched from the given slice of *regexp.Regexp
-func removeDetailIf(details [][]string, regex []*regexp.Regexp) [][]string {
+func removeDetailIf(details [][]string, condRegex [][]interface{}) [][]string {
 	i := 0
 	for _, d := range details {
 		allMatched := true
-		for _, exp := range regex {
-			if exp.FindAllStringSubmatch(d[0], -1) == nil {
+		for i, exp := range condRegex {
+			if (exp[1].(*regexp.Regexp).FindAllStringSubmatch(d[i], -1) == nil) == exp[0].(bool) {
 				allMatched = false
 			}
 		}

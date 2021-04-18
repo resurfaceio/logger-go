@@ -3,6 +3,7 @@ package logger
 import (
 	"bytes"
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -87,18 +88,36 @@ func (h *helper) MockRequestWithJson() *http.Request {
 	// request, _ := http.NewRequest("POST", h.mockURL, requestBody)
 	// request.Header.Add("Content-Type", "Application/JSON")
 	// request.PostForm.Add("message", "{ \"hello\" : \"world\" }")
-	request, _ := http.NewRequest("POST", "www.legitwebsite.com", strings.NewReader("stuff"))
+	requestBody, _ := json.Marshal(h.mockJSON)
+	request, _ := http.NewRequest("POST", h.mockURL, bytes.NewBuffer(requestBody))
+	request.Header.Add("content-type", "Application/JSON")
 	return request
 }
 
 func (h *helper) MockRequestWithJson2() *http.Request {
-	request, _ := http.NewRequest("POST", "www.legitwebsite.com", strings.NewReader("stuff"))
+	request := h.MockRequestWithJson()
+	request.Header.Add("ABC", "123")
+	request.Header.Add("A", "1")
+	request.Header.Add("A", "2")
+	request.Header.Add("ABC", "123")
+	request.Header.Add("ABC", "234")
 	return request
 }
 
-func (h *helper) MockResponseWithHtml() *http.Response {
-	response := http.Response{}
+func (h *helper) MockResponse() *http.Response {
+	response := http.Response{
+		Body:   ioutil.NopCloser(bytes.NewBufferString(h.mockHTML)),
+		Header: map[string][]string{},
+	}
 	return &response
+}
+
+func (h *helper) MockResponseWithHtml() *http.Response {
+	response := h.MockResponse()
+	response.StatusCode = 200
+	response.Header.Add("content-type", "text/html; charset=utf-8")
+	response.Request = h.MockRequestWithJson2()
+	return response
 }
 
 //https://golang.org/pkg/encoding/json/#example_Unmarshal
@@ -138,7 +157,7 @@ func GetTestHelper() *helper {
 			</input>\n
 			</html>`,
 
-			mockJSON: "{ \"hello\" : \"world\" }",
+			mockJSON: `{ \"hello\" : \"world\" }`,
 
 			mockJSONescaped: "{ \\'hello\\' : \\'world\\' }",
 

@@ -8,7 +8,7 @@ import (
 type Options struct {
 	rules   string
 	url     string
-	enabled bool
+	enabled interface{}
 	queue   []string
 }
 
