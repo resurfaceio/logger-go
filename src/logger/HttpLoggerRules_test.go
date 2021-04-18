@@ -472,13 +472,7 @@ func TestUsesRemoveIfRules(t *testing.T) {
 func TestUsesRemoveIfFoundRules(t *testing.T) {
 	helper := GetTestHelper()
 
-	request := helper.MockRequestWithJson2()
 	mockResponse := helper.MockResponseWithHtml()
-
-	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
-	mockResponse.Request = request
-
 	_queue := make([]string, 0)
 	options := Options{
 		rules: "!response_header:blahblahblah! remove_if_found !.*!",
@@ -488,6 +482,7 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!.*! remove_if_found !.*!",
@@ -497,6 +492,7 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 0, len(logger.BaseLogger.queue), "_queue is not empty")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!request_body! remove_if_found !.*!",
@@ -508,6 +504,7 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not removed")
 	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!response_body! remove_if_found !.*!",
@@ -519,6 +516,7 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
 	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not removed")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!response_body|request_body! remove_if_found !World!", //mock response should contain "World" and should therefore be removed
@@ -530,6 +528,7 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
 	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not removed")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!response_body|request_body! remove_if_found !.*World.*!", //mock response should contain "World" and should therefore be removed
@@ -541,6 +540,7 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
 	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not removed")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!response_body|request_body! remove_if_found !blahblahblah!",
@@ -558,13 +558,7 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 func TestUsesRemoveUnlessRules(t *testing.T) {
 	helper := GetTestHelper()
 
-	request := helper.MockRequestWithJson2()
 	mockResponse := helper.MockResponseWithHtml()
-
-	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
-	mockResponse.Request = request
-
 	_queue := make([]string, 0)
 	options := Options{
 		rules: "!response_header:blahblahblah! remove_unless !.*!",
@@ -574,6 +568,7 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!.*! remove_unless !.*blahblahblah.*!",
@@ -583,6 +578,7 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 0, len(logger.BaseLogger.queue), "_queue is not empty")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!request_body! remove_unless !.*blahblahblah.*!",
@@ -594,6 +590,7 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not removed")
 	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!response_body! remove_unless !.*blahblahblah.*!",
@@ -605,6 +602,7 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
 	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not removed")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!response_body|request_body! remove_unless !.*World.*!", //mock response should contain "World" and therefore should not be removed
@@ -616,6 +614,7 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not removed")
 	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!response_body|request_body! remove_unless !.*!",
@@ -627,6 +626,7 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
 	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!response_body! remove_unless !.*!\n!request_body! remove_unless !.*!",
@@ -644,13 +644,7 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 func TestUsesRemoveUnlessFoundRules(t *testing.T) {
 	helper := GetTestHelper()
 
-	request := helper.MockRequestWithJson2()
 	mockResponse := helper.MockResponseWithHtml()
-
-	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
-	mockResponse.Request = request
-
 	_queue := make([]string, 0)
 	options := Options{
 		rules: "!response_header:blahblahblah! remove_unless_found !.*!",
@@ -660,6 +654,7 @@ func TestUsesRemoveUnlessFoundRules(t *testing.T) {
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!.*! remove_unless_found !blahblahblah!",
@@ -669,6 +664,7 @@ func TestUsesRemoveUnlessFoundRules(t *testing.T) {
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 0, len(logger.BaseLogger.queue), "_queue is not empty")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!request_body! remove_unless_found !blahblahblah!",
@@ -680,6 +676,7 @@ func TestUsesRemoveUnlessFoundRules(t *testing.T) {
 	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not removed")
 	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!response_body! remove_unless_found !blahblahblah!",
@@ -691,6 +688,7 @@ func TestUsesRemoveUnlessFoundRules(t *testing.T) {
 	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not found")
 	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not removed")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!response_body|request_body! remove_unless_found !World!",
@@ -702,6 +700,7 @@ func TestUsesRemoveUnlessFoundRules(t *testing.T) {
 	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not removed")
 	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!response_body|request_body! remove_unless_found !.*World.*!",
@@ -713,6 +712,7 @@ func TestUsesRemoveUnlessFoundRules(t *testing.T) {
 	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\","), "request_body not removed")
 	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "response_body not found")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!response_body|request_body! remove_unless_found !.*!",
@@ -730,13 +730,7 @@ func TestUsesRemoveUnlessFoundRules(t *testing.T) {
 func TestUsesReplaceRules(t *testing.T) {
 	helper := GetTestHelper()
 
-	request := helper.MockRequestWithJson2()
 	mockResponse := helper.MockResponseWithHtml()
-
-	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
-	mockResponse.Request = request
-
 	_queue := make([]string, 0)
 	options := Options{
 		rules: "!response_body! replace !blahblahblah!, !ZZZZZ!",
@@ -748,6 +742,7 @@ func TestUsesReplaceRules(t *testing.T) {
 	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "World"), "_queue was altered unexpectedly") //default mock response should contain "World"
 	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "ZZZZZ"), "_queue was altered unexpectedly")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!response_body! replace !World!, !Mundo!",
@@ -756,8 +751,9 @@ func TestUsesReplaceRules(t *testing.T) {
 	logger = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>Hello Mundo!</html>\"],"), "_queue was not altered")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"<html>Hello Mundo!</html>\"],"), "_queue was not altered")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!request_body|response_body! replace !^.*!, !ZZZZZ!",
@@ -766,9 +762,10 @@ func TestUsesReplaceRules(t *testing.T) {
 	logger = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\",\"ZZZZZ\"],"), "_queue was not altered")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"ZZZZZ\"],"), "_queue was not altered")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\", \"ZZZZZ\"],"), "_queue was not altered")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"ZZZZZ\"],"), "_queue was not altered")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!request_body! replace !^.*!, !QQ!\n!response_body! replace !^.*!, !SS!",
@@ -777,9 +774,10 @@ func TestUsesReplaceRules(t *testing.T) {
 	logger = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\",\"QQ\"],"), "_queue was not altered")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"SS\"],"), "_queue was not altered")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"request_body\", \"QQ\"],"), "_queue was not altered")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"SS\"],"), "_queue was not altered")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!response_body! replace !World!, !!",
@@ -788,8 +786,9 @@ func TestUsesReplaceRules(t *testing.T) {
 	logger = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>Hello !</html>\"],"), "_queue was not altered")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"<html>Hello !</html>\"],"), "_queue was not altered")
 
+	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!response_body! replace !.*!, !!",
@@ -800,8 +799,8 @@ func TestUsesReplaceRules(t *testing.T) {
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
 	assert.Equal(t, false, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\","), "_queue was not altered")
 
+	mockResponse = helper.MockResponseWithHtml()
 	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML3)) //change html used from helper to mockHtml3
-
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!response_body! replace !World!, !Z!",
@@ -810,10 +809,10 @@ func TestUsesReplaceRules(t *testing.T) {
 	logger = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>1 Z 2 Z Red Z Blue Z!</html>\"],"), "_queue was not altered")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"<html>1 Z 2 Z Red Z Blue Z!</html>\"],"), "_queue was not altered")
 
+	mockResponse = helper.MockResponseWithHtml()
 	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML4)) //change html used from helper to mockHtml4
-
 	_queue = make([]string, 0)
 	options = Options{
 		rules: "!response_body! replace !World!, !Z!",
@@ -822,7 +821,7 @@ func TestUsesReplaceRules(t *testing.T) {
 	logger = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	assert.Equal(t, 1, len(logger.BaseLogger.queue), "_queue length is not 1")
-	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\",\"<html>1 Z\\n2 Z\\nRed Z \\nBlue Z!\\n</html>\"],"), "_queue was not altered")
+	assert.Equal(t, true, strings.Contains(logger.BaseLogger.queue[0], "[\"response_body\", \"<html>1 Z\\n2 Z\\nRed Z \\nBlue Z!\\n</html>\"],"), "_queue was not altered")
 }
 
 // test uses replace rules with complex expressions
