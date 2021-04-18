@@ -120,7 +120,6 @@ func newHttpRules(rules string) (*HttpRules, error) {
 		if parsed != nil {
 			prs = append(prs, parsed)
 		} else if parsed == nil && err != nil {
-			fmt.Println("for each rule error: " + err.Error())
 			return nil, err
 		}
 	}
@@ -148,8 +147,6 @@ func newHttpRules(rules string) (*HttpRules, error) {
 	_removeUnlessFound := ruleFilter(prs, "remove_unless_found", ruleCompare)
 	_replace := ruleFilter(prs, "replace", ruleCompare)
 	_sample := ruleFilter(prs, "sample", ruleCompare)
-	new_prs := ruleFilter(prs, "skip_compression", ruleCompare)
-	fmt.Println(len(new_prs))
 	_skipCompression := len(ruleFilter(prs, "skip_compression", ruleCompare)) > 0
 	_skipSubmission := len(ruleFilter(prs, "skip_submission", ruleCompare)) > 0
 	_stop := ruleFilter(prs, "stop", ruleCompare)
@@ -159,7 +156,7 @@ func newHttpRules(rules string) (*HttpRules, error) {
 	_stopUnlessFound := ruleFilter(prs, "stop_unless_found", ruleCompare)
 
 	if len(_sample) > 1 {
-		return nil, fmt.Errorf("error: multiple sample rules")
+		return nil, fmt.Errorf("Multiple sample rules")
 	}
 
 	return &HttpRules{

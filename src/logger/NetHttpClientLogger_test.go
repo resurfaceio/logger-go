@@ -19,7 +19,7 @@ func TestLogsGet(t *testing.T) {
 		queue:   queue,
 		enabled: true,
 	}
-	netLogger := NewNetHttpClientLoggerOptions(options)
+	netLogger, _ := NewNetHttpClientLoggerOptions(options)
 
 	netLogger.Get(helper.demoURL1)
 
@@ -47,7 +47,7 @@ func TestLogsPost(t *testing.T) {
 		queue:   queue,
 		enabled: true,
 	}
-	netLogger := NewNetHttpClientLoggerOptions(options)
+	netLogger, _ := NewNetHttpClientLoggerOptions(options)
 
 	netLogger.Post(helper.demoURL, "Application/JSON", bytes.NewBuffer([]byte(helper.mockJSON)))
 	//fmt.Println(netLogger.httpLogger.queue[0])
@@ -72,7 +72,7 @@ func TestLogsHead(t *testing.T) {
 		queue:   queue,
 		enabled: true,
 	}
-	netLogger := NewNetHttpClientLoggerOptions(options)
+	netLogger, _ := NewNetHttpClientLoggerOptions(options)
 
 	netLogger.Head(helper.demoURL1)
 	//fmt.Println(netLogger.httpLogger.queue[0])
@@ -99,7 +99,7 @@ func TestLogsPostForm(t *testing.T) {
 		queue:   queue,
 		enabled: true,
 	}
-	netLogger := NewNetHttpClientLoggerOptions(options)
+	netLogger, _ := NewNetHttpClientLoggerOptions(options)
 	form := url.Values{}
 	form.Add("username:", "resurfaceio")
 
