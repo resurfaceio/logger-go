@@ -909,7 +909,7 @@ func TestUsesSampleRules(t *testing.T) {
 		rules: "sample 10\nsample 99",
 		queue: _queue,
 	}
-	logger, err := NewHttpLogger(options)
+	_, err := NewHttpLogger(options)
 	if err != nil {
 		assert.Equal(t, "Multiple sample rules", err.Error(), "multiple sample rule error not correct") //This is what I came up with as Go has no Try & Catch functionality for errors
 	}
@@ -918,7 +918,7 @@ func TestUsesSampleRules(t *testing.T) {
 		rules: "sample 10",
 		queue: _queue,
 	}
-	logger, _ = NewHttpLogger(options)
+	logger, _ := NewHttpLogger(options)
 	for i := 1; i <= 100; i++ {
 		sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
 	}
