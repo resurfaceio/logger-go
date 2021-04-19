@@ -26,12 +26,12 @@ func sendNetHttpClientRequestResponseMessage(logger *HttpLogger, resp *http.Resp
 	// copy data from session if configured
 	if len(copySessionField) != 0 {
 		sessionCookies := request.Cookies()
-		if len(sessionCookies) != 0 {
+		if sessionCookies != nil {
 			for _, r := range copySessionField {
 				for _, cookie := range sessionCookies {
 					name := strings.ToLower(cookie.Name)
-					matched, err := regexp.MatchString(r.param1.(string), name)
-					if err == nil && matched {
+					matched := r.param1.(*regexp.Regexp).MatchString(name)
+					if matched == true {
 						cookieVal := cookie.Value
 						message = append(message,
 							[]string{"session_field:" + name, cookieVal})
@@ -72,19 +72,17 @@ func buildNetHttpClientMessage(req *http.Request, resp *http.Response) [][]strin
 	if req.Body != nil {
 		reqBodyBytes, err := ioutil.ReadAll(req.Body)
 		reqBody := string(reqBodyBytes)
-		if err != nil && reqBody != "" {
+		if err == nil && reqBody != "" {
 			message = append(message, []string{"request_body", reqBody})
 		}
 	}
 
-	respBodyBytes, err := ioutil.ReadAll(resp.Body)
-	var respBody string
-	if err != nil {
-		respBody = string(respBodyBytes)
-	}
-
-	if respBody != "" {
-		message = append(message, []string{"response_body", respBody})
+	if resp.Body != nil {
+		respBodyBytes, err := ioutil.ReadAll(resp.Body)
+		respBody := string(respBodyBytes)
+		if err == nil && respBody != "" {
+			message = append(message, []string{"response_body", respBody})
+		}
 	}
 
 	return message

@@ -13,10 +13,11 @@ import (
 )
 
 // BaseLogger constructor
-func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *BaseLogger {
+func NewBaseLogger(_agent string, _url string, _enabled interface{}, _queue []string) *BaseLogger {
 	usageLoggers, _ := GetUsageLoggers()
 
-	if _url == "" {
+	_enabled = (_enabled == nil) || (_enabled.(bool) == true)
+	if _queue == nil && _url == "" {
 		_url = usageLoggers.UrlByDefault()
 		// WIP 03.26.21
 		if _url == "" {
@@ -30,6 +31,8 @@ func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *
 	if _url != "" {
 		_urlParsed, parsingError = url.ParseRequestURI(_url)
 		isUrl := govalidator.IsURL(_url)
+		// fmt.Println("parsed url: " + _urlParsed.String())
+		// fmt.Println("is Url:" + strconv.FormatBool(isUrl))
 		if parsingError != nil || !isUrl {
 			_url = ""
 			_urlParsed = nil
@@ -42,11 +45,13 @@ func NewBaseLogger(_agent string, _url string, _enabled bool, _queue []string) *
 	constructedBaseLogger := &BaseLogger{
 		agent:           _agent,
 		enableable:      _enableable,
-		enabled:         _enabled,
+		enabled:         _enabled.(bool),
 		host:            hostLookup(),
 		queue:           _queue,
 		skipCompression: false,
 		skipSubmission:  false,
+		submitFailures:  0,
+		submitSuccesses: 0,
 		url:             _url,
 		urlParsed:       _urlParsed,
 		version:         versionLookup(),

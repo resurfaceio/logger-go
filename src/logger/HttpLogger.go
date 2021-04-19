@@ -8,7 +8,7 @@ import (
 type Options struct {
 	rules   string
 	url     string
-	enabled bool
+	enabled interface{}
 	queue   []string
 }
 
@@ -21,10 +21,13 @@ type HttpLogger struct {
 }
 
 // initialize HttpLogger
-func NewHttpLogger(options Options) *HttpLogger {
+func NewHttpLogger(options Options) (*HttpLogger, error) {
 	baseLogger := NewBaseLogger(httpLoggerAgent, options.url, options.enabled, options.queue)
 
-	loggerRules, _ := newHttpRules(options.rules)
+	loggerRules, err := newHttpRules(options.rules)
+	if err != nil {
+		return nil, err
+	}
 
 	logger := &HttpLogger{
 		baseLogger,
@@ -39,7 +42,7 @@ func NewHttpLogger(options Options) *HttpLogger {
 		logger.enabled = false
 	}
 
-	return logger
+	return logger, nil
 }
 
 // getter for rules
@@ -58,5 +61,8 @@ func (logger *HttpLogger) submitIfPassing(details [][]string) {
 
 	byteStr, _ := json.Marshal(details)
 
-	logger.Submit(string(byteStr))
+	detailsString := string(byteStr)
+	detailsString = strings.Replace(detailsString, "\\u003c", "<", -1)
+	detailsString = strings.Replace(detailsString, "\\u003e", ">", -1)
+	logger.Submit(detailsString)
 }
