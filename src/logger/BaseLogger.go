@@ -16,7 +16,7 @@ import (
 func NewBaseLogger(_agent string, _url string, _enabled interface{}, _queue []string) *BaseLogger {
 	usageLoggers, _ := GetUsageLoggers()
 
-	_enabled = (_enabled == nil) || (_enabled.(bool) == true)
+	_enabled = (_enabled == nil) || (_enabled.(bool))
 	if _queue == nil && _url == "" {
 		_url = usageLoggers.UrlByDefault()
 		// WIP 03.26.21
