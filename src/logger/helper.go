@@ -3,6 +3,7 @@ package logger
 import (
 	"bytes"
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -83,6 +84,42 @@ func (testHelper *helper) MockPostFormRequest() http.Request {
 	return *request
 }
 
+func (h *helper) MockRequestWithJson() *http.Request {
+	// request, _ := http.NewRequest("POST", h.mockURL, requestBody)
+	// request.Header.Add("Content-Type", "Application/JSON")
+	// request.PostForm.Add("message", "{ \"hello\" : \"world\" }")
+	requestBody, _ := json.Marshal(h.mockJSON)
+	request, _ := http.NewRequest("POST", h.mockURL, bytes.NewBuffer(requestBody))
+	request.Header.Add("content-type", "Application/JSON")
+	return request
+}
+
+func (h *helper) MockRequestWithJson2() *http.Request {
+	request := h.MockRequestWithJson()
+	request.Header.Add("ABC", "123")
+	request.Header.Add("A", "1")
+	request.Header.Add("A", "2")
+	request.Header.Add("ABC", "123")
+	request.Header.Add("ABC", "234")
+	return request
+}
+
+func (h *helper) MockResponse() *http.Response {
+	response := http.Response{
+		Body:   ioutil.NopCloser(bytes.NewBufferString(h.mockHTML)),
+		Header: map[string][]string{},
+	}
+	return &response
+}
+
+func (h *helper) MockResponseWithHtml() *http.Response {
+	response := h.MockResponse()
+	response.StatusCode = 200
+	response.Header.Add("content-type", "text/html; charset=utf-8")
+	response.Request = h.MockRequestWithJson2()
+	return response
+}
+
 //https://golang.org/pkg/encoding/json/#example_Unmarshal
 func parseable(msg string) bool {
 	if msg == "" || !strings.HasPrefix(msg, "[") || !strings.HasSuffix(msg, "]") || strings.Contains(msg, "[]") || strings.Contains(msg, ",,") {
@@ -113,14 +150,9 @@ func GetTestHelper() *helper {
 
 			mockHTML4: "<html>1 World\n2 World\nRed World \nBlue World!\n</html>",
 
-			mockHTML5: `<html>\n
-			<input type=\"hidden\">SENSITIVE</input>\n
-			<input class='foo' type=\"hidden\">\n
-			SENSITIVE\n
-			</input>\n
-			</html>`,
+			mockHTML5: "<html>\n<input type=\"hidden\">SENSITIVE</input>\n<input class='foo' type=\"hidden\">\nSENSITIVE\n</input>\n</html>",
 
-			mockJSON: "{ \"hello\" : \"world\" }",
+			mockJSON: `{ \"hello\" : \"world\" }`,
 
 			mockJSONescaped: "{ \\'hello\\' : \\'world\\' }",
 
@@ -138,7 +170,8 @@ func GetTestHelper() *helper {
 			mockURLSinvalid: []string{"",
 				"noway3is5this1valid2",
 				"ftp:\\www.noway3is5this1valid2.com/",
-				"urn:ISSN:1535–3613"},
+				"urn:ISSN:1535–3613",
+			},
 
 			mockFormData: "\"username\": { \" ResurfaceIO \" ",
 		}
