@@ -27,16 +27,16 @@ func TestCreateMultipleInstances(t *testing.T) {
 	url2 := "https://whatever.com"
 	helper := GetTestHelper()
 	options1 := Options{
-		url:     url1,
-		enabled: true,
+		Url:     url1,
+		Enabled: true,
 	}
 	options2 := Options{
-		url:     url2,
-		enabled: true,
+		Url:     url2,
+		Enabled: true,
 	}
 	options3 := Options{
-		url:     helper.demoURL,
-		enabled: true,
+		Url:     helper.demoURL,
+		Enabled: true,
 	}
 
 	logger1, _ := NewHttpLogger(options1)
