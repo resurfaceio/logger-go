@@ -6,10 +6,10 @@ import (
 )
 
 type Options struct {
-	rules   string
-	url     string
-	enabled interface{}
-	queue   []string
+	Rules   string
+	Url     string
+	Enabled interface{}
+	Queue   []string
 }
 
 const httpLoggerAgent string = "HttpLogger.go"
@@ -22,9 +22,9 @@ type HttpLogger struct {
 
 // initialize HttpLogger
 func NewHttpLogger(options Options) (*HttpLogger, error) {
-	baseLogger := NewBaseLogger(httpLoggerAgent, options.url, options.enabled, options.queue)
+	baseLogger := NewBaseLogger(httpLoggerAgent, options.Url, options.Enabled, options.Queue)
 
-	loggerRules, err := newHttpRules(options.rules)
+	loggerRules, err := newHttpRules(options.Rules)
 	if err != nil {
 		return nil, err
 	}

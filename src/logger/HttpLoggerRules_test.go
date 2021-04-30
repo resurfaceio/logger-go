@@ -22,72 +22,72 @@ func TestOverrideDefaultRules(t *testing.T) {
 	assert.Equal(t, rules.strictRules, rules.defaultRules, "HTTP default rules are not strict rules")
 
 	options := Options{
-		url: "https://mysite.com",
+		Url: "https://mysite.com",
 	}
 	logger, _ := NewHttpLogger(options)
 	assert.Equal(t, httpRules.StrictRules(), logger.rules.text, "logger rules are not set to default rules")
 	options = Options{
-		url:   "https://mysite.com",
-		rules: "# 123",
+		Url:   "https://mysite.com",
+		Rules: "# 123",
 	}
 	logger, _ = NewHttpLogger(options)
 	assert.Equal(t, "# 123", logger.rules.text, "logger default rules not overriden")
 
 	httpRules.SetDefaultRules("")
 	options = Options{
-		url: "https://mysite.com",
+		Url: "https://mysite.com",
 	}
 	logger, _ = NewHttpLogger(options)
 	assert.Equal(t, "", logger.rules.text, "logger default rules were not applied")
 	options = Options{
-		url:   "https://mysite.com",
-		rules: "   ",
+		Url:   "https://mysite.com",
+		Rules: "   ",
 	}
 	logger, _ = NewHttpLogger(options)
 	assert.Equal(t, "", logger.rules.text, "logger default rules not overriden or blank space not ignored")
 	options = Options{
-		url:   "https://mysite.com",
-		rules: " sample 42",
+		Url:   "https://mysite.com",
+		Rules: " sample 42",
 	}
 	logger, _ = NewHttpLogger(options)
 	assert.Equal(t, " sample 42", logger.rules.text, "logger default rules not overriden")
 
 	httpRules.SetDefaultRules("skip_compression")
 	options = Options{
-		url: "https://mysite.com",
+		Url: "https://mysite.com",
 	}
 	logger, _ = NewHttpLogger(options)
 	assert.Equal(t, "skip_compression", logger.rules.text, "logger default rules not applied")
 	options = Options{
-		url:   "https://mysite.com",
-		rules: "include default\nskip_submission\n",
+		Url:   "https://mysite.com",
+		Rules: "include default\nskip_submission\n",
 	}
 	logger, _ = NewHttpLogger(options)
 	assert.Equal(t, "skip_compression\nskip_submission\n", logger.rules.text, ":logger default rules not overriden")
 
 	httpRules.SetDefaultRules("sample 42\n")
 	options = Options{
-		url: "https://mysite.com",
+		Url: "https://mysite.com",
 	}
 	logger, _ = NewHttpLogger(options)
 	assert.Equal(t, "sample 42\n", logger.rules.text, "logger default rules not applied")
 	options = Options{
-		url:   "https://mysite.com",
-		rules: "   ",
+		Url:   "https://mysite.com",
+		Rules: "   ",
 	}
 	logger, _ = NewHttpLogger(options)
 	assert.Equal(t, "sample 42\n", logger.rules.text, "white space not ignored")
 	options = Options{
-		url:   "https://mysite.com",
-		rules: "include default\nskip_submission\n",
+		Url:   "https://mysite.com",
+		Rules: "include default\nskip_submission\n",
 	}
 	logger, _ = NewHttpLogger(options)
 	assert.Equal(t, "sample 42\n\nskip_submission\n", logger.rules.text, "logger rules not applied correctly")
 
 	httpRules.SetDefaultRules("include debug")
 	options = Options{
-		url:   "https://mysite.com",
-		rules: httpRules.strictRules,
+		Url:   "https://mysite.com",
+		Rules: httpRules.strictRules,
 	}
 	logger, _ = NewHttpLogger(options)
 	assert.Equal(t, httpRules.strictRules, logger.rules.text, "logger default rules not overriden")
@@ -100,34 +100,34 @@ func TestOverrideDefaultRules(t *testing.T) {
 func TestUsesAllowHttpUrlRules(t *testing.T) {
 	// requires url, rules, and enableable to be in logger struct !!!
 	options := Options{
-		url: "http://mysite.com",
+		Url: "http://mysite.com",
 	}
 	logger, _ := NewHttpLogger(options)
 	assert.Equal(t, false, logger.Enableable(), "Logger enableable flag should be set to false")
 
 	options = Options{
-		url:   "http://mysite.com",
-		rules: "",
+		Url:   "http://mysite.com",
+		Rules: "",
 	}
 	logger, _ = NewHttpLogger(options)
 	assert.Equal(t, false, logger.Enableable(), "Logger enableable flag should be set to false")
 
 	options = Options{
-		url: "https://mysite.com",
+		Url: "https://mysite.com",
 	}
 	logger, _ = NewHttpLogger(options)
 	assert.Equal(t, true, logger.Enableable(), "Logger enableable flag should be set to true")
 
 	options = Options{
-		url:   "https://mysite.com",
-		rules: "allow_http_url",
+		Url:   "https://mysite.com",
+		Rules: "allow_http_url",
 	}
 	logger, _ = NewHttpLogger(options)
 	assert.Equal(t, true, logger.Enableable(), "Logger enableable flag should be set to true")
 
 	options = Options{
-		url:   "https://mysite.com",
-		rules: "allow_http_url\nallow_http_url",
+		Url:   "https://mysite.com",
+		Rules: "allow_http_url\nallow_http_url",
 	}
 	logger, _ = NewHttpLogger(options)
 	assert.Equal(t, true, logger.Enableable(), "Logger enableable flag should be set to true")
@@ -153,8 +153,8 @@ func TestUsesCopySessionFieldRules(t *testing.T) {
 	// tests copy all of session field
 	_queue := make([]string, 0)
 	options := Options{
-		rules: "copy_session_field /.*/",
-		queue: _queue,
+		Rules: "copy_session_field /.*/",
+		Queue: _queue,
 	}
 	logger, _ := NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -164,8 +164,8 @@ func TestUsesCopySessionFieldRules(t *testing.T) {
 	// tests copy specifically session_id
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "copy_session_field /session_id/",
-		queue: _queue,
+		Rules: "copy_session_field /session_id/",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -175,8 +175,8 @@ func TestUsesCopySessionFieldRules(t *testing.T) {
 	// tests copy non matching term
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "copy_session_field /blah/",
-		queue: _queue,
+		Rules: "copy_session_field /blah/",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -185,8 +185,8 @@ func TestUsesCopySessionFieldRules(t *testing.T) {
 	// tests copy 2 specific values
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "copy_session_field /butterfly/\ncopy_session_field /session_id/",
-		queue: _queue,
+		Rules: "copy_session_field /butterfly/\ncopy_session_field /session_id/",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -216,8 +216,8 @@ func TestUsesCopySessionFieldAndRemoveRules(t *testing.T) {
 	//tests copy session field w/ remove
 	_queue := make([]string, 0)
 	options := Options{
-		rules: "copy_session_field !.*!\n!session_field:.*! remove",
-		queue: _queue,
+		Rules: "copy_session_field !.*!\n!session_field:.*! remove",
+		Queue: _queue,
 	}
 	logger, _ := NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -226,8 +226,8 @@ func TestUsesCopySessionFieldAndRemoveRules(t *testing.T) {
 	//
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "copy_session_field !.*!\n!session_field:butterfly! remove",
-		queue: _queue,
+		Rules: "copy_session_field !.*!\n!session_field:butterfly! remove",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -237,8 +237,8 @@ func TestUsesCopySessionFieldAndRemoveRules(t *testing.T) {
 
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "copy_session_field !.*!\n!session_field:.*! remove_if !poi.*!",
-		queue: _queue,
+		Rules: "copy_session_field !.*!\n!session_field:.*! remove_if !poi.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -248,8 +248,8 @@ func TestUsesCopySessionFieldAndRemoveRules(t *testing.T) {
 
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "copy_session_field !.*!\n!session_field:.*! remove_unless !sugar!",
-		queue: _queue,
+		Rules: "copy_session_field !.*!\n!session_field:.*! remove_unless !sugar!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -277,8 +277,8 @@ func TestUsesCopySessionFieldAndStopRules(t *testing.T) {
 
 	_queue := make([]string, 0)
 	options := Options{
-		rules: "copy_session_field !.*!\n!session_field:butterfly! stop",
-		queue: _queue,
+		Rules: "copy_session_field !.*!\n!session_field:butterfly! stop",
+		Queue: _queue,
 	}
 	logger, _ := NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -286,8 +286,8 @@ func TestUsesCopySessionFieldAndStopRules(t *testing.T) {
 
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "copy_session_field !.*!\n!session_field:butterfly! stop_if !poi.*!",
-		queue: _queue,
+		Rules: "copy_session_field !.*!\n!session_field:butterfly! stop_if !poi.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -295,8 +295,8 @@ func TestUsesCopySessionFieldAndStopRules(t *testing.T) {
 
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "copy_session_field !.*!\n!session_field:butterfly! stop_unless !sugar!",
-		queue: _queue,
+		Rules: "copy_session_field !.*!\n!session_field:butterfly! stop_unless !sugar!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -312,8 +312,8 @@ func TestUsesRemoveRules(t *testing.T) {
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)
 	options := Options{
-		rules: "!.*! remove",
-		queue: _queue,
+		Rules: "!.*! remove",
+		Queue: _queue,
 	}
 	logger, _ := NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -322,8 +322,8 @@ func TestUsesRemoveRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!request_body! remove",
-		queue: _queue,
+		Rules: "!request_body! remove",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -334,8 +334,8 @@ func TestUsesRemoveRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! remove",
-		queue: _queue,
+		Rules: "!response_body! remove",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -346,8 +346,8 @@ func TestUsesRemoveRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!request_body|response_body! remove",
-		queue: _queue,
+		Rules: "!request_body|response_body! remove",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -358,8 +358,8 @@ func TestUsesRemoveRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!request_header:.*! remove",
-		queue: _queue,
+		Rules: "!request_header:.*! remove",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -371,8 +371,8 @@ func TestUsesRemoveRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!request_header:abc! remove\n!response_body! remove",
-		queue: _queue,
+		Rules: "!request_header:abc! remove\n!response_body! remove",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -391,8 +391,8 @@ func TestUsesRemoveIfRules(t *testing.T) {
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)
 	options := Options{
-		rules: "!response_header:blahblahblah! remove_if !.*!",
-		queue: _queue,
+		Rules: "!response_header:blahblahblah! remove_if !.*!",
+		Queue: _queue,
 	}
 	logger, _ := NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -401,8 +401,8 @@ func TestUsesRemoveIfRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!.*! remove_if !.*!",
-		queue: _queue,
+		Rules: "!.*! remove_if !.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -411,8 +411,8 @@ func TestUsesRemoveIfRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!request_body! remove_if !.*!",
-		queue: _queue,
+		Rules: "!request_body! remove_if !.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -423,8 +423,8 @@ func TestUsesRemoveIfRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! remove_if !.*!",
-		queue: _queue,
+		Rules: "!response_body! remove_if !.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -435,8 +435,8 @@ func TestUsesRemoveIfRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body|request_body! remove_if !.*World.*!",
-		queue: _queue,
+		Rules: "!response_body|request_body! remove_if !.*World.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -447,8 +447,8 @@ func TestUsesRemoveIfRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body|request_body! remove_if !.*blahblahblah.*!",
-		queue: _queue,
+		Rules: "!response_body|request_body! remove_if !.*blahblahblah.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -459,8 +459,8 @@ func TestUsesRemoveIfRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!request_body! remove_if !.*!\n!response_body! remove_if !.*!",
-		queue: _queue,
+		Rules: "!request_body! remove_if !.*!\n!response_body! remove_if !.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -476,8 +476,8 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)
 	options := Options{
-		rules: "!response_header:blahblahblah! remove_if_found !.*!",
-		queue: _queue,
+		Rules: "!response_header:blahblahblah! remove_if_found !.*!",
+		Queue: _queue,
 	}
 	logger, _ := NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -486,8 +486,8 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!.*! remove_if_found !.*!",
-		queue: _queue,
+		Rules: "!.*! remove_if_found !.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -496,8 +496,8 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!request_body! remove_if_found !.*!",
-		queue: _queue,
+		Rules: "!request_body! remove_if_found !.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -508,8 +508,8 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! remove_if_found !.*!",
-		queue: _queue,
+		Rules: "!response_body! remove_if_found !.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -520,8 +520,8 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body|request_body! remove_if_found !World!", //mock response should contain "World" and should therefore be removed
-		queue: _queue,
+		Rules: "!response_body|request_body! remove_if_found !World!", //mock response should contain "World" and should therefore be removed
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -532,8 +532,8 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body|request_body! remove_if_found !.*World.*!", //mock response should contain "World" and should therefore be removed
-		queue: _queue,
+		Rules: "!response_body|request_body! remove_if_found !.*World.*!", //mock response should contain "World" and should therefore be removed
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -544,8 +544,8 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body|request_body! remove_if_found !blahblahblah!",
-		queue: _queue,
+		Rules: "!response_body|request_body! remove_if_found !blahblahblah!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -562,8 +562,8 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)
 	options := Options{
-		rules: "!response_header:blahblahblah! remove_unless !.*!",
-		queue: _queue,
+		Rules: "!response_header:blahblahblah! remove_unless !.*!",
+		Queue: _queue,
 	}
 	logger, _ := NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -572,8 +572,8 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!.*! remove_unless !.*blahblahblah.*!",
-		queue: _queue,
+		Rules: "!.*! remove_unless !.*blahblahblah.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -582,8 +582,8 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!request_body! remove_unless !.*blahblahblah.*!",
-		queue: _queue,
+		Rules: "!request_body! remove_unless !.*blahblahblah.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -594,8 +594,8 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! remove_unless !.*blahblahblah.*!",
-		queue: _queue,
+		Rules: "!response_body! remove_unless !.*blahblahblah.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -606,8 +606,8 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body|request_body! remove_unless !.*World.*!", //mock response should contain "World" and therefore should not be removed
-		queue: _queue,
+		Rules: "!response_body|request_body! remove_unless !.*World.*!", //mock response should contain "World" and therefore should not be removed
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -618,8 +618,8 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body|request_body! remove_unless !.*!",
-		queue: _queue,
+		Rules: "!response_body|request_body! remove_unless !.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -630,8 +630,8 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! remove_unless !.*!\n!request_body! remove_unless !.*!",
-		queue: _queue,
+		Rules: "!response_body! remove_unless !.*!\n!request_body! remove_unless !.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -648,8 +648,8 @@ func TestUsesRemoveUnlessFoundRules(t *testing.T) {
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)
 	options := Options{
-		rules: "!response_header:blahblahblah! remove_unless_found !.*!",
-		queue: _queue,
+		Rules: "!response_header:blahblahblah! remove_unless_found !.*!",
+		Queue: _queue,
 	}
 	logger, _ := NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -658,8 +658,8 @@ func TestUsesRemoveUnlessFoundRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!.*! remove_unless_found !blahblahblah!",
-		queue: _queue,
+		Rules: "!.*! remove_unless_found !blahblahblah!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -668,8 +668,8 @@ func TestUsesRemoveUnlessFoundRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!request_body! remove_unless_found !blahblahblah!",
-		queue: _queue,
+		Rules: "!request_body! remove_unless_found !blahblahblah!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -680,8 +680,8 @@ func TestUsesRemoveUnlessFoundRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! remove_unless_found !blahblahblah!",
-		queue: _queue,
+		Rules: "!response_body! remove_unless_found !blahblahblah!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -692,8 +692,8 @@ func TestUsesRemoveUnlessFoundRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body|request_body! remove_unless_found !World!",
-		queue: _queue,
+		Rules: "!response_body|request_body! remove_unless_found !World!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -704,8 +704,8 @@ func TestUsesRemoveUnlessFoundRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body|request_body! remove_unless_found !.*World.*!",
-		queue: _queue,
+		Rules: "!response_body|request_body! remove_unless_found !.*World.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -716,8 +716,8 @@ func TestUsesRemoveUnlessFoundRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body|request_body! remove_unless_found !.*!",
-		queue: _queue,
+		Rules: "!response_body|request_body! remove_unless_found !.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -734,8 +734,8 @@ func TestUsesReplaceRules(t *testing.T) {
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)
 	options := Options{
-		rules: "!response_body! replace !blahblahblah!, !ZZZZZ!",
-		queue: _queue,
+		Rules: "!response_body! replace !blahblahblah!, !ZZZZZ!",
+		Queue: _queue,
 	}
 	logger, _ := NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -746,8 +746,8 @@ func TestUsesReplaceRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! replace !World!, !Mundo!",
-		queue: _queue,
+		Rules: "!response_body! replace !World!, !Mundo!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -757,8 +757,8 @@ func TestUsesReplaceRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!request_body|response_body! replace !^.*!, !ZZZZZ!",
-		queue: _queue,
+		Rules: "!request_body|response_body! replace !^.*!, !ZZZZZ!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -769,8 +769,8 @@ func TestUsesReplaceRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!request_body! replace !^.*!, !QQ!\n!response_body! replace !^.*!, !SS!",
-		queue: _queue,
+		Rules: "!request_body! replace !^.*!, !QQ!\n!response_body! replace !^.*!, !SS!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -781,8 +781,8 @@ func TestUsesReplaceRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! replace !World!, !!",
-		queue: _queue,
+		Rules: "!response_body! replace !World!, !!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -792,8 +792,8 @@ func TestUsesReplaceRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! replace !.*!, !!",
-		queue: _queue,
+		Rules: "!response_body! replace !.*!, !!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -804,8 +804,8 @@ func TestUsesReplaceRules(t *testing.T) {
 	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML3)) //change html used from helper to mockHtml3
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! replace !World!, !Z!",
-		queue: _queue,
+		Rules: "!response_body! replace !World!, !Z!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -816,8 +816,8 @@ func TestUsesReplaceRules(t *testing.T) {
 	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML4)) //change html used from helper to mockHtml4
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! replace !World!, !Z!",
-		queue: _queue,
+		Rules: "!response_body! replace !World!, !Z!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -835,8 +835,8 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(mockHtml))
 	_queue := make([]string, 0)
 	options := Options{
-		rules: "/response_body/ replace /[a-zA-Z0-9.!#$%&’*+\\/=?^_'{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)/, /x@y.com/",
-		queue: _queue,
+		Rules: "/response_body/ replace /[a-zA-Z0-9.!#$%&’*+\\/=?^_'{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)/, /x@y.com/",
+		Queue: _queue,
 	}
 	logger, _ := NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -848,8 +848,8 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(mockHtml))
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "/response_body/ replace /[0-9\\.\\-\\/]{9,}/, /xyxy/",
-		queue: _queue,
+		Rules: "/response_body/ replace /[0-9\\.\\-\\/]{9,}/, /xyxy/",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -860,8 +860,8 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! replace !World!, !<b>$0</b>!",
-		queue: _queue,
+		Rules: "!response_body! replace !World!, !<b>$0</b>!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -871,8 +871,8 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! replace !(World)!, !<b>$1</b>!",
-		queue: _queue,
+		Rules: "!response_body! replace !(World)!, !<b>$1</b>!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -883,8 +883,8 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML5))
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! replace !<input([^>]*)>([^<]*)</input>!, !<input$1></input>!",
-		queue: _queue,
+		Rules: "!response_body! replace !<input([^>]*)>([^<]*)</input>!, !<input$1></input>!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -906,8 +906,8 @@ func TestUsesSampleRules(t *testing.T) {
 	_queue := make([]string, 0)
 
 	options := Options{
-		rules: "sample 10\nsample 99",
-		queue: _queue,
+		Rules: "sample 10\nsample 99",
+		Queue: _queue,
 	}
 	_, err := NewHttpLogger(options)
 	if err != nil {
@@ -915,8 +915,8 @@ func TestUsesSampleRules(t *testing.T) {
 	}
 
 	options = Options{
-		rules: "sample 10",
-		queue: _queue,
+		Rules: "sample 10",
+		Queue: _queue,
 	}
 	logger, _ := NewHttpLogger(options)
 	for i := 1; i <= 100; i++ {
@@ -929,21 +929,21 @@ func TestUsesSampleRules(t *testing.T) {
 // test uses skip compression rules
 func TestUsesSkipCompressionRules(t *testing.T) {
 	options := Options{
-		url: "http://mysite.com",
+		Url: "http://mysite.com",
 	}
 	logger, _ := NewHttpLogger(options)
 	assert.Equal(t, false, logger.SkipCompression(), "Logger skipCompression flag should be set to false")
 
 	options = Options{
-		url:   "http://mysite.com",
-		rules: "",
+		Url:   "http://mysite.com",
+		Rules: "",
 	}
 	logger, _ = NewHttpLogger(options)
 	assert.Equal(t, false, logger.SkipCompression(), "Logger skipCompression flag should be set to false")
 
 	options = Options{
-		url:   "http://mysite.com",
-		rules: "skip_compression",
+		Url:   "http://mysite.com",
+		Rules: "skip_compression",
 	}
 	logger, _ = NewHttpLogger(options)
 	assert.Equal(t, true, logger.SkipCompression(), "Logger skipCompression flag should be set to true")
@@ -952,21 +952,21 @@ func TestUsesSkipCompressionRules(t *testing.T) {
 // test uses skip submission rules
 func TestUsesSkipSubmission(t *testing.T) {
 	options := Options{
-		url: "http://mysite.com",
+		Url: "http://mysite.com",
 	}
 	logger, _ := NewHttpLogger(options)
 	assert.Equal(t, false, logger.SkipSubmission(), "Logger skipSubmission flag should be set to false")
 
 	options = Options{
-		url:   "http://mysite.com",
-		rules: "",
+		Url:   "http://mysite.com",
+		Rules: "",
 	}
 	logger, _ = NewHttpLogger(options)
 	assert.Equal(t, false, logger.SkipSubmission(), "Logger skipSubmission flag should be set to false")
 
 	options = Options{
-		url:   "http://mysite.com",
-		rules: "skip_submission",
+		Url:   "http://mysite.com",
+		Rules: "skip_submission",
 	}
 	logger, _ = NewHttpLogger(options)
 	assert.Equal(t, true, logger.SkipSubmission(), "Logger skipSubmission flag should be set to true")
@@ -980,8 +980,8 @@ func TestUsesStopRules(t *testing.T) {
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)
 	options := Options{
-		rules: "!response_header:blahblahblah! stop",
-		queue: _queue,
+		Rules: "!response_header:blahblahblah! stop",
+		Queue: _queue,
 	}
 	logger, _ := NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -991,8 +991,8 @@ func TestUsesStopRules(t *testing.T) {
 	mockResponse.Request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!.*! stop",
-		queue: _queue,
+		Rules: "!.*! stop",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -1002,8 +1002,8 @@ func TestUsesStopRules(t *testing.T) {
 	mockResponse.Body = nil
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!request_body! stop",
-		queue: _queue,
+		Rules: "!request_body! stop",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	fmt.Println()
@@ -1015,8 +1015,8 @@ func TestUsesStopRules(t *testing.T) {
 	mockResponse.Request.Body = nil
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! stop",
-		queue: _queue,
+		Rules: "!response_body! stop",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -1027,8 +1027,8 @@ func TestUsesStopRules(t *testing.T) {
 	mockResponse.Request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!request_body! stop\n!response_body! stop",
-		queue: _queue,
+		Rules: "!request_body! stop\n!response_body! stop",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -1043,8 +1043,8 @@ func TestUsesStopIfRules(t *testing.T) {
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)
 	options := Options{
-		rules: "!response_header:blahblahblah! stop_if !.*!",
-		queue: _queue,
+		Rules: "!response_header:blahblahblah! stop_if !.*!",
+		Queue: _queue,
 	}
 	logger, _ := NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -1054,8 +1054,8 @@ func TestUsesStopIfRules(t *testing.T) {
 	mockResponse.Request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! stop_if !.*!",
-		queue: _queue,
+		Rules: "!response_body! stop_if !.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -1064,8 +1064,8 @@ func TestUsesStopIfRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! stop_if !.*World.*!",
-		queue: _queue,
+		Rules: "!response_body! stop_if !.*World.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -1074,8 +1074,8 @@ func TestUsesStopIfRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! stop_if !.*blahblahblah.*!",
-		queue: _queue,
+		Rules: "!response_body! stop_if !.*blahblahblah.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -1090,8 +1090,8 @@ func TestUsesStopIfFoundRules(t *testing.T) {
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)
 	options := Options{
-		rules: "!response_header:blahblahblah! stop_if_found !.*!",
-		queue: _queue,
+		Rules: "!response_header:blahblahblah! stop_if_found !.*!",
+		Queue: _queue,
 	}
 	logger, _ := NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -1101,8 +1101,8 @@ func TestUsesStopIfFoundRules(t *testing.T) {
 	mockResponse.Request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! stop_if_found !.*!",
-		queue: _queue,
+		Rules: "!response_body! stop_if_found !.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -1111,8 +1111,8 @@ func TestUsesStopIfFoundRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! stop_if_found !World!",
-		queue: _queue,
+		Rules: "!response_body! stop_if_found !World!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -1121,8 +1121,8 @@ func TestUsesStopIfFoundRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! stop_if_found !.*World.*!",
-		queue: _queue,
+		Rules: "!response_body! stop_if_found !.*World.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -1131,8 +1131,8 @@ func TestUsesStopIfFoundRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! stop_if_found !blahblahblah!",
-		queue: _queue,
+		Rules: "!response_body! stop_if_found !blahblahblah!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -1146,8 +1146,8 @@ func TestUsesStopUnlessRules(t *testing.T) {
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)
 	options := Options{
-		rules: "!response_header:blahblahblah! stop_unless !.*!",
-		queue: _queue,
+		Rules: "!response_header:blahblahblah! stop_unless !.*!",
+		Queue: _queue,
 	}
 	logger, _ := NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -1156,8 +1156,8 @@ func TestUsesStopUnlessRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! stop_unless !.*!",
-		queue: _queue,
+		Rules: "!response_body! stop_unless !.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -1166,8 +1166,8 @@ func TestUsesStopUnlessRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! stop_unless !.*World.*!",
-		queue: _queue,
+		Rules: "!response_body! stop_unless !.*World.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -1176,8 +1176,8 @@ func TestUsesStopUnlessRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! stop_unless !.*blahblahblah.*!",
-		queue: _queue,
+		Rules: "!response_body! stop_unless !.*blahblahblah.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -1191,8 +1191,8 @@ func TestUsesStopUnlessFoundRules(t *testing.T) {
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)
 	options := Options{
-		rules: "!response_header:blahblahblah! stop_unless_found !.*!",
-		queue: _queue,
+		Rules: "!response_header:blahblahblah! stop_unless_found !.*!",
+		Queue: _queue,
 	}
 	logger, _ := NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -1201,8 +1201,8 @@ func TestUsesStopUnlessFoundRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! stop_unless_found !.*!",
-		queue: _queue,
+		Rules: "!response_body! stop_unless_found !.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -1211,8 +1211,8 @@ func TestUsesStopUnlessFoundRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! stop_unless_found !World!",
-		queue: _queue,
+		Rules: "!response_body! stop_unless_found !World!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -1221,8 +1221,8 @@ func TestUsesStopUnlessFoundRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! stop_unless_found !.*World.*!",
-		queue: _queue,
+		Rules: "!response_body! stop_unless_found !.*World.*!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
@@ -1231,8 +1231,8 @@ func TestUsesStopUnlessFoundRules(t *testing.T) {
 	mockResponse = helper.MockResponseWithHtml()
 	_queue = make([]string, 0)
 	options = Options{
-		rules: "!response_body! stop_unless_found !blahblahblah!",
-		queue: _queue,
+		Rules: "!response_body! stop_unless_found !blahblahblah!",
+		Queue: _queue,
 	}
 	logger, _ = NewHttpLogger(options)
 	sendNetHttpClientRequestResponseMessage(logger, mockResponse, 0)
