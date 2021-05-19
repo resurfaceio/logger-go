@@ -19,7 +19,6 @@ func NewBaseLogger(_agent string, _url string, _enabled interface{}, _queue []st
 	_enabled = (_enabled == nil) || (_enabled.(bool))
 	if _queue == nil && _url == "" {
 		_url = usageLoggers.UrlByDefault()
-		// WIP 03.26.21
 		if _url == "" {
 			_enabled = false
 		}
@@ -27,12 +26,11 @@ func NewBaseLogger(_agent string, _url string, _enabled interface{}, _queue []st
 
 	var _urlParsed *url.URL
 	var parsingError error
+
 	//validate url when present
 	if _url != "" {
 		_urlParsed, parsingError = url.ParseRequestURI(_url)
 		isUrl := govalidator.IsURL(_url)
-		// fmt.Println("parsed url: " + _urlParsed.String())
-		// fmt.Println("is Url:" + strconv.FormatBool(isUrl))
 		if parsingError != nil || !isUrl {
 			_url = ""
 			_urlParsed = nil
@@ -79,7 +77,6 @@ func (logger *BaseLogger) Submit(msg string) {
 		atomic.AddInt64(&logger.submitSuccesses, 1)
 		return
 	} else {
-		// not 100% sure this works (needs testing) and should add some error handling
 		submitRequest, err := http.NewRequest("POST", logger.url, bytes.NewBuffer([]byte(msg)))
 		if err != nil {
 			fmt.Printf("Error creating submit request: %s", err.Error())
@@ -90,35 +87,49 @@ func (logger *BaseLogger) Submit(msg string) {
 		submitRequest.Header.Set("Content-Type", "application/json; charset=UTF-8")
 		submitRequest.Header.Set("User-Agent", "Resurface/"+logger.version+" ("+logger.agent+")")
 
+		// apply deflate compression to message
 		if !logger.skipCompression {
-			submitRequest.Header.Set("Content-Encoding", "deflated")
-
-			var b bytes.Buffer
-			w, err := flate.NewWriter(&b, 0)
+			var buffer bytes.Buffer
+			w, err := flate.NewWriter(&buffer, -1)
 			if err != nil {
 				fmt.Printf("Error applying deflate compression to message: %s\n", err.Error())
 				atomic.AddInt64(&logger.submitFailures, 1)
 				return
 			}
 
+			// write message to buffer using deflate writer
 			_, err = w.Write([]byte(msg))
 			if err != nil {
 				fmt.Printf("Error writing message to io.Writer: %s\n", err.Error())
 				atomic.AddInt64(&logger.submitFailures, 1)
 				return
 			}
-			w.Close()
 
-			err = submitRequest.Write(w)
+			err = w.Close()
 			if err != nil {
-				fmt.Printf("Error writing message to request: %s\n", err.Error())
+				fmt.Printf("Error closing io.Writer: %s\n", err.Error())
 				atomic.AddInt64(&logger.submitFailures, 1)
 				return
 			}
+
+			// create POST request to submit log to db
+			submitRequest, err = http.NewRequest("POST", logger.url, &buffer)
+			if err != nil {
+				fmt.Printf("Error creating submit request: %s", err.Error())
+				atomic.AddInt64(&logger.submitFailures, 1)
+				return
+			}
+
+			submitRequest.Header.Set("Content-Encoding", "deflated")
+			submitRequest.Header.Set("Content-Type", "application/json; charset=UTF-8")
+			submitRequest.Header.Set("User-Agent", "Resurface/"+logger.version+" ("+logger.agent+")")
 		}
 
+		// execute log POST request
 		submitResponse, err := http.DefaultClient.Do(submitRequest)
+
 		if err != nil {
+			fmt.Println(err.Error())
 			atomic.AddInt64(&logger.submitFailures, 1)
 			return
 		}

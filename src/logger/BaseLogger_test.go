@@ -104,7 +104,6 @@ func TestPerformsEnablingWhenExpected(t *testing.T) {
 	assert.True(t, logger.Enabled())
 }
 
-//needs some more stuff in the baselogger class for this to compile
 func TestSkipsEnablingForInvalidUrls(t *testing.T) {
 	helper := GetTestHelper()
 	for _, url := range helper.mockURLSinvalid {
@@ -120,7 +119,7 @@ func TestSkipsEnablingForInvalidUrls(t *testing.T) {
 func TestSkipsEnablingForEmptyUrl(t *testing.T) {
 	url := ""
 	helper := GetTestHelper()
-	logger := NewBaseLogger(helper.mockAgent, url, false, nil) // should this be false or true because it matters for the test with enabled bool
+	logger := NewBaseLogger(helper.mockAgent, url, true, nil)
 	assert.False(t, logger.Enableable())
 	assert.False(t, logger.Enabled())
 	assert.Equal(t, "", logger.Url())

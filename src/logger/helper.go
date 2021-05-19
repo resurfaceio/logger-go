@@ -47,14 +47,6 @@ func (testHelper *helper) MockGetRequest() http.Request {
 	return *request
 }
 
-// func MockDoRequest() http.Request {
-// 	helper := GetTestHelper()
-// 	resp, err := http.Get(helper.demoURL)
-// 	resp, err = http.Do(resp)
-// 	request := resp.Request
-// 	return *request
-// }
-
 func (testHelper *helper) MockHeadRequest() http.Request {
 	resp, err := http.Head(testHelper.demoURL)
 	if err != nil {
@@ -85,9 +77,6 @@ func (testHelper *helper) MockPostFormRequest() http.Request {
 }
 
 func (h *helper) MockRequestWithJson() *http.Request {
-	// request, _ := http.NewRequest("POST", h.mockURL, requestBody)
-	// request.Header.Add("Content-Type", "Application/JSON")
-	// request.PostForm.Add("message", "{ \"hello\" : \"world\" }")
 	requestBody, _ := json.Marshal(h.mockJSON)
 	request, _ := http.NewRequest("POST", h.mockURL, bytes.NewBuffer(requestBody))
 	request.Header.Add("content-type", "Application/JSON")
@@ -125,11 +114,7 @@ func parseable(msg string) bool {
 	if msg == "" || !strings.HasPrefix(msg, "[") || !strings.HasSuffix(msg, "]") || strings.Contains(msg, "[]") || strings.Contains(msg, ",,") {
 		return false
 	}
-	/* json.Valid won't work with our custom json formatted
-	we need to test our custom string over the wire first
-	then see if we can use Go native methods like json.Marshal
-	and json.Unmarshal
-	*/
+
 	return json.Valid([]byte(msg))
 }
 

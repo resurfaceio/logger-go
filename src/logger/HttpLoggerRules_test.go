@@ -16,7 +16,6 @@ import (
 )
 
 // test override default rules
-
 func TestOverrideDefaultRules(t *testing.T) {
 	rules := GetHttpRules()
 	assert.Equal(t, rules.strictRules, rules.defaultRules, "HTTP default rules are not strict rules")
@@ -96,7 +95,6 @@ func TestOverrideDefaultRules(t *testing.T) {
 }
 
 // test uses allow http url rules
-
 func TestUsesAllowHttpUrlRules(t *testing.T) {
 	// requires url, rules, and enableable to be in logger struct !!!
 	options := Options{
@@ -196,7 +194,6 @@ func TestUsesCopySessionFieldRules(t *testing.T) {
 }
 
 // test uses copy session field and remove rules test
-
 func TestUsesCopySessionFieldAndRemoveRules(t *testing.T) {
 	// helper for function tests
 	helper := GetTestHelper()
@@ -258,7 +255,6 @@ func TestUsesCopySessionFieldAndRemoveRules(t *testing.T) {
 }
 
 // test uses copy session field and stop rules
-
 func TestUsesCopySessionFieldAndStopRules(t *testing.T) {
 	// helper for function tests
 	helper := GetTestHelper()
@@ -304,7 +300,6 @@ func TestUsesCopySessionFieldAndStopRules(t *testing.T) {
 }
 
 // test uses remove rules
-
 func TestUsesRemoveRules(t *testing.T) {
 	//helper for function
 	helper := GetTestHelper()
@@ -384,7 +379,6 @@ func TestUsesRemoveRules(t *testing.T) {
 }
 
 // test uses remove if rules
-
 func TestUsesRemoveIfRules(t *testing.T) {
 	helper := GetTestHelper()
 
@@ -555,7 +549,6 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 }
 
 // test uses remove unless rules
-
 func TestUsesRemoveUnlessRules(t *testing.T) {
 	helper := GetTestHelper()
 
@@ -641,7 +634,6 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 }
 
 // test uses remove unless found rules
-
 func TestUsesRemoveUnlessFoundRules(t *testing.T) {
 	helper := GetTestHelper()
 
@@ -727,7 +719,6 @@ func TestUsesRemoveUnlessFoundRules(t *testing.T) {
 }
 
 // test uses replace rules
-
 func TestUsesReplaceRules(t *testing.T) {
 	helper := GetTestHelper()
 
@@ -973,7 +964,6 @@ func TestUsesSkipSubmission(t *testing.T) {
 }
 
 // test uses stop rules
-
 func TestUsesStopRules(t *testing.T) {
 	helper := GetTestHelper()
 
@@ -1036,7 +1026,6 @@ func TestUsesStopRules(t *testing.T) {
 }
 
 // test uses stop if rules
-
 func TestUsesStopIfRules(t *testing.T) {
 	helper := GetTestHelper()
 
@@ -1083,7 +1072,6 @@ func TestUsesStopIfRules(t *testing.T) {
 }
 
 // test uses stop if found rules
-
 func TestUsesStopIfFoundRules(t *testing.T) {
 	helper := GetTestHelper()
 
