@@ -1,4 +1,4 @@
-module github.com/resurface.io/logger-go
+module github.com/resurfaceio/logger-go
 
 go 1.15
 
