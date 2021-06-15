@@ -2,6 +2,7 @@ package logger
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/gorilla/mux"
 )
@@ -28,7 +29,7 @@ func NewHttpLoggerForMux(r mux.Router) (*HttpLoggerForMux, error) {
 	return &httpLoggerForMux, nil
 }
 
-func NewHttpLoggerForMuxOptions(options Options) (*HttpLoggerForMux, error) {
+func NewHttpLoggerForMuxOptions(options Options, r mux.Router) (*HttpLoggerForMux, error) {
 
 	httpLogger, err := NewHttpLogger(options)
 
@@ -38,12 +39,16 @@ func NewHttpLoggerForMuxOptions(options Options) (*HttpLoggerForMux, error) {
 
 	httpLoggerForMux := HttpLoggerForMux{
 		httpLogger: *httpLogger,
-		// router: r,
+		router:     r,
 	}
 
 	return &httpLoggerForMux, nil
 }
 
-func PrintSome(logger HttpLoggerForMux) {
-	log.Println("Whale hello there!")
+func Log(next http.Handler) http.Handler { //WIP this is just to test middleware functionality
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Whale hello there!")
+
+		next.ServeHTTP(w, r)
+	})
 }
