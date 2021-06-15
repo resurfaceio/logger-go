@@ -156,7 +156,7 @@ func newHttpRules(rules string) (*HttpRules, error) {
 	_stopUnlessFound := ruleFilter(prs, "stop_unless_found", ruleCompare)
 
 	if len(_sample) > 1 {
-		return nil, fmt.Errorf("Multiple sample rules")
+		return nil, fmt.Errorf("multiple sample rules")
 	}
 
 	return &HttpRules{
@@ -453,7 +453,7 @@ func parseRegex(r string, regex string) (*regexp.Regexp, error) {
 	if err != nil {
 		return nil, err
 	}
-	if "*" == s || "+" == s || "?" == s {
+	if s == "*" || s == "+" || s == "?" {
 		return nil, fmt.Errorf("invalid regex (%s) in rule: %s", regex, r)
 	}
 	if !strings.HasPrefix(s, "^") {
