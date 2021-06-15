@@ -7,41 +7,43 @@ import (
 )
 
 type HttpLoggerForMux struct {
-	logger HttpLogger
-	router mux.Router
+	httpLogger HttpLogger
+	router     mux.Router
 }
 
 func NewHttpLoggerForMux(r mux.Router) (*HttpLoggerForMux, error) {
 
 	options := Options{}
-	lgr, err := NewHttpLogger(options)
+	httpLogger, err := NewHttpLogger(options)
 
 	if err != nil {
 		return nil, err
 	}
 
-	loggerMux := HttpLoggerForMux{
-		logger: *lgr,
-		router: r,
+	httpLoggerForMux := HttpLoggerForMux{
+		httpLogger: *httpLogger,
+		router:     r,
 	}
 
-	log.Println("Testing", loggerMux.logger)
-	return nil, nil
+	return &httpLoggerForMux, nil
 }
 
 func NewHttpLoggerForMuxOptions(options Options) (*HttpLoggerForMux, error) {
 
-	lgr, err := NewHttpLogger(options)
+	httpLogger, err := NewHttpLogger(options)
 
 	if err != nil {
 		return nil, err
 	}
 
-	loggerMux := HttpLoggerForMux{
-		logger: *lgr,
+	httpLoggerForMux := HttpLoggerForMux{
+		httpLogger: *httpLogger,
 		// router: r,
 	}
 
-	log.Println("Testing", loggerMux.logger.host)
-	return nil, nil
+	return &httpLoggerForMux, nil
+}
+
+func (loggerMux *HttpLoggerForMux) TestPrint() {
+	log.Println("Whale hello there!")
 }
