@@ -20,11 +20,13 @@ func NewHttpLoggerForMux(r mux.Router) (*HttpLoggerForMux, error) {
 		return nil, err
 	}
 
-	logger := HttpLoggerForMux{
+	loggerMux := HttpLoggerForMux{
 		logger: *lgr,
 		router: r,
 	}
 
+	log.Println("Testing", loggerMux.logger)
+	return nil, nil
 }
 
 func NewHttpLoggerForMuxOptions(r mux.Router, options Options) (*HttpLoggerForMux, error) {
@@ -35,10 +37,11 @@ func NewHttpLoggerForMuxOptions(r mux.Router, options Options) (*HttpLoggerForMu
 		return nil, err
 	}
 
-	logger := HttpLoggerForMux{
+	loggerMux := HttpLoggerForMux{
 		logger: *lgr,
 		router: r,
 	}
 
-	log.Println("Testing")
+	log.Println("Testing", loggerMux.logger.host)
+	return nil, nil
 }
