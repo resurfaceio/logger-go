@@ -29,7 +29,7 @@ func NewHttpLoggerForMux(r mux.Router) (*HttpLoggerForMux, error) {
 	return nil, nil
 }
 
-func NewHttpLoggerForMuxOptions(r mux.Router, options Options) (*HttpLoggerForMux, error) {
+func NewHttpLoggerForMuxOptions(options Options) (*HttpLoggerForMux, error) {
 
 	lgr, err := NewHttpLogger(options)
 
@@ -39,7 +39,7 @@ func NewHttpLoggerForMuxOptions(r mux.Router, options Options) (*HttpLoggerForMu
 
 	loggerMux := HttpLoggerForMux{
 		logger: *lgr,
-		router: r,
+		// router: r,
 	}
 
 	log.Println("Testing", loggerMux.logger.host)
