@@ -44,6 +44,6 @@ func NewHttpLoggerForMuxOptions(options Options) (*HttpLoggerForMux, error) {
 	return &httpLoggerForMux, nil
 }
 
-func TestPrint(logger HttpLoggerForMux) {
+func PrintSome(logger HttpLoggerForMux) {
 	log.Println("Whale hello there!")
 }
