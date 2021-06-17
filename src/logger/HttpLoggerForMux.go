@@ -6,12 +6,25 @@ import (
 	"time"
 )
 
-type HttpLoggerForMux struct {
-	httpLogger HttpLogger
-	startTime  time.Time
-	interval   time.Duration
-	response   []byte
-}
+type (
+	HttpLoggerForMux struct {
+		httpLogger HttpLogger
+		startTime  time.Time
+		interval   time.Duration
+		response   []byte
+	}
+
+	responseData struct { //to hold response data
+		status int
+		body   string
+		size   int
+	}
+
+	loggingResponseWriter struct { //custom response writer to wrap original writer in
+		http.ResponseWriter
+		responseData *responseData
+	}
+)
 
 func NewHttpLoggerForMux() (*HttpLoggerForMux, error) {
 
@@ -50,14 +63,38 @@ func NewHttpLoggerForMuxOptions(options Options) (*HttpLoggerForMux, error) {
 	return &httpLoggerForMux, nil
 }
 
-func (muxLogger HttpLoggerForMux) StartResponse(next http.Handler) http.Handler { //WIP this is just to test middleware functionality
+func (w *loggingResponseWriter) Write(body []byte) (int, error) { // uses original response writer to write and then logs the size
+	w.responseData.body = string(body)
+	size, err := w.ResponseWriter.Write(body)
+	w.responseData.size += size
+	return size, err
+}
+
+func (w *loggingResponseWriter) WriteHeader(code int) { // uses original response writer to write the header and then logs the status code
+	w.responseData.status = code
+	w.ResponseWriter.WriteHeader(code)
+}
+
+func (muxLogger HttpLoggerForMux) StartResponse(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// log.Println("Whale hello there!")
+
+		responseData := &responseData{
+			status: 0,
+			body:   "",
+			size:   0,
+		}
+
+		customWriter := loggingResponseWriter{
+			ResponseWriter: w,
+			responseData:   responseData,
+		}
+
 		muxLogger.startTime = time.Now()
 
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(&customWriter, r) // replace standard response writer with custom one from above
 
 		muxLogger.interval = time.Since(muxLogger.startTime)
-		log.Println("Response: ", r.Response, "Interval: ", muxLogger.interval, "Method: ", r.Method, "Request Body: ", r.Body)
+		log.Println("Response Status: ", responseData.status, " Response Body: ", responseData.body, " Interval: ", muxLogger.interval, " Method: ", r.Method, " Request Body: ", r.Body)
 	})
 }
