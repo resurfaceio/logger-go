@@ -81,6 +81,7 @@ func (logger *BaseLogger) Submit(msg string) {
 	} else {
 		// not 100% sure this works (needs testing) and should add some error handling
 		submitRequest, err := http.NewRequest("POST", logger.url, bytes.NewBuffer([]byte(msg)))
+
 		if err != nil {
 			fmt.Printf("Error creating submit request: %s", err.Error())
 			atomic.AddInt64(&logger.submitFailures, 1)
@@ -118,6 +119,7 @@ func (logger *BaseLogger) Submit(msg string) {
 		}
 
 		submitResponse, err := http.DefaultClient.Do(submitRequest)
+
 		if err != nil {
 			atomic.AddInt64(&logger.submitFailures, 1)
 			return
