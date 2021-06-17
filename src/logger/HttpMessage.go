@@ -125,20 +125,19 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 
 }
 
-func sendHttpMessage(logger *HttpLogger, resp *http.Response, start int64) {
+func sendHttpMessage(logger *HttpLogger, resp *http.Response, req *http.Request, start int64) {
 
-	request := resp.Request
 	if !logger.Enabled() {
 		return
 	}
 
 	// copy details from request & response
-	message := buildHttpMessage(request, resp)
+	message := buildHttpMessage(req, resp)
 	copySessionField := logger.rules.CopySessionField()
 
 	// copy data from session if configured
 	if len(copySessionField) != 0 {
-		sessionCookies := request.Cookies()
+		sessionCookies := req.Cookies()
 		if sessionCookies != nil {
 			for _, r := range copySessionField {
 				for _, cookie := range sessionCookies {

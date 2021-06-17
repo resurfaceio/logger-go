@@ -1,7 +1,8 @@
 package logger
 
 import (
-	"log"
+	"bytes"
+	"io/ioutil"
 	"net/http"
 	"time"
 )
@@ -9,20 +10,14 @@ import (
 type (
 	HttpLoggerForMux struct {
 		httpLogger HttpLogger
-		startTime  time.Time
+		startTime  int64
 		interval   time.Duration
 		response   []byte
 	}
 
-	responseData struct { //to hold response data
-		status int
-		body   string
-		size   int
-	}
-
 	loggingResponseWriter struct { //custom response writer to wrap original writer in
 		http.ResponseWriter
-		responseData *responseData
+		response http.Response
 	}
 )
 
@@ -37,7 +32,7 @@ func NewHttpLoggerForMux() (*HttpLoggerForMux, error) {
 
 	httpLoggerForMux := HttpLoggerForMux{
 		httpLogger: *httpLogger,
-		startTime:  time.Time{},
+		startTime:  0,
 		interval:   0,
 		response:   make([]byte, 0),
 	}
@@ -55,7 +50,7 @@ func NewHttpLoggerForMuxOptions(options Options) (*HttpLoggerForMux, error) {
 
 	httpLoggerForMux := HttpLoggerForMux{
 		httpLogger: *httpLogger,
-		startTime:  time.Time{},
+		startTime:  0,
 		interval:   0,
 		response:   make([]byte, 0),
 	}
@@ -63,15 +58,30 @@ func NewHttpLoggerForMuxOptions(options Options) (*HttpLoggerForMux, error) {
 	return &httpLoggerForMux, nil
 }
 
+/*
+body := "Hello world"
+t := &http.Response{
+  Status:        "200 OK",
+  StatusCode:    200,
+  Proto:         "HTTP/1.1",
+  ProtoMajor:    1,
+  ProtoMinor:    1,
+  Body:          ioutil.NopCloser(bytes.NewBufferString(body)),
+  ContentLength: int64(len(body)),
+  Request:       req,
+  Header:        make(http.Header, 0),
+}
+*/
+
 func (w *loggingResponseWriter) Write(body []byte) (int, error) { // uses original response writer to write and then logs the size
-	w.responseData.body = string(body)
+	// w.response.Body = ioutil.NopCloser(bytes.NewBuffer(body)) // write body to response duplicate
 	size, err := w.ResponseWriter.Write(body)
-	w.responseData.size += size
+	// w.response.ContentLength += int64(size)
 	return size, err
 }
 
 func (w *loggingResponseWriter) WriteHeader(code int) { // uses original response writer to write the header and then logs the status code
-	w.responseData.status = code
+	// w.response.StatusCode = code
 	w.ResponseWriter.WriteHeader(code)
 }
 
@@ -79,22 +89,29 @@ func (muxLogger HttpLoggerForMux) StartResponse(next http.Handler) http.Handler 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// log.Println("Whale hello there!")
 
-		responseData := &responseData{
-			status: 0,
-			body:   "",
-			size:   0,
+		body := "Hello world"
+		resp := &http.Response{
+			Status:        "200 OK",
+			StatusCode:    200,
+			Proto:         "HTTP/1.1",
+			ProtoMajor:    1,
+			ProtoMinor:    1,
+			Body:          ioutil.NopCloser(bytes.NewBufferString(body)),
+			ContentLength: int64(len(body)),
+			Request:       nil,
+			Header:        make(http.Header, 0),
 		}
 
 		customWriter := loggingResponseWriter{
 			ResponseWriter: w,
-			responseData:   responseData,
+			response:       *resp,
 		}
 
-		muxLogger.startTime = time.Now()
+		muxLogger.startTime = time.Now().UnixNano() / int64(time.Millisecond)
+
+		sendHttpMessage(&muxLogger.httpLogger, resp, r, muxLogger.startTime)
 
 		next.ServeHTTP(&customWriter, r) // replace standard response writer with custom one from above
 
-		muxLogger.interval = time.Since(muxLogger.startTime)
-		log.Println("Response Status: ", responseData.status, " Response Body: ", responseData.body, " Interval: ", muxLogger.interval, " Method: ", r.Method, " Request Body: ", r.Body)
 	})
 }
