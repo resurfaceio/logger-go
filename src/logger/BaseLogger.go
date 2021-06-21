@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/flate"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -127,6 +128,7 @@ func (logger *BaseLogger) Submit(msg string) {
 
 		if submitResponse.StatusCode == 204 {
 			atomic.AddInt64(&logger.submitSuccesses, 1)
+			log.Println("API Call Succesfully Logged!")
 			return
 		} else {
 			atomic.AddInt64(&logger.submitFailures, 1)
