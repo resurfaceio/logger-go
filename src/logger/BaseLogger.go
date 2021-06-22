@@ -85,6 +85,7 @@ func (logger *BaseLogger) Submit(msg string) {
 
 		if err != nil {
 			fmt.Printf("Error creating submit request: %s", err.Error())
+			log.Println("Error making submit request...")
 			atomic.AddInt64(&logger.submitFailures, 1)
 			return
 		}
@@ -123,6 +124,7 @@ func (logger *BaseLogger) Submit(msg string) {
 
 		if err != nil {
 			atomic.AddInt64(&logger.submitFailures, 1)
+			log.Println("Error occured: ", err)
 			return
 		}
 
@@ -132,6 +134,7 @@ func (logger *BaseLogger) Submit(msg string) {
 			return
 		} else {
 			atomic.AddInt64(&logger.submitFailures, 1)
+			log.Println("Logging failed...")
 			return
 		}
 	}

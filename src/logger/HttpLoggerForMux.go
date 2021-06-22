@@ -3,7 +3,6 @@ package logger
 import (
 	"bytes"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 )
@@ -65,47 +64,42 @@ func (w *loggingResponseWriter) Write(body []byte) (int, error) { // uses origin
 	}
 
 	size, err := w.ResponseWriter.Write(body)
+
+	// Copy header to log response
+	w.httpResp.Header = w.ResponseWriter.Header().Clone()
+
 	// w.response.ContentLength += int64(size)
 	return size, err
 }
 
-func (w *loggingResponseWriter) WriteHeader(i int) { // uses original response writer to write the header and then logs the status code
-	// w.httpResp.Header = w.Header()
-	log.Println("Status Code: ", i)
-	// w.httpResp.StatusCode = i
-	w.ResponseWriter.WriteHeader(i)
+// uses original response writer to write the header and then logs the status code
+func (w *loggingResponseWriter) WriteHeader(statusCode int) {
+	w.httpResp.StatusCode = statusCode
+	// log.Println("Status 1.5: ", w.httpResp.StatusCode)
+
+	w.ResponseWriter.WriteHeader(statusCode)
 }
 
 func (muxLogger HttpLoggerForMux) StartResponse(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// log.Println("Whale hello there!")
 
-		//test response for logger
-		// body := "Hello world"
-		// resp := &http.Response{
-		// 	Status:        "200 OK",
-		// 	StatusCode:    200,
-		// 	Proto:         "HTTP/1.1",
-		// 	ProtoMajor:    1,
-		// 	ProtoMinor:    1,
-		// 	Body:          ioutil.NopCloser(bytes.NewBufferString(body)),
-		// 	ContentLength: int64(len(body)),
-		// 	Request:       nil,
-		// 	Header:        make(http.Header),
-		// }
-
 		customWriter := loggingResponseWriter{
 			ResponseWriter: w,
-			httpResp:       &http.Response{},
+			httpResp: &http.Response{
+				// initialize status code to 200 incase WriteHeader is not called
+				StatusCode: 200,
+			},
 		}
 
-		// muxLogger.startTime = time.Now().UnixNano() / int64(time.Millisecond)
+		// replace standard response writer with custom one from above
+		next.ServeHTTP(&customWriter, r)
 
-		// sendHttpMessage(muxLogger.httpLogger, resp, r, muxLogger.startTime)
+		muxLogger.startTime = time.Now().UnixNano() / int64(time.Millisecond)
+		customWriter.httpResp.StatusCode = 200
 
-		next.ServeHTTP(&customWriter, r) // replace standard response writer with custom one from above
+		// log.Println(customWriter.httpResp.ContentLength)
 
-		log.Println("Header - User-Agent: ", customWriter.httpResp.Header.Get("User-Agent"))
-
+		sendHttpMessage(muxLogger.httpLogger, customWriter.httpResp, r, muxLogger.startTime)
 	})
 }
