@@ -97,7 +97,7 @@ func (logger *BaseLogger) Submit(msg string) {
 			submitRequest.Header.Set("Content-Encoding", "deflated")
 
 			var b bytes.Buffer
-			w, err := flate.NewWriter(&b, 0)
+			w, err := flate.NewWriter(&b, -1)
 			if err != nil {
 				fmt.Printf("Error applying deflate compression to message: %s\n", err.Error())
 				atomic.AddInt64(&logger.submitFailures, 1)
