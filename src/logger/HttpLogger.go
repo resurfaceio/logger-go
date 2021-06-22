@@ -50,19 +50,19 @@ func (logger *HttpLogger) Rules() *HttpRules {
 	return logger.rules
 }
 
-func (logger *HttpLogger) submitIfPassing(details [][]string) {
-	details = logger.rules.apply(details)
+func (logger *HttpLogger) submitIfPassing(msg [][]string) {
+	msg = logger.rules.apply(msg)
 
-	if details == nil {
+	if msg == nil {
 		return
 	}
 
-	details = append(details, []string{"host", logger.host})
+	msg = append(msg, []string{"host", logger.host})
 
-	byteStr, _ := json.Marshal(details)
+	byteStr, _ := json.Marshal(msg)
 
-	detailsString := string(byteStr)
-	detailsString = strings.Replace(detailsString, "\\u003c", "<", -1)
-	detailsString = strings.Replace(detailsString, "\\u003e", ">", -1)
-	logger.Submit(detailsString)
+	msgString := string(byteStr)
+	msgString = strings.Replace(msgString, "\\u003c", "<", -1)
+	msgString = strings.Replace(msgString, "\\u003e", ">", -1)
+	logger.Submit(msgString)
 }
