@@ -124,17 +124,17 @@ func (logger *BaseLogger) Submit(msg string) {
 
 		if err != nil {
 			atomic.AddInt64(&logger.submitFailures, 1)
-			log.Println("Error occured: ", err)
+			// log.Println("Error occured: ", err)
 			return
 		}
 
 		if submitResponse.StatusCode == 204 {
 			atomic.AddInt64(&logger.submitSuccesses, 1)
-			log.Println("API Call Succesfully Logged!")
+			// log.Println("API Call Succesfully Logged!")
 			return
 		} else {
 			atomic.AddInt64(&logger.submitFailures, 1)
-			log.Println("Logging failed...")
+			// log.Println("Logging failed...")
 			return
 		}
 	}

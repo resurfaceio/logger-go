@@ -3,6 +3,7 @@ package logger
 import (
 	"bytes"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 )
@@ -94,11 +95,9 @@ func (muxLogger HttpLoggerForMux) StartResponse(next http.Handler) http.Handler 
 
 		// replace standard response writer with custom one from above
 		next.ServeHTTP(&customWriter, r)
+		log.Println(customWriter.httpResp.StatusCode)
 
 		muxLogger.startTime = time.Now().UnixNano() / int64(time.Millisecond)
-		customWriter.httpResp.StatusCode = 200
-
-		// log.Println(customWriter.httpResp.ContentLength)
 
 		sendHttpMessage(muxLogger.httpLogger, customWriter.httpResp, r, muxLogger.startTime)
 	})
