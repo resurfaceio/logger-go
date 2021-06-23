@@ -18,7 +18,7 @@ type (
 
 	loggingResponseWriter struct { //custom response writer to wrap original writer in
 		http.ResponseWriter
-		httpResp *http.Response
+		loggingResp *http.Response
 	}
 )
 
@@ -60,14 +60,14 @@ func NewHttpLoggerForMuxOptions(options Options) (*HttpLoggerForMux, error) {
 }
 
 func (w *loggingResponseWriter) Write(body []byte) (int, error) { // uses original response writer to write and then logs the size
-	w.httpResp = &http.Response{
+	w.loggingResp = &http.Response{
 		Body: ioutil.NopCloser(bytes.NewBuffer(body)), // write body to response duplicate,
 	}
 
 	size, err := w.ResponseWriter.Write(body)
 
 	// Copy header to log response
-	w.httpResp.Header = w.ResponseWriter.Header().Clone()
+	w.loggingResp.Header = w.ResponseWriter.Header().Clone()
 
 	// w.response.ContentLength += int64(size)
 	return size, err
@@ -75,8 +75,7 @@ func (w *loggingResponseWriter) Write(body []byte) (int, error) { // uses origin
 
 // uses original response writer to write the header and then logs the status code
 func (w *loggingResponseWriter) WriteHeader(statusCode int) {
-	w.httpResp.StatusCode = statusCode
-	// log.Println("Status 1.5: ", w.httpResp.StatusCode)
+	w.loggingResp.StatusCode = statusCode
 
 	w.ResponseWriter.WriteHeader(statusCode)
 }
@@ -87,7 +86,7 @@ func (muxLogger HttpLoggerForMux) StartResponse(next http.Handler) http.Handler 
 
 		customWriter := loggingResponseWriter{
 			ResponseWriter: w,
-			httpResp: &http.Response{
+			loggingResp: &http.Response{
 				// initialize status code to 200 incase WriteHeader is not called
 				StatusCode: 200,
 			},
@@ -95,10 +94,10 @@ func (muxLogger HttpLoggerForMux) StartResponse(next http.Handler) http.Handler 
 
 		// replace standard response writer with custom one from above
 		next.ServeHTTP(&customWriter, r)
-		log.Println(customWriter.httpResp.StatusCode)
+		log.Println(customWriter.loggingResp.StatusCode)
 
 		muxLogger.startTime = time.Now().UnixNano() / int64(time.Millisecond)
 
-		sendHttpMessage(muxLogger.httpLogger, customWriter.httpResp, r, muxLogger.startTime)
+		sendHttpMessage(muxLogger.httpLogger, customWriter.loggingResp, r, muxLogger.startTime)
 	})
 }
