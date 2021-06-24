@@ -98,7 +98,19 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 		message = append(message, []string{"request_method", method})
 	}
 
-	message = append(message, []string{"request_url", req.URL.String()})
+	message = append(message, []string{"request_protocol", req.Proto})
+
+	var fullUrl string
+
+	//Not sure of a better way to do this at the moment - 6/24/21
+	if req.TLS == nil {
+		fullUrl = "http://" + req.Host + req.URL.Path
+	} else {
+		fullUrl = "https://" + req.Host + req.URL.Path
+	}
+	// ---
+
+	message = append(message, []string{"request_url", fullUrl})
 	message = append(message, []string{"response_code", fmt.Sprint(resp.StatusCode)})
 
 	appendRequestHeaders(&message, req)
