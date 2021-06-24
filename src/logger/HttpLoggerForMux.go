@@ -3,6 +3,7 @@ package logger
 import (
 	"bytes"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 )
@@ -59,8 +60,10 @@ func NewHttpLoggerForMuxOptions(options Options) (*HttpLoggerForMux, error) {
 }
 
 func (w *loggingResponseWriter) Write(body []byte) (int, error) { // uses original response writer to write and then logs the size
+
 	w.loggingResp = &http.Response{
-		Body: ioutil.NopCloser(bytes.NewBuffer(body)), // write body to response duplicate,
+		Body:       ioutil.NopCloser(bytes.NewBuffer(body)),
+		StatusCode: w.loggingResp.StatusCode, // Status Code 200 will only be overriden if writeHeader is called
 	}
 
 	size, err := w.ResponseWriter.Write(body)
@@ -75,6 +78,7 @@ func (w *loggingResponseWriter) Write(body []byte) (int, error) { // uses origin
 // uses original response writer to write the header and then logs the status code
 func (w *loggingResponseWriter) WriteHeader(statusCode int) {
 	w.loggingResp.StatusCode = statusCode
+	log.Println(w.loggingResp.StatusCode)
 
 	w.ResponseWriter.WriteHeader(statusCode)
 }
@@ -86,14 +90,11 @@ func (muxLogger HttpLoggerForMux) StartResponse(next http.Handler) http.Handler 
 		customWriter := loggingResponseWriter{
 			ResponseWriter: w,
 			loggingResp: &http.Response{
-				// initialize status code to 200 incase WriteHeader is not called
 				StatusCode: 200,
 			},
 		}
 
-		// replace standard response writer with custom one from above
 		next.ServeHTTP(&customWriter, r)
-		// log.Println(customWriter.httpResp.StatusCode)
 
 		muxLogger.startTime = time.Now().UnixNano() / int64(time.Millisecond)
 
