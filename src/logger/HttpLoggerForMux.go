@@ -62,6 +62,7 @@ func NewHttpLoggerForMuxOptions(options Options) (*HttpLoggerForMux, error) {
 func (w *loggingResponseWriter) Write(body []byte) (int, error) { // uses original response writer to write and then logs the size
 
 	w.loggingResp = &http.Response{
+		Header:     w.loggingResp.Header,
 		Body:       ioutil.NopCloser(bytes.NewBuffer(body)),
 		StatusCode: w.loggingResp.StatusCode, // Status Code 200 will only be overriden if writeHeader is called
 	}
@@ -97,6 +98,8 @@ func (muxLogger HttpLoggerForMux) StartResponse(next http.Handler) http.Handler 
 		next.ServeHTTP(&customWriter, r)
 
 		muxLogger.startTime = time.Now().UnixNano() / int64(time.Millisecond)
+
+		log.Println(customWriter.loggingResp.Header)
 
 		sendHttpMessage(muxLogger.httpLogger, customWriter.loggingResp, r, muxLogger.startTime)
 	})
