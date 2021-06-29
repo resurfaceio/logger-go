@@ -3,7 +3,6 @@ package logger
 import (
 	"bytes"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 )
@@ -11,7 +10,7 @@ import (
 type (
 	HttpLoggerForMux struct {
 		httpLogger *HttpLogger
-		startTime  int64
+		startTime  time.Time
 		interval   time.Duration
 		response   []byte
 	}
@@ -33,7 +32,7 @@ func NewHttpLoggerForMux() (*HttpLoggerForMux, error) {
 
 	httpLoggerForMux := HttpLoggerForMux{
 		httpLogger: httpLogger,
-		startTime:  0,
+		startTime:  time.Time{},
 		interval:   0,
 		response:   make([]byte, 0),
 	}
@@ -51,7 +50,7 @@ func NewHttpLoggerForMuxOptions(options Options) (*HttpLoggerForMux, error) {
 
 	httpLoggerForMux := HttpLoggerForMux{
 		httpLogger: httpLogger,
-		startTime:  0,
+		startTime:  time.Time{},
 		interval:   0,
 		response:   make([]byte, 0),
 	}
@@ -79,7 +78,6 @@ func (w *loggingResponseWriter) Write(body []byte) (int, error) { // uses origin
 // uses original response writer to write the header and then logs the status code
 func (w *loggingResponseWriter) WriteHeader(statusCode int) {
 	w.loggingResp.StatusCode = statusCode
-	log.Println(w.loggingResp.StatusCode)
 
 	w.ResponseWriter.WriteHeader(statusCode)
 }
@@ -97,9 +95,9 @@ func (muxLogger HttpLoggerForMux) StartResponse(next http.Handler) http.Handler 
 
 		next.ServeHTTP(&customWriter, r)
 
-		muxLogger.startTime = time.Now().UnixNano() / int64(time.Millisecond)
+		muxLogger.startTime = time.Now()
 
-		log.Println(customWriter.loggingResp.Header)
+		// log.Println(customWriter.loggingResp.Header)
 
 		sendHttpMessage(muxLogger.httpLogger, customWriter.loggingResp, r, muxLogger.startTime)
 	})

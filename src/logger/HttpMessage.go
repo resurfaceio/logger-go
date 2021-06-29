@@ -98,7 +98,8 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 		message = append(message, []string{"request_method", method})
 	}
 
-	message = append(message, []string{"request_protocol", req.Proto})
+	//protocol not currently used
+	// message = append(message, []string{"request_protocol", req.Proto})
 
 	var fullUrl string
 
@@ -118,10 +119,8 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 	appendResponseHeaders(&message, resp)
 
 	if req.Body != nil {
-		reqBodyBytes, err := ioutil.ReadAll(req.Body)
-		reqBody := string(reqBodyBytes)
-		if err == nil && reqBody != "" {
-			message = append(message, []string{"request_body", reqBody})
+		if fmt.Sprint(req.Body) != "" {
+			message = append(message, []string{"request_body", fmt.Sprint(req.Body)})
 		}
 	}
 
@@ -137,7 +136,7 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 
 }
 
-func sendHttpMessage(logger *HttpLogger, resp *http.Response, req *http.Request, start int64) {
+func sendHttpMessage(logger *HttpLogger, resp *http.Response, req *http.Request, start time.Time) {
 
 	if !logger.Enabled() {
 		return
@@ -169,7 +168,8 @@ func sendHttpMessage(logger *HttpLogger, resp *http.Response, req *http.Request,
 	message = append(message, []string{"now", strconv.FormatInt(now, 10)})
 
 	// append interval noting the time it took to log
-	interval := now - start
+	interval := time.Since(start).Microseconds()
+	// log.Println(interval)
 	message = append(message, []string{"interval", strconv.FormatInt(interval, 10)})
 
 	logger.submitIfPassing(message)
