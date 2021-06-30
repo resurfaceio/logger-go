@@ -84,7 +84,6 @@ func (w *loggingResponseWriter) WriteHeader(statusCode int) {
 
 func (muxLogger HttpLoggerForMux) StartResponse(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// log.Println("Whale hello there!")
 
 		customWriter := loggingResponseWriter{
 			ResponseWriter: w,
@@ -96,8 +95,6 @@ func (muxLogger HttpLoggerForMux) StartResponse(next http.Handler) http.Handler 
 		next.ServeHTTP(&customWriter, r)
 
 		muxLogger.startTime = time.Now()
-
-		// log.Println(customWriter.loggingResp.Header)
 
 		sendHttpMessage(muxLogger.httpLogger, customWriter.loggingResp, r, muxLogger.startTime)
 	})

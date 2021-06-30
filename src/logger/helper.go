@@ -179,3 +179,13 @@ func GetTestHelper() *helper {
 
 	return testHelper
 }
+
+func printLoggerStats(logger *BaseLogger, title string) {
+	log.Print("\n")
+	log.Println(title)
+	log.Println("------------------------------------------------------------------------------")
+	log.Println("Logging Succeses: ", logger.submitSuccesses)
+	log.Println("Logging Failures: ", logger.submitFailures)
+	log.Println("------------------------------------------------------------------------------")
+	log.Println("------------------------------------------------------------------------------")
+}
