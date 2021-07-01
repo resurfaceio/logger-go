@@ -168,7 +168,10 @@ func sendHttpMessage(logger *HttpLogger, resp *http.Response, req *http.Request,
 	message = append(message, []string{"now", strconv.FormatInt(now, 10)})
 
 	// append interval noting the time it took to log
-	interval := time.Since(start).Microseconds()
+	interval := time.Since(start).Milliseconds()
+	if interval < 1 {
+		interval = 1
+	}
 	// log.Println(interval)
 	message = append(message, []string{"interval", strconv.FormatInt(interval, 10)})
 
