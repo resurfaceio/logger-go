@@ -110,7 +110,6 @@ func (logger *BaseLogger) Submit(msg string) {
 
 			if reqError != nil {
 				fmt.Printf("Error creating submit request: %s", reqError.Error())
-				log.Println("Error making submit request...")
 				atomic.AddInt64(&logger.submitFailures, 1)
 				return
 			}

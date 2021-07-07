@@ -15,14 +15,14 @@ import (
 /*
 * Submits request and response through logger.
  */
-func sendNetHttpClientRequestResponseMessage(logger *HttpLogger, resp *http.Response, start int64) /* maybe return error */ {
+func sendClientHttpMessage(logger *HttpLogger, resp *http.Response, start int64) /* maybe return error */ {
 	request := resp.Request
 	if !logger.Enabled() {
 		return
 	}
 
 	// copy details from request & response
-	message := buildNetHttpClientMessage(request, resp)
+	message := buildClientHttpMessage(request, resp)
 	copySessionField := logger.rules.CopySessionField()
 
 	// copy data from session if configured
@@ -56,7 +56,7 @@ func sendNetHttpClientRequestResponseMessage(logger *HttpLogger, resp *http.Resp
 /*
 * Builds list of key/value pairs for HTTP request and response.
  */
-func buildNetHttpClientMessage(req *http.Request, resp *http.Response) [][]string {
+func buildClientHttpMessage(req *http.Request, resp *http.Response) [][]string {
 	var message [][]string
 
 	method := resp.Request.Method
@@ -184,11 +184,11 @@ func sendHttpMessage(logger *HttpLogger, resp *http.Response, req *http.Request,
 	message = append(message, []string{"now", strconv.FormatInt(now, 10)})
 
 	// append interval noting the time it took to log
+	// Interval has floor of 1 millisecond
 	interval := time.Since(start).Milliseconds()
 	if interval < 1 {
 		interval = 1
 	}
-	// log.Println(interval)
 	message = append(message, []string{"interval", strconv.FormatInt(interval, 10)})
 
 	logger.submitIfPassing(message)
