@@ -2,7 +2,9 @@ package logger
 
 import (
 	"encoding/json"
+	"net/http"
 	"strings"
+	"time"
 )
 
 type Options struct {
@@ -65,4 +67,15 @@ func (logger *HttpLogger) submitIfPassing(msg [][]string) {
 	msgString = strings.Replace(msgString, "\\u003c", "<", -1)
 	msgString = strings.Replace(msgString, "\\u003e", ">", -1)
 	logger.Submit(msgString)
+}
+
+// global client to avoid opening a new connection for every request
+var httpLoggerClient *http.Client
+
+func init() {
+	tr := &http.Transport{
+		MaxIdleConnsPerHost: 10000,
+		TLSHandshakeTimeout: 0 * time.Second,
+	}
+	httpLoggerClient = &http.Client{Transport: tr}
 }

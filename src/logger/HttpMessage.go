@@ -2,7 +2,9 @@ package logger
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -71,6 +73,7 @@ func buildNetHttpClientMessage(req *http.Request, resp *http.Response) [][]strin
 
 	if req.Body != nil {
 		reqBodyBytes, err := ioutil.ReadAll(req.Body)
+		resp.Body.Close()
 		reqBody := string(reqBodyBytes)
 		if err == nil && reqBody != "" {
 			message = append(message, []string{"request_body", reqBody})
@@ -79,6 +82,7 @@ func buildNetHttpClientMessage(req *http.Request, resp *http.Response) [][]strin
 
 	if resp.Body != nil {
 		respBodyBytes, err := ioutil.ReadAll(resp.Body)
+		resp.Body.Close()
 		respBody := string(respBodyBytes)
 		if err == nil && respBody != "" {
 			message = append(message, []string{"response_body", respBody})
@@ -119,17 +123,23 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 	appendResponseHeaders(&message, resp)
 
 	if req.Body != nil {
-		if fmt.Sprint(req.Body) != "" {
-			message = append(message, []string{"request_body", fmt.Sprint(req.Body)})
+		bytes, err := io.ReadAll(req.Body)
+
+		if err != nil {
+			log.Fatal(err)
 		}
+		req.Body.Close()
+		message = append(message, []string{"request_body", string(bytes)})
 	}
 
 	if resp.Body != nil {
-		respBodyBytes, err := ioutil.ReadAll(resp.Body)
-		respBody := string(respBodyBytes)
-		if err == nil && respBody != "" {
-			message = append(message, []string{"response_body", respBody})
+		bytes, err := io.ReadAll(resp.Body)
+
+		if err != nil {
+			log.Fatal(err)
 		}
+		resp.Body.Close()
+		message = append(message, []string{"response_body", string(bytes)})
 	}
 
 	return message

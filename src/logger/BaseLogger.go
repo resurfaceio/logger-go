@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/zlib"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -118,21 +119,30 @@ func (logger *BaseLogger) Submit(msg string) {
 			submitRequest.Header.Set("User-Agent", "Resurface/"+logger.version+" ("+logger.agent+")")
 		}
 
-		submitResponse, err := http.DefaultClient.Do(submitRequest)
+		submitResponse, err := httpLoggerClient.Do(submitRequest)
 
 		if err != nil {
 			atomic.AddInt64(&logger.submitFailures, 1)
-			printLoggerStats(logger, ("failure, error:  " + fmt.Sprint(err)))
+			// printLoggerStats(logger, ("failure, error:  " + fmt.Sprint(err)))
 			return
 		}
+		if submitResponse != nil && submitResponse.StatusCode == 204 {
+			defer submitResponse.Body.Close()
+			_, err := io.ReadAll(submitResponse.Body)
 
-		if submitResponse.StatusCode == 204 {
+			if err != nil {
+				log.Fatal(err)
+			}
+
 			atomic.AddInt64(&logger.submitSuccesses, 1)
-			printLoggerStats(logger, "success")
+			// printLoggerStats(logger, ("success: " + logger.url))
 			return
 		} else {
+			if submitResponse == nil {
+				log.Println("Response is nil")
+			}
 			atomic.AddInt64(&logger.submitFailures, 1)
-			printLoggerStats(logger, "failure, undetermined error")
+			// printLoggerStats(logger, "failure, undetermined error")
 			return
 		}
 	}

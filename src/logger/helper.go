@@ -181,11 +181,13 @@ func GetTestHelper() *helper {
 }
 
 func printLoggerStats(logger *BaseLogger, title string) {
-	log.Print("\n")
-	log.Println(title)
-	log.Println("------------------------------------------------------------------------------")
-	log.Println("Logging Succeses: ", logger.submitSuccesses)
-	log.Println("Logging Failures: ", logger.submitFailures)
-	log.Println("------------------------------------------------------------------------------")
-	log.Println("------------------------------------------------------------------------------")
+	spacer := "------------------------------------------------------------------------------\n"
+	log.Print(
+		title, "\n",
+		spacer,
+		"Logging Succeses: ", logger.submitSuccesses, "\n",
+		"Logging Failures: ", logger.submitFailures, "\n",
+		spacer,
+		spacer,
+	)
 }
