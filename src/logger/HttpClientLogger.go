@@ -47,7 +47,7 @@ func (clientLogger *NetHttpClientLogger) CloseIdleConnections() {
 // net.http.Client.Do wrapper with logging
 func (clientLogger *NetHttpClientLogger) Do(req *http.Request) (resp *http.Response, err error) {
 	// start time for logging interval
-	start := time.Now().UnixNano() / int64(time.Millisecond)
+	start := time.Now()
 
 	logger := clientLogger.httpLogger
 
@@ -59,7 +59,7 @@ func (clientLogger *NetHttpClientLogger) Do(req *http.Request) (resp *http.Respo
 	}
 
 	// send logging message
-	sendClientHttpMessage(logger, resp, start)
+	sendHttpMessage(logger, resp, resp.Request, start)
 
 	return resp, err
 }
@@ -67,7 +67,7 @@ func (clientLogger *NetHttpClientLogger) Do(req *http.Request) (resp *http.Respo
 // net.http.Client.Get wrapper with logging
 func (clientLogger *NetHttpClientLogger) Get(url string) (resp *http.Response, err error) {
 	// start time for logging interval
-	start := time.Now().UnixNano() / int64(time.Millisecond)
+	start := time.Now()
 
 	logger := clientLogger.httpLogger
 
@@ -81,7 +81,7 @@ func (clientLogger *NetHttpClientLogger) Get(url string) (resp *http.Response, e
 	}
 
 	// send logging message
-	sendClientHttpMessage(logger, resp, start)
+	sendHttpMessage(logger, resp, resp.Request, start)
 
 	return resp, err
 }
@@ -89,7 +89,7 @@ func (clientLogger *NetHttpClientLogger) Get(url string) (resp *http.Response, e
 // net.http.Client.Head wrapper with logging
 func (clientLogger *NetHttpClientLogger) Head(url string) (resp *http.Response, err error) {
 	// start time for logging interval
-	start := time.Now().UnixNano() / int64(time.Millisecond)
+	start := time.Now()
 
 	logger := clientLogger.httpLogger
 
@@ -101,7 +101,7 @@ func (clientLogger *NetHttpClientLogger) Head(url string) (resp *http.Response, 
 	}
 
 	// send logging message
-	sendClientHttpMessage(logger, resp, start)
+	sendHttpMessage(logger, resp, resp.Request, start)
 
 	return resp, err
 }
@@ -109,7 +109,7 @@ func (clientLogger *NetHttpClientLogger) Head(url string) (resp *http.Response, 
 // net.http.Client.Post wrapper with logging
 func (clientLogger *NetHttpClientLogger) Post(url string, contentType string, body io.Reader) (resp *http.Response, err error) {
 	// start time for logging interval
-	start := time.Now().UnixNano() / int64(time.Millisecond)
+	start := time.Now()
 
 	logger := clientLogger.httpLogger
 
@@ -121,7 +121,7 @@ func (clientLogger *NetHttpClientLogger) Post(url string, contentType string, bo
 	}
 
 	// send logging message
-	sendClientHttpMessage(logger, resp, start)
+	sendHttpMessage(logger, resp, resp.Request, start)
 
 	return resp, err
 }
@@ -129,7 +129,7 @@ func (clientLogger *NetHttpClientLogger) Post(url string, contentType string, bo
 // net.http.Client.PostForm wrapper with logging
 func (clientLogger *NetHttpClientLogger) PostForm(url string, data url.Values) (resp *http.Response, err error) {
 	// start time for logging interval
-	start := time.Now().UnixNano() / int64(time.Millisecond)
+	start := time.Now()
 
 	logger := clientLogger.httpLogger
 
@@ -141,7 +141,7 @@ func (clientLogger *NetHttpClientLogger) PostForm(url string, data url.Values) (
 	}
 
 	// send logging message
-	sendClientHttpMessage(logger, resp, start)
+	sendHttpMessage(logger, resp, resp.Request, start)
 
 	return resp, err
 }
