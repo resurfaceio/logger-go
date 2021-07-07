@@ -128,7 +128,10 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 		if err != nil {
 			log.Fatal(err)
 		}
-		req.Body.Close()
+		err = req.Body.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
 		message = append(message, []string{"request_body", string(bytes)})
 	}
 
@@ -138,7 +141,10 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 		if err != nil {
 			log.Fatal(err)
 		}
-		resp.Body.Close()
+		err = resp.Body.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
 		message = append(message, []string{"response_body", string(bytes)})
 	}
 
