@@ -180,14 +180,14 @@ func GetTestHelper() *helper {
 	return testHelper
 }
 
-// func printLoggerStats(logger *BaseLogger, title string) {
-// 	spacer := "------------------------------------------------------------------------------\n"
-// 	log.Print(
-// 		title, "\n",
-// 		spacer,
-// 		"Logging Succeses: ", logger.submitSuccesses, "\n",
-// 		"Logging Failures: ", logger.submitFailures, "\n",
-// 		spacer,
-// 		spacer,
-// 	)
-// }
+func printLoggerStats(logger *BaseLogger, title string) {
+	spacer := "------------------------------------------------------------------------------\n"
+	log.Print(
+		title, "\n",
+		spacer,
+		"Logging Succeses: ", logger.submitSuccesses, "\n",
+		"Logging Failures: ", logger.submitFailures, "\n",
+		spacer,
+		spacer,
+	)
+}

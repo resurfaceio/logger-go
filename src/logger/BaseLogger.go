@@ -122,7 +122,7 @@ func (logger *BaseLogger) Submit(msg string) {
 
 		if err != nil {
 			atomic.AddInt64(&logger.submitFailures, 1)
-			// printLoggerStats(logger, ("failure, error:  " + fmt.Sprint(err)))
+			printLoggerStats(logger, ("failure, error:  " + fmt.Sprint(err)))
 			return
 		}
 		if submitResponse != nil && submitResponse.StatusCode == 204 {
@@ -134,14 +134,14 @@ func (logger *BaseLogger) Submit(msg string) {
 			}
 
 			atomic.AddInt64(&logger.submitSuccesses, 1)
-			// printLoggerStats(logger, ("success: " + logger.url))
+			printLoggerStats(logger, ("success: " + logger.url))
 			return
 		} else {
 			if submitResponse == nil {
 				log.Println("Response is nil")
 			}
 			atomic.AddInt64(&logger.submitFailures, 1)
-			// printLoggerStats(logger, "failure, undetermined error")
+			printLoggerStats(logger, "failure, undetermined error")
 			return
 		}
 	}

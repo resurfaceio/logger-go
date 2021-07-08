@@ -2,7 +2,9 @@ package logger
 
 import (
 	"bytes"
+	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 )
@@ -69,7 +71,7 @@ func (w *loggingResponseWriter) Write(body []byte) (int, error) { // uses origin
 	size, err := w.ResponseWriter.Write(body)
 
 	// Copy header to log response
-	w.loggingResp.Header = w.ResponseWriter.Header().Clone()
+	w.loggingResp.Header = w.ResponseWriter.Header()
 
 	// w.response.ContentLength += int64(size)
 	return size, err
@@ -92,10 +94,39 @@ func (muxLogger HttpLoggerForMux) StartResponse(next http.Handler) http.Handler 
 			},
 		}
 
+		buf, err := io.ReadAll(r.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		r.Body.Close()
+
+		body1 := ioutil.NopCloser(bytes.NewBuffer(buf))
+		r.Body = body1
+
+		logReq := &http.Request{
+			Method:        r.Method,
+			URL:           r.URL,
+			Proto:         r.Proto,
+			ProtoMajor:    r.ProtoMajor,
+			ProtoMinor:    r.ProtoMinor,
+			Header:        r.Header,
+			ContentLength: r.ContentLength,
+			Close:         r.Close,
+			Host:          r.Host,
+			Form:          r.Form,
+			Trailer:       r.Trailer,
+			RemoteAddr:    r.RemoteAddr,
+			RequestURI:    r.RequestURI,
+			TLS:           r.TLS,
+			MultipartForm: r.MultipartForm,
+			Response:      r.Response,
+			Body:          ioutil.NopCloser(bytes.NewBuffer(buf)),
+		}
+
 		next.ServeHTTP(&customWriter, r)
 
 		muxLogger.startTime = time.Now()
 
-		sendHttpMessage(muxLogger.httpLogger, customWriter.loggingResp, r, muxLogger.startTime)
+		sendHttpMessage(muxLogger.httpLogger, customWriter.loggingResp, logReq, muxLogger.startTime)
 	})
 }

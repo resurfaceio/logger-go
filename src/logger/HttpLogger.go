@@ -2,6 +2,7 @@ package logger
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -78,4 +79,6 @@ func init() {
 		TLSHandshakeTimeout: 0 * time.Second,
 	}
 	httpLoggerClient = &http.Client{Transport: tr}
+
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
