@@ -15,6 +15,11 @@ import (
 func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 	var message [][]string
 
+	err := req.ParseForm()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	method := req.Method
 	if method != "" {
 		message = append(message, []string{"request_method", method})
