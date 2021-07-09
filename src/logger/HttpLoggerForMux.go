@@ -73,7 +73,9 @@ func (w *loggingResponseWriter) Write(body []byte) (int, error) { // uses origin
 
 	defer func() {
 		w.loggingResp.Header = w.ResponseWriter.Header()
-		w.loggingResp.Header.Set("Content-Length", fmt.Sprint(len(body)))
+		if len(body) > 0 {
+			w.loggingResp.Header.Set("Content-Length", fmt.Sprint(len(body)))
+		}
 	}()
 
 	return size, err
