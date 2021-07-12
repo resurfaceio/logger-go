@@ -4,7 +4,7 @@ Easily log API requests and responses to your own [system of record](https://res
 ## Contents
 
 <ul>
-  <li>Installation</li>
+  <li><a href="#installation">Installation</a></li>
 </ul>
 
 <a name="installation"/>
