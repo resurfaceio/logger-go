@@ -39,7 +39,7 @@ func main() {
 	router := mux.NewRouter()
   
 	options := logger.Options{
-		Rules:   "allow_http_url\nskip_compression\n ...",
+		Rules:   "include_debug\n ...",
 		Url:     "http://localhost:4001/message",
 		Enabled: true,
 		Queue:   nil,
@@ -62,7 +62,7 @@ func main() {
 ## Protecting User Privacy
 
 Loggers always have an active set of <a href="https://resurface.io/rules.html">rules</a> that control what data is logged
-and how sensitive data is masked. All of the examples above apply a predefined set of rules (`include debug`),
+and how sensitive data is masked. All of the examples above apply a predefined set of rules, `include_debug`,
 but logging rules are easily customized to meet the needs of any application.
 
 <a href="https://resurface.io/rules.html">Logging rules documentation</a>
