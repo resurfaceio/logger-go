@@ -31,6 +31,7 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 	var fullUrl string
 
 	//Not sure of a better way to do this at the moment - 6/24/21
+	//check for other tls proto
 	if req.TLS == nil {
 		fullUrl = "http://" + req.Host + req.URL.Path
 	} else {

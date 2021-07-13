@@ -1,11 +1,15 @@
 package logger
 
 import (
+	"log"
 	"sync"
+
 	//Library used for getting environment variables and other useful env things
 	"os"
 	//used for converting the string returned by lookupEnv
 	"strconv"
+
+	"github.com/joho/godotenv"
 )
 
 // sync.Once for UsageLoggers
@@ -62,6 +66,13 @@ func (uLogger *UsageLoggers) IsEnabled() bool {
 * Returns url to use by default.
  */
 func (uLogger *UsageLoggers) UrlByDefault() string {
-	url := os.Getenv("USAGE_LOGGERS_URL")
+	godotenv.Load()
+	url, exists := os.LookupEnv("USAGE_LOGGERS_URL")
+
+	if url == "" || !exists {
+		log.Println("Logger URL env var is not set or does not exist, logger is dissabled")
+		return ""
+	}
+
 	return url
 }
