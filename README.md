@@ -31,7 +31,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/resurfaceio/logger-go/src/logger"
+	"github.com/resurfaceio/logger-go/logger"
 )
 
 
