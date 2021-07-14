@@ -39,7 +39,7 @@ func main() {
 	router := mux.NewRouter()
   
 	options := logger.Options{
-		Rules:   "include_debug\n ...",
+		Rules:   "include_debug\n",
 		Url:     "http://localhost:4001/message",
 		Enabled: true,
 		Queue:   nil,
