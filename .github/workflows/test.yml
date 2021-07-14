@@ -33,4 +33,5 @@ jobs:
 
     # run the tests from the following project path
     - name: Test
-      run: go test ./../...
+      run: ls
+      run: go test ./...
