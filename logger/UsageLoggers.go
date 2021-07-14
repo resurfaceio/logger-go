@@ -66,7 +66,10 @@ func (uLogger *UsageLoggers) IsEnabled() bool {
 * Returns url to use by default.
  */
 func (uLogger *UsageLoggers) UrlByDefault() string {
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
 	url, exists := os.LookupEnv("USAGE_LOGGERS_URL")
 
 	if url == "" || !exists {
