@@ -88,8 +88,17 @@ func (logger *BaseLogger) Submit(msg string) {
 			var body bytes.Buffer
 
 			zWriter := zlib.NewWriter(&body)
-			zWriter.Write([]byte(msg))
-			zWriter.Close()
+
+			b, err := zWriter.Write([]byte(msg))
+			if err != nil || b != len([]byte(msg)) {
+				log.Fatal("error compressing log: ", err)
+			}
+
+			err = zWriter.Close()
+
+			if err != nil {
+				log.Fatal("error closing compression writer: ", err)
+			}
 
 			submitRequest, reqError = http.NewRequest("POST", logger.url, &body)
 
