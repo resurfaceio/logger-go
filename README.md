@@ -51,7 +51,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	app.Router.Use(httpLoggerForMux.StartResponse)
+	router.Use(httpLoggerForMux.LogData)
 
 	log.Fatal(http.ListenAndServe(":5000", router))
 }
