@@ -135,7 +135,6 @@ func (muxLogger HttpLoggerForMux) LogData(next http.Handler) http.Handler {
 
 		next.ServeHTTP(&loggingWriter, r)
 		// loggingWriter.loggingResp.Header = loggingWriter.ResponseWriter.Header()
-		log.Println(loggingWriter.loggingResp.Header)
 
 		muxLogger.startTime = time.Now()
 
