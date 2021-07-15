@@ -11,7 +11,7 @@ import (
 func TestCreateInstance(t *testing.T) {
 
 	//Creating a single instance
-	httpLogger, _ := NewHttpLogger(Options{})
+	httpLogger, _ := newHttpLogger(Options{})
 	assert.NotNil(t, httpLogger)
 	assert.Equal(t, httpLoggerAgent, httpLogger.Agent())
 	assert.False(t, httpLogger.Enableable())
@@ -39,9 +39,9 @@ func TestCreateMultipleInstances(t *testing.T) {
 		Enabled: true,
 	}
 
-	logger1, _ := NewHttpLogger(options1)
-	logger2, _ := NewHttpLogger(options2)
-	logger3, _ := NewHttpLogger(options3)
+	logger1, _ := newHttpLogger(options1)
+	logger2, _ := newHttpLogger(options2)
+	logger3, _ := newHttpLogger(options3)
 
 	//Logger 1
 	assert.NotNil(t, logger1)
@@ -82,7 +82,7 @@ func TestCreateMultipleInstances(t *testing.T) {
 
 func TestHasValidAgent(t *testing.T) {
 	//Has Valid Agent Test
-	httpLogger, _ := NewHttpLogger(Options{})
+	httpLogger, _ := newHttpLogger(Options{})
 
 	assert.Greater(t, len(httpLoggerAgent), 0)
 	assert.Equal(t, ".go", httpLoggerAgent[len(httpLoggerAgent)-3:])

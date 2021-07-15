@@ -12,9 +12,11 @@ type NetHttpClientLogger struct {
 	httpLogger *HttpLogger
 }
 
-// construct new logger with given options struct{rules string, schema string}
+//NewNetHttpClientLoggerOptions() takes 1 argument of type logger.Options and returns 2 objects; a pointer to an instance of an NetHttpClientLogger struct and an error.
+//The NetHttpClientLogger returned by this function has the given options applied.
+//If there is no error, the error value returned will be nil.
 func NewNetHttpClientLoggerOptions(options Options) (*NetHttpClientLogger, error) {
-	httpLogger, err := NewHttpLogger(options)
+	httpLogger, err := newHttpLogger(options)
 	if err != nil {
 		return nil, err
 	}
@@ -23,10 +25,12 @@ func NewNetHttpClientLoggerOptions(options Options) (*NetHttpClientLogger, error
 	}, nil
 }
 
-// construct new logger without options
+//NewNetHttpClientLogger() takes no arguments and returns 2 objects; a pointer to an instance of an NetHttpClientLogger struct and an error.
+//The NetHttpClientLogger returned by this function has the default options applied.
+//If there is no error, the error value returned will be nil.
 func NewNetHttpClientLogger() (*NetHttpClientLogger, error) {
 	options := Options{}
-	httpLogger, err := NewHttpLogger(options)
+	httpLogger, err := newHttpLogger(options)
 	if err != nil {
 		return nil, err
 	}

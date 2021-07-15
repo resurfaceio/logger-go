@@ -15,7 +15,7 @@ import (
 )
 
 // BaseLogger constructor
-func NewBaseLogger(_agent string, _url string, _enabled interface{}, _queue []string) *BaseLogger {
+func newBaseLogger(_agent string, _url string, _enabled interface{}, _queue []string) *BaseLogger {
 	usageLoggers, _ := GetUsageLoggers()
 
 	_enabled = (_enabled == nil) || (_enabled.(bool))
@@ -71,7 +71,7 @@ func (logger *BaseLogger) Disable() {
 /**
  * Submits JSON message to intended destination.
  */
-func (logger *BaseLogger) Submit(msg string) {
+func (logger *BaseLogger) submit(msg string) {
 	//woah congrats you submitted the message
 	if msg == "" || logger.SkipSubmission() || !logger.Enabled() {
 		//do nothing

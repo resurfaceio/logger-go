@@ -24,13 +24,12 @@ type (
 	}
 )
 
-//NewHttpLoggerForMux() takes no arguments and returns 2 objects; a pointer to an instance of an HttpLoggerForMux struct and an error.
-//The HttpLoggerForMux returned by this function has the default options applied.
+//NewHttpLoggerForMux returns a pointer to an instance of an HttpLoggerForMux struct with the default options applied and an error.
 //If there is no error, the error value returned will be nil.
 func NewHttpLoggerForMux() (*HttpLoggerForMux, error) {
 
 	options := Options{}
-	httpLogger, err := NewHttpLogger(options)
+	httpLogger, err := newHttpLogger(options)
 
 	if err != nil {
 		return nil, err
@@ -46,12 +45,11 @@ func NewHttpLoggerForMux() (*HttpLoggerForMux, error) {
 	return &httpLoggerForMux, nil
 }
 
-//NewHttpLoggerForMuxOptions() takes 1 argument of type logger.Options and returns 2 objects; a pointer to an instance of an HttpLoggerForMux struct and an error.
-//The HttpLoggerForMux returned by this function has the given options applied.
+//NewHttpLoggerForMuxOptions returns a pointer to a HttpLoggerForMux struct with the given options applied and an error.
 //If there is no error, the error value returned will be nil.
 func NewHttpLoggerForMuxOptions(options Options) (*HttpLoggerForMux, error) {
 
-	httpLogger, err := NewHttpLogger(options)
+	httpLogger, err := newHttpLogger(options)
 
 	if err != nil {
 		return nil, err

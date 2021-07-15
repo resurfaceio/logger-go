@@ -24,8 +24,8 @@ type HttpLogger struct {
 }
 
 // initialize HttpLogger
-func NewHttpLogger(options Options) (*HttpLogger, error) {
-	baseLogger := NewBaseLogger(httpLoggerAgent, options.Url, options.Enabled, options.Queue)
+func newHttpLogger(options Options) (*HttpLogger, error) {
+	baseLogger := newBaseLogger(httpLoggerAgent, options.Url, options.Enabled, options.Queue)
 
 	loggerRules, err := newHttpRules(options.Rules)
 	if err != nil {
@@ -67,7 +67,7 @@ func (logger *HttpLogger) submitIfPassing(msg [][]string) {
 	msgString := string(byteStr)
 	msgString = strings.Replace(msgString, "\\u003c", "<", -1)
 	msgString = strings.Replace(msgString, "\\u003e", ">", -1)
-	logger.Submit(msgString)
+	logger.submit(msgString)
 }
 
 // global client to avoid opening a new connection for every request

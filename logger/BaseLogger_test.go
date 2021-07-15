@@ -13,7 +13,7 @@ import (
 
 func TestCreatesInstance(t *testing.T) {
 	helper := GetTestHelper()
-	logger := NewBaseLogger(helper.mockAgent, "", false, nil)
+	logger := newBaseLogger(helper.mockAgent, "", false, nil)
 	assert.NotNil(t, logger)
 	assert.Equal(t, helper.mockAgent, logger.Agent())
 	assert.False(t, logger.Enableable())
@@ -29,9 +29,9 @@ func TestCreatesMultipleInstances(t *testing.T) {
 	url1 := "https://resuface.io"
 	url2 := "https://whatever.com"
 	helper := GetTestHelper()
-	logger1 := NewBaseLogger(agent1, url1, true, nil)
-	logger2 := NewBaseLogger(agent2, url2, true, nil)
-	logger3 := NewBaseLogger(agent3, helper.demoURL, true, nil)
+	logger1 := newBaseLogger(agent1, url1, true, nil)
+	logger2 := newBaseLogger(agent2, url2, true, nil)
+	logger3 := newBaseLogger(agent3, helper.demoURL, true, nil)
 
 	assert.Equal(t, agent1, logger1.Agent())
 	assert.True(t, logger1.Enableable())
@@ -63,7 +63,7 @@ func TestCreatesMultipleInstances(t *testing.T) {
 
 func TestHasValidHost(t *testing.T) {
 	helper := GetTestHelper()
-	baseLogger := NewBaseLogger(helper.mockAgent, "", true, nil)
+	baseLogger := newBaseLogger(helper.mockAgent, "", true, nil)
 	host := baseLogger.host
 	assert.NotNil(t, host)
 	assert.Greater(t, len(host), 0)
@@ -72,7 +72,7 @@ func TestHasValidHost(t *testing.T) {
 
 func TestHasValidVersion(t *testing.T) {
 	helper := GetTestHelper()
-	baseLogger := NewBaseLogger(helper.mockAgent, "", true, nil)
+	baseLogger := newBaseLogger(helper.mockAgent, "", true, nil)
 	version := versionLookup()
 	assert.NotNil(t, version)
 	assert.Greater(t, len(version), 0)
@@ -87,7 +87,7 @@ func TestHasValidVersion(t *testing.T) {
 
 func TestPerformsEnablingWhenExpected(t *testing.T) {
 	helper := GetTestHelper()
-	logger := NewBaseLogger(helper.mockAgent, helper.demoURL, false, nil)
+	logger := newBaseLogger(helper.mockAgent, helper.demoURL, false, nil)
 	assert.True(t, logger.Enableable())
 	assert.False(t, logger.Enabled())
 	assert.Equal(t, helper.demoURL, logger.Url())
@@ -96,7 +96,7 @@ func TestPerformsEnablingWhenExpected(t *testing.T) {
 	assert.True(t, logger.Enabled())
 
 	queue := []string{}
-	logger = NewBaseLogger(helper.mockAgent, "", false, queue)
+	logger = newBaseLogger(helper.mockAgent, "", false, queue)
 	assert.True(t, logger.Enableable())
 	assert.False(t, logger.Enabled())
 	assert.Equal(t, "", logger.Url())
@@ -108,7 +108,7 @@ func TestPerformsEnablingWhenExpected(t *testing.T) {
 func TestSkipsEnablingForInvalidUrls(t *testing.T) {
 	helper := GetTestHelper()
 	for _, url := range helper.mockURLSinvalid {
-		logger := NewBaseLogger(helper.mockAgent, url, false, nil)
+		logger := newBaseLogger(helper.mockAgent, url, false, nil)
 		assert.False(t, logger.Enableable())
 		assert.False(t, logger.Enabled())
 		assert.Equal(t, "", logger.Url())
@@ -120,7 +120,7 @@ func TestSkipsEnablingForInvalidUrls(t *testing.T) {
 func TestSkipsEnablingForEmptyUrl(t *testing.T) {
 	url := ""
 	helper := GetTestHelper()
-	logger := NewBaseLogger(helper.mockAgent, url, false, nil) // should this be false or true because it matters for the test with enabled bool
+	logger := newBaseLogger(helper.mockAgent, url, false, nil) // should this be false or true because it matters for the test with enabled bool
 	assert.False(t, logger.Enableable())
 	assert.False(t, logger.Enabled())
 	assert.Equal(t, "", logger.Url())
@@ -131,14 +131,14 @@ func TestSkipsEnablingForEmptyUrl(t *testing.T) {
 func TestSubmitsToDemoUrl(t *testing.T) {
 	helper := GetTestHelper()
 	queue := []string{}
-	logger := NewBaseLogger(helper.mockAgent, helper.demoURL, true, queue)
+	logger := newBaseLogger(helper.mockAgent, helper.demoURL, true, queue)
 	message := [][]string{}
 	message = append(message, []string{"agent", logger.Agent()})
 	message = append(message, []string{"version", logger.Version()})
 	message = append(message, []string{"now", string(fmt.Sprint(helper.mockNow))})
 	message = append(message, []string{"protocol", "https"})
 	marshalled, _ := json.Marshal(message)
-	logger.Submit(string(marshalled))
+	logger.submit(string(marshalled))
 	assert.Equal(t, int64(0), logger.SubmitFailures())
 	assert.Equal(t, int64(1), logger.SubmitSuccesses())
 }
@@ -146,7 +146,7 @@ func TestSubmitsToDemoUrl(t *testing.T) {
 func TestSubmitsToDemoUrlViaHttp(t *testing.T) {
 	helper := GetTestHelper()
 	queue := []string{}
-	logger := NewBaseLogger(helper.mockAgent, strings.Replace(helper.demoURL, "https://", "http://", 1), true, queue)
+	logger := newBaseLogger(helper.mockAgent, strings.Replace(helper.demoURL, "https://", "http://", 1), true, queue)
 	assert.Equal(t, 0, strings.Index(logger.Url(), "http://"))
 	message := [][]string{}
 	message = append(message, []string{"agent", logger.Agent()})
@@ -154,7 +154,7 @@ func TestSubmitsToDemoUrlViaHttp(t *testing.T) {
 	message = append(message, []string{"now", string(fmt.Sprint(helper.mockNow))})
 	message = append(message, []string{"protocol", "http"})
 	marshalled, _ := json.Marshal(message)
-	logger.Submit(string(marshalled))
+	logger.submit(string(marshalled))
 	assert.Equal(t, int64(0), logger.SubmitFailures())
 	assert.Equal(t, int64(1), logger.SubmitSuccesses())
 }
@@ -162,7 +162,7 @@ func TestSubmitsToDemoUrlViaHttp(t *testing.T) {
 func TestSubmitsToDemoUrlWihoutCompression(t *testing.T) {
 	helper := GetTestHelper()
 	queue := []string{}
-	logger := NewBaseLogger(helper.mockAgent, helper.demoURL, true, queue)
+	logger := newBaseLogger(helper.mockAgent, helper.demoURL, true, queue)
 	logger.SetSkipCompression(true)
 	assert.True(t, logger.SkipCompression())
 	message := [][]string{}
@@ -172,7 +172,7 @@ func TestSubmitsToDemoUrlWihoutCompression(t *testing.T) {
 	message = append(message, []string{"protocol", "https"})
 	message = append(message, []string{"skip_compression", "true"})
 	marshalled, _ := json.Marshal(message)
-	logger.Submit(string(marshalled))
+	logger.submit(string(marshalled))
 	assert.Equal(t, int64(0), logger.SubmitFailures())
 	assert.Equal(t, int64(1), logger.SubmitSuccesses())
 }
@@ -180,10 +180,10 @@ func TestSubmitsToDemoUrlWihoutCompression(t *testing.T) {
 func TestSubmitsToDeniedUrl(t *testing.T) {
 	helper := GetTestHelper()
 	for _, url := range helper.mockURLSdenied {
-		logger := NewBaseLogger(helper.mockAgent, url, true, nil)
+		logger := newBaseLogger(helper.mockAgent, url, true, nil)
 		assert.True(t, logger.Enableable())
 		assert.True(t, logger.Enabled())
-		logger.Submit("{}")
+		logger.submit("{}")
 		assert.Equal(t, int64(1), logger.SubmitFailures())
 		assert.Equal(t, int64(0), logger.SubmitSuccesses())
 	}
@@ -192,15 +192,15 @@ func TestSubmitsToDeniedUrl(t *testing.T) {
 func TestSubmitsToQueue(t *testing.T) {
 	helper := GetTestHelper()
 	queue := []string{}
-	logger := NewBaseLogger(helper.mockAgent, helper.mockURLSdenied[0], true, queue)
+	logger := newBaseLogger(helper.mockAgent, helper.mockURLSdenied[0], true, queue)
 	assert.Equal(t, queue, logger.Queue())
 	assert.Equal(t, helper.mockURLSdenied[0], logger.Url())
 	assert.True(t, logger.Enableable())
 	assert.True(t, logger.Enabled())
 	assert.Equal(t, 0, len(logger.queue))
-	logger.Submit("{}")
+	logger.submit("{}")
 	assert.Equal(t, 1, len(logger.queue))
-	logger.Submit("{}")
+	logger.submit("{}")
 	assert.Equal(t, 2, len(logger.queue))
 	assert.Equal(t, int64(0), logger.SubmitFailures())
 	assert.Equal(t, int64(2), logger.SubmitSuccesses())
@@ -208,7 +208,7 @@ func TestSubmitsToQueue(t *testing.T) {
 
 func TestUsesSkipOptions(t *testing.T) {
 	helper := GetTestHelper()
-	logger := NewBaseLogger(helper.mockAgent, helper.demoURL, true, nil)
+	logger := newBaseLogger(helper.mockAgent, helper.demoURL, true, nil)
 	assert.False(t, logger.SkipCompression())
 	assert.False(t, logger.SkipSubmission())
 
