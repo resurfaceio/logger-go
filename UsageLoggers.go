@@ -2,12 +2,9 @@ package logger
 
 import (
 	"log"
-	"sync"
-
-	//Library used for getting environment variables and other useful env things
 	"os"
-	//used for converting the string returned by lookupEnv
 	"strconv"
+	"sync"
 
 	"github.com/joho/godotenv"
 )

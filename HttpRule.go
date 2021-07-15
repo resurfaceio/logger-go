@@ -20,19 +20,3 @@ func NewHttpRule(_verb string, _scope *regexp.Regexp,
 		param2: _param2,
 	}
 }
-
-func (rule *HttpRule) Verb() string {
-	return rule.verb
-}
-
-func (rule *HttpRule) Scope() *regexp.Regexp {
-	return rule.scope
-}
-
-func (rule *HttpRule) Param1() interface{} {
-	return rule.param1
-}
-
-func (rule *HttpRule) Param2() interface{} {
-	return rule.param2
-}

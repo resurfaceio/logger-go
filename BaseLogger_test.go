@@ -15,11 +15,11 @@ func TestCreatesInstance(t *testing.T) {
 	helper := GetTestHelper()
 	logger := newBaseLogger(helper.mockAgent, "", false, nil)
 	assert.NotNil(t, logger)
-	assert.Equal(t, helper.mockAgent, logger.Agent())
-	assert.False(t, logger.Enableable())
+	assert.Equal(t, helper.mockAgent, logger.agent)
+	assert.False(t, logger.enableable)
 	assert.False(t, logger.Enabled())
-	assert.Nil(t, logger.Queue())
-	assert.Equal(t, "", logger.Url())
+	assert.Nil(t, logger.queue)
+	assert.Equal(t, "", logger.url)
 }
 
 func TestCreatesMultipleInstances(t *testing.T) {
@@ -33,20 +33,20 @@ func TestCreatesMultipleInstances(t *testing.T) {
 	logger2 := newBaseLogger(agent2, url2, true, nil)
 	logger3 := newBaseLogger(agent3, helper.demoURL, true, nil)
 
-	assert.Equal(t, agent1, logger1.Agent())
-	assert.True(t, logger1.Enableable())
+	assert.Equal(t, agent1, logger1.agent)
+	assert.True(t, logger1.enableable)
 	assert.True(t, logger1.Enabled())
-	assert.Equal(t, url1, logger1.Url())
+	assert.Equal(t, url1, logger1.url)
 
-	assert.Equal(t, agent2, logger2.Agent())
-	assert.True(t, logger2.Enableable())
+	assert.Equal(t, agent2, logger2.agent)
+	assert.True(t, logger2.enableable)
 	assert.True(t, logger2.Enabled())
-	assert.Equal(t, url2, logger2.Url())
+	assert.Equal(t, url2, logger2.url)
 
-	assert.Equal(t, agent3, logger3.Agent())
-	assert.True(t, logger3.Enableable())
+	assert.Equal(t, agent3, logger3.agent)
+	assert.True(t, logger3.enableable)
 	assert.True(t, logger3.Enabled())
-	assert.Equal(t, helper.demoURL, logger3.Url())
+	assert.Equal(t, helper.demoURL, logger3.url)
 
 	usageLoggers, _ := GetUsageLoggers()
 	usageLoggers.Disable()
@@ -82,24 +82,24 @@ func TestHasValidVersion(t *testing.T) {
 	assert.NotContains(t, version, "\\")
 	assert.NotContains(t, version, "\"")
 	assert.NotContains(t, version, "'")
-	assert.Equal(t, baseLogger.Version(), version)
+	assert.Equal(t, baseLogger.version, version)
 }
 
 func TestPerformsEnablingWhenExpected(t *testing.T) {
 	helper := GetTestHelper()
 	logger := newBaseLogger(helper.mockAgent, helper.demoURL, false, nil)
-	assert.True(t, logger.Enableable())
+	assert.True(t, logger.enableable)
 	assert.False(t, logger.Enabled())
-	assert.Equal(t, helper.demoURL, logger.Url())
+	assert.Equal(t, helper.demoURL, logger.url)
 	logger.Enable()
 	assert.True(t, logger.enabled)
 	assert.True(t, logger.Enabled())
 
 	queue := []string{}
 	logger = newBaseLogger(helper.mockAgent, "", false, queue)
-	assert.True(t, logger.Enableable())
+	assert.True(t, logger.enableable)
 	assert.False(t, logger.Enabled())
-	assert.Equal(t, "", logger.Url())
+	assert.Equal(t, "", logger.url)
 	logger.Enable()
 	assert.True(t, logger.Enabled())
 }
@@ -109,9 +109,9 @@ func TestSkipsEnablingForInvalidUrls(t *testing.T) {
 	helper := GetTestHelper()
 	for _, url := range helper.mockURLSinvalid {
 		logger := newBaseLogger(helper.mockAgent, url, false, nil)
-		assert.False(t, logger.Enableable())
+		assert.False(t, logger.enableable)
 		assert.False(t, logger.Enabled())
-		assert.Equal(t, "", logger.Url())
+		assert.Equal(t, "", logger.url)
 		logger.Enable()
 		assert.False(t, logger.Enabled())
 	}
@@ -121,9 +121,9 @@ func TestSkipsEnablingForEmptyUrl(t *testing.T) {
 	url := ""
 	helper := GetTestHelper()
 	logger := newBaseLogger(helper.mockAgent, url, false, nil) // should this be false or true because it matters for the test with enabled bool
-	assert.False(t, logger.Enableable())
+	assert.False(t, logger.enableable)
 	assert.False(t, logger.Enabled())
-	assert.Equal(t, "", logger.Url())
+	assert.Equal(t, "", logger.url)
 	logger.Enable()
 	assert.False(t, logger.Enabled())
 }
@@ -133,59 +133,59 @@ func TestSubmitsToDemoUrl(t *testing.T) {
 	queue := []string{}
 	logger := newBaseLogger(helper.mockAgent, helper.demoURL, true, queue)
 	message := [][]string{}
-	message = append(message, []string{"agent", logger.Agent()})
-	message = append(message, []string{"version", logger.Version()})
+	message = append(message, []string{"agent", logger.agent})
+	message = append(message, []string{"version", logger.version})
 	message = append(message, []string{"now", string(fmt.Sprint(helper.mockNow))})
 	message = append(message, []string{"protocol", "https"})
 	marshalled, _ := json.Marshal(message)
 	logger.submit(string(marshalled))
-	assert.Equal(t, int64(0), logger.SubmitFailures())
-	assert.Equal(t, int64(1), logger.SubmitSuccesses())
+	assert.Equal(t, int64(0), logger.submitFailures)
+	assert.Equal(t, int64(1), logger.submitSuccesses)
 }
 
 func TestSubmitsToDemoUrlViaHttp(t *testing.T) {
 	helper := GetTestHelper()
 	queue := []string{}
 	logger := newBaseLogger(helper.mockAgent, strings.Replace(helper.demoURL, "https://", "http://", 1), true, queue)
-	assert.Equal(t, 0, strings.Index(logger.Url(), "http://"))
+	assert.Equal(t, 0, strings.Index(logger.url, "http://"))
 	message := [][]string{}
-	message = append(message, []string{"agent", logger.Agent()})
-	message = append(message, []string{"version", logger.Version()})
+	message = append(message, []string{"agent", logger.agent})
+	message = append(message, []string{"version", logger.version})
 	message = append(message, []string{"now", string(fmt.Sprint(helper.mockNow))})
 	message = append(message, []string{"protocol", "http"})
 	marshalled, _ := json.Marshal(message)
 	logger.submit(string(marshalled))
-	assert.Equal(t, int64(0), logger.SubmitFailures())
-	assert.Equal(t, int64(1), logger.SubmitSuccesses())
+	assert.Equal(t, int64(0), logger.submitFailures)
+	assert.Equal(t, int64(1), logger.submitSuccesses)
 }
 
 func TestSubmitsToDemoUrlWihoutCompression(t *testing.T) {
 	helper := GetTestHelper()
 	queue := []string{}
 	logger := newBaseLogger(helper.mockAgent, helper.demoURL, true, queue)
-	logger.SetSkipCompression(true)
-	assert.True(t, logger.SkipCompression())
+	logger.skipCompression = true
+	assert.True(t, logger.skipCompression)
 	message := [][]string{}
-	message = append(message, []string{"agent", logger.Agent()})
-	message = append(message, []string{"version", logger.Version()})
+	message = append(message, []string{"agent", logger.agent})
+	message = append(message, []string{"version", logger.version})
 	message = append(message, []string{"now", string(fmt.Sprint(helper.mockNow))})
 	message = append(message, []string{"protocol", "https"})
 	message = append(message, []string{"skip_compression", "true"})
 	marshalled, _ := json.Marshal(message)
 	logger.submit(string(marshalled))
-	assert.Equal(t, int64(0), logger.SubmitFailures())
-	assert.Equal(t, int64(1), logger.SubmitSuccesses())
+	assert.Equal(t, int64(0), logger.submitFailures)
+	assert.Equal(t, int64(1), logger.submitSuccesses)
 }
 
 func TestSubmitsToDeniedUrl(t *testing.T) {
 	helper := GetTestHelper()
 	for _, url := range helper.mockURLSdenied {
 		logger := newBaseLogger(helper.mockAgent, url, true, nil)
-		assert.True(t, logger.Enableable())
+		assert.True(t, logger.enableable)
 		assert.True(t, logger.Enabled())
 		logger.submit("{}")
-		assert.Equal(t, int64(1), logger.SubmitFailures())
-		assert.Equal(t, int64(0), logger.SubmitSuccesses())
+		assert.Equal(t, int64(1), logger.submitFailures)
+		assert.Equal(t, int64(0), logger.submitSuccesses)
 	}
 }
 
@@ -193,31 +193,31 @@ func TestSubmitsToQueue(t *testing.T) {
 	helper := GetTestHelper()
 	queue := []string{}
 	logger := newBaseLogger(helper.mockAgent, helper.mockURLSdenied[0], true, queue)
-	assert.Equal(t, queue, logger.Queue())
-	assert.Equal(t, helper.mockURLSdenied[0], logger.Url())
-	assert.True(t, logger.Enableable())
+	assert.Equal(t, queue, logger.queue)
+	assert.Equal(t, helper.mockURLSdenied[0], logger.url)
+	assert.True(t, logger.enableable)
 	assert.True(t, logger.Enabled())
 	assert.Equal(t, 0, len(logger.queue))
 	logger.submit("{}")
 	assert.Equal(t, 1, len(logger.queue))
 	logger.submit("{}")
 	assert.Equal(t, 2, len(logger.queue))
-	assert.Equal(t, int64(0), logger.SubmitFailures())
-	assert.Equal(t, int64(2), logger.SubmitSuccesses())
+	assert.Equal(t, int64(0), logger.submitFailures)
+	assert.Equal(t, int64(2), logger.submitSuccesses)
 }
 
 func TestUsesSkipOptions(t *testing.T) {
 	helper := GetTestHelper()
 	logger := newBaseLogger(helper.mockAgent, helper.demoURL, true, nil)
-	assert.False(t, logger.SkipCompression())
-	assert.False(t, logger.SkipSubmission())
+	assert.False(t, logger.skipCompression)
+	assert.False(t, logger.skipSubmission)
 
-	logger.SetSkipCompression(true)
-	assert.True(t, logger.SkipCompression())
-	assert.False(t, logger.SkipSubmission())
+	logger.skipCompression = true
+	assert.True(t, logger.skipCompression)
+	assert.False(t, logger.skipSubmission)
 
-	logger.SetSkipCompression(false)
-	logger.SetSkipSubmission(true)
-	assert.False(t, logger.SkipCompression())
-	assert.True(t, logger.SkipSubmission())
+	logger.skipCompression = false
+	logger.skipSubmission = true
+	assert.False(t, logger.skipCompression)
+	assert.True(t, logger.skipSubmission)
 }

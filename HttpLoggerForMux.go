@@ -12,7 +12,7 @@ import (
 
 type (
 	HttpLoggerForMux struct {
-		httpLogger *HttpLogger
+		httpLogger *httpLogger
 		startTime  time.Time
 		interval   time.Duration
 		response   []byte

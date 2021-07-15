@@ -76,7 +76,7 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 
 }
 
-func sendHttpMessage(logger *HttpLogger, resp *http.Response, req *http.Request, start time.Time) {
+func sendHttpMessage(logger *httpLogger, resp *http.Response, req *http.Request, start time.Time) {
 
 	if !logger.Enabled() {
 		return

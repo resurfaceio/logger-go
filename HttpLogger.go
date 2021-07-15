@@ -9,23 +9,27 @@ import (
 	"time"
 )
 
+//Options struct is passed to a "NewLogger" function to specifiy the desired configuration of the logger to be created.
 type Options struct {
-	Rules   string
-	Url     string
+	//Rules defines the rules that will be applied to the logger.
+	Rules string
+	//Url defines the Url the logger will send the logs to.
+	Url string
+	//Enabled defines the state of the logger; enabled or disabled.
 	Enabled interface{}
 	Queue   []string
 }
 
 const httpLoggerAgent string = "HttpLogger.go"
 
-//base HttpLogger definition
-type HttpLogger struct {
-	*BaseLogger
+//base httpLogger definition
+type httpLogger struct {
+	*baseLogger
 	rules *HttpRules
 }
 
-// initialize HttpLogger
-func newHttpLogger(options Options) (*HttpLogger, error) {
+// initialize httpLogger
+func newHttpLogger(options Options) (*httpLogger, error) {
 	baseLogger := newBaseLogger(httpLoggerAgent, options.Url, options.Enabled, options.Queue)
 
 	loggerRules, err := newHttpRules(options.Rules)
@@ -33,7 +37,7 @@ func newHttpLogger(options Options) (*HttpLogger, error) {
 		return nil, err
 	}
 
-	logger := &HttpLogger{
+	logger := &httpLogger{
 		baseLogger,
 		loggerRules,
 	}
@@ -49,12 +53,7 @@ func newHttpLogger(options Options) (*HttpLogger, error) {
 	return logger, nil
 }
 
-// getter for rules
-func (logger *HttpLogger) Rules() *HttpRules {
-	return logger.rules
-}
-
-func (logger *HttpLogger) submitIfPassing(msg [][]string) {
+func (logger *httpLogger) submitIfPassing(msg [][]string) {
 	msg = logger.rules.apply(msg)
 
 	if msg == nil {

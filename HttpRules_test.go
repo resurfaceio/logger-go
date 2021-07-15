@@ -187,20 +187,20 @@ func TestLoadsRulesFromFile(t *testing.T) {
 	rules, _ := newHttpRules("file://./rules1.txt")
 	assert.Equal(t, 1, rules.Size())
 	assert.Equal(t, 1, len(rules.Sample()))
-	assert.Equal(t, 55, rules.Sample()[0].Param1())
+	assert.Equal(t, 55, rules.Sample()[0].param1)
 
 	rules, _ = newHttpRules("file://./rules2.txt")
 	assert.Equal(t, 3, rules.Size())
 	assert.True(t, rules.AllowHttpUrl())
 	assert.Equal(t, 1, len(rules.CopySessionField()))
 	assert.Equal(t, 1, len(rules.Sample()))
-	assert.Equal(t, 56, rules.Sample()[0].Param1())
+	assert.Equal(t, 56, rules.Sample()[0].param1)
 
 	rules, _ = newHttpRules("file://./rules3.txt ")
 	assert.Equal(t, 3, rules.Size())
 	assert.Equal(t, 1, len(rules.Replace()))
 	assert.Equal(t, 1, len(rules.sample))
-	assert.Equal(t, 57, rules.Sample()[0].Param1())
+	assert.Equal(t, 57, rules.Sample()[0].param1)
 }
 
 func parseFail(t *testing.T, line string) {
@@ -212,16 +212,16 @@ func parseOk(t *testing.T, line string, verb string,
 	scope string, param1 interface{}, param2 interface{}) {
 
 	rule, _ := parseRule(line)
-	assert.Equal(t, verb, rule.Verb())
+	assert.Equal(t, verb, rule.verb)
 
-	if rule.Scope() == nil {
+	if rule.scope == nil {
 		assert.Equal(t, "", scope)
 	} else {
 		// this may need to change
-		assert.Equal(t, scope, rule.Scope().String())
+		assert.Equal(t, scope, rule.scope.String())
 	}
 
-	ruleParam1 := rule.Param1()
+	ruleParam1 := rule.param1
 	_, isRegexp := ruleParam1.(*regexp.Regexp)
 	if ruleParam1 == nil {
 		assert.Nil(t, param1)
@@ -231,7 +231,7 @@ func parseOk(t *testing.T, line string, verb string,
 		assert.Equal(t, ruleParam1, param1)
 	}
 
-	ruleParam2 := rule.Param2()
+	ruleParam2 := rule.param2
 	_, isRegexp = ruleParam2.(*regexp.Regexp)
 	if ruleParam2 == nil {
 		assert.Nil(t, param2)

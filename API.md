@@ -22,25 +22,25 @@ protections to apply). Default values will be used for either of these if specif
 
 ```js
 const resurfaceio = require('resurfaceio-logger');
-const HttpLogger = resurfaceio.HttpLogger;
+const httpLogger = resurfaceio.HttpLogger;
 
 // with default url and rules
-let logger = new HttpLogger();
+let logger = new httpLogger();
 
 // with specific url and default rules
-logger = new HttpLogger({url: 'https://...'});
+logger = new httpLogger({url: 'https://...'});
 
 // with specific url and rules
-logger = new HttpLogger({url: 'https://...', rules: 'include strict'});
+logger = new httpLogger({url: 'https://...', rules: 'include strict'});
 
 // with specific url and rules from local file
-logger = new HttpLogger({url: 'https://...', rules: 'file://./rules.txt'});
+logger = new httpLogger({url: 'https://...', rules: 'file://./rules.txt'});
 
 // with specific url and rules/schema as strings
-logger = new HttpLogger({url: 'https://...', rules: 'include strict', schema: 'type Foo { bar: String }'});
+logger = new httpLogger({url: 'https://...', rules: 'include strict', schema: 'type Foo { bar: String }'});
 
 // with specific url and rules/schemas from local files
-logger = new HttpLogger({url: 'https://...', rules: 'file://./rules.txt', schema: 'file://./schema.txt'});
+logger = new httpLogger({url: 'https://...', rules: 'file://./rules.txt', schema: 'file://./schema.txt'});
 ```
 
 <a name="logging_http"/>

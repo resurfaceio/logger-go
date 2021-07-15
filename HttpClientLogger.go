@@ -9,7 +9,7 @@ import (
 
 type NetHttpClientLogger struct {
 	http.Client
-	httpLogger *HttpLogger
+	httpLogger *httpLogger
 }
 
 //NewNetHttpClientLoggerOptions() takes 1 argument of type logger.Options and returns 2 objects; a pointer to an instance of an NetHttpClientLogger struct and an error.
@@ -39,7 +39,7 @@ func NewNetHttpClientLogger() (*NetHttpClientLogger, error) {
 	}, nil
 }
 
-func (logger *NetHttpClientLogger) Logger() *HttpLogger {
+func (logger *NetHttpClientLogger) Logger() *httpLogger {
 	return logger.httpLogger
 }
 

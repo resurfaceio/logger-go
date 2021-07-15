@@ -15,7 +15,7 @@ import (
 )
 
 // BaseLogger constructor
-func newBaseLogger(_agent string, _url string, _enabled interface{}, _queue []string) *BaseLogger {
+func newBaseLogger(_agent string, _url string, _enabled interface{}, _queue []string) *baseLogger {
 	usageLoggers, _ := GetUsageLoggers()
 
 	_enabled = (_enabled == nil) || (_enabled.(bool))
@@ -43,7 +43,7 @@ func newBaseLogger(_agent string, _url string, _enabled interface{}, _queue []st
 
 	_enableable := (_url != "" || _queue != nil)
 
-	constructedBaseLogger := &BaseLogger{
+	constructedBaseLogger := &baseLogger{
 		agent:           _agent,
 		enableable:      _enableable,
 		enabled:         _enabled.(bool),
@@ -60,20 +60,20 @@ func newBaseLogger(_agent string, _url string, _enabled interface{}, _queue []st
 	return constructedBaseLogger
 }
 
-func (logger *BaseLogger) Enable() {
+func (logger *baseLogger) Enable() {
 	logger.enabled = logger.enableable
 }
 
-func (logger *BaseLogger) Disable() {
+func (logger *baseLogger) Disable() {
 	logger.enabled = false
 }
 
 /**
  * Submits JSON message to intended destination.
  */
-func (logger *BaseLogger) submit(msg string) {
+func (logger *baseLogger) submit(msg string) {
 	//woah congrats you submitted the message
-	if msg == "" || logger.SkipSubmission() || !logger.Enabled() {
+	if msg == "" || logger.skipSubmission || !logger.Enabled() {
 		//do nothing
 	} else if logger.queue != nil {
 		logger.queue = append(logger.queue, msg)
@@ -172,30 +172,12 @@ func hostLookup() string {
 
 func versionLookup() string { return "1.0.0" }
 
-func (logger *BaseLogger) Agent() string    { return logger.agent }
-func (logger *BaseLogger) Enableable() bool { return logger.enableable }
-func (logger *BaseLogger) Enabled() bool {
+func (logger *baseLogger) Enabled() bool {
 	usageLoggers, _ := GetUsageLoggers()
 	return logger.enabled && usageLoggers.IsEnabled()
 }
-func (logger *BaseLogger) Host() string           { return logger.host }
-func (logger *BaseLogger) Queue() []string        { return logger.queue }
-func (logger *BaseLogger) SkipCompression() bool  { return logger.skipCompression }
-func (logger *BaseLogger) SkipSubmission() bool   { return logger.skipSubmission }
-func (logger *BaseLogger) SubmitFailures() int64  { return logger.submitFailures }
-func (logger *BaseLogger) SubmitSuccesses() int64 { return logger.submitSuccesses }
-func (logger *BaseLogger) Url() string            { return logger.url }
-func (logger *BaseLogger) UrlParsed() *url.URL    { return logger.urlParsed }
-func (logger *BaseLogger) Version() string        { return logger.version }
 
-func (logger *BaseLogger) SetSkipCompression(_skipCompression bool) {
-	logger.skipCompression = _skipCompression
-}
-func (logger *BaseLogger) SetSkipSubmission(_skipSubmission bool) {
-	logger.skipSubmission = _skipSubmission
-}
-
-type BaseLogger struct {
+type baseLogger struct {
 	agent           string
 	enableable      bool
 	enabled         bool
