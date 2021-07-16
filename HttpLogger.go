@@ -1,4 +1,4 @@
-//Resurface Go Logger provides tools to log API requests and responses from different web frameworks to a complete system of record (https://resurface.io)
+//Resurface Go Logger provides tools to log API requests and responses from different Golang web frameworks to a complete API system of record. (https://resurface.io)
 package logger
 
 import (

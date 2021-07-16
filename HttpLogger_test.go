@@ -25,7 +25,7 @@ func TestCreateMultipleInstances(t *testing.T) {
 	//Creating multiple instances
 	url1 := "https://resurface.io"
 	url2 := "https://whatever.com"
-	helper := GetTestHelper()
+	helper := newTestHelper()
 	options1 := Options{
 		Url:     url1,
 		Enabled: true,

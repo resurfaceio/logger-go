@@ -48,7 +48,7 @@ func (testHelper *helper) MockGetRequest() http.Request {
 }
 
 // func MockDoRequest() http.Request {
-// 	helper := GetTestHelper()
+// 	helper := newTestHelper()
 // 	resp, err := http.Get(helper.demoURL)
 // 	resp, err = http.Do(resp)
 // 	request := resp.Request
@@ -133,7 +133,7 @@ func parseable(msg string) bool {
 	return json.Valid([]byte(msg))
 }
 
-func GetTestHelper() *helper {
+func newTestHelper() *helper {
 	helperOnce.Do(func() {
 		testHelper = &helper{
 			demoURL: "https://demo.resurface.io/ping",

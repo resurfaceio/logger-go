@@ -137,7 +137,7 @@ func TestUsesAllowHttpUrlRules(t *testing.T) {
 // test uses copy session field rules test
 func TestUsesCopySessionFieldRules(t *testing.T) {
 	// helper for function tests
-	helper := GetTestHelper()
+	helper := newTestHelper()
 	// requests used for all tests in function
 	request := helper.MockRequestWithJson2()
 	mockResponse := helper.MockResponseWithHtml()
@@ -200,7 +200,7 @@ func TestUsesCopySessionFieldRules(t *testing.T) {
 
 func TestUsesCopySessionFieldAndRemoveRules(t *testing.T) {
 	// helper for function tests
-	helper := GetTestHelper()
+	helper := newTestHelper()
 	// requests used for all tests in function
 	request := helper.MockRequestWithJson2()
 	mockResponse := helper.MockResponseWithHtml()
@@ -262,7 +262,7 @@ func TestUsesCopySessionFieldAndRemoveRules(t *testing.T) {
 
 func TestUsesCopySessionFieldAndStopRules(t *testing.T) {
 	// helper for function tests
-	helper := GetTestHelper()
+	helper := newTestHelper()
 	// requests used for all tests in function
 	request := helper.MockRequestWithJson2()
 	mockResponse := helper.MockResponseWithHtml()
@@ -308,7 +308,7 @@ func TestUsesCopySessionFieldAndStopRules(t *testing.T) {
 
 func TestUsesRemoveRules(t *testing.T) {
 	//helper for function
-	helper := GetTestHelper()
+	helper := newTestHelper()
 
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)
@@ -387,7 +387,7 @@ func TestUsesRemoveRules(t *testing.T) {
 // test uses remove if rules
 
 func TestUsesRemoveIfRules(t *testing.T) {
-	helper := GetTestHelper()
+	helper := newTestHelper()
 
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)
@@ -472,7 +472,7 @@ func TestUsesRemoveIfRules(t *testing.T) {
 
 // test uses remove if found rules
 func TestUsesRemoveIfFoundRules(t *testing.T) {
-	helper := GetTestHelper()
+	helper := newTestHelper()
 
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)
@@ -558,7 +558,7 @@ func TestUsesRemoveIfFoundRules(t *testing.T) {
 // test uses remove unless rules
 
 func TestUsesRemoveUnlessRules(t *testing.T) {
-	helper := GetTestHelper()
+	helper := newTestHelper()
 
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)
@@ -644,7 +644,7 @@ func TestUsesRemoveUnlessRules(t *testing.T) {
 // test uses remove unless found rules
 
 func TestUsesRemoveUnlessFoundRules(t *testing.T) {
-	helper := GetTestHelper()
+	helper := newTestHelper()
 
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)
@@ -730,7 +730,7 @@ func TestUsesRemoveUnlessFoundRules(t *testing.T) {
 // test uses replace rules
 
 func TestUsesReplaceRules(t *testing.T) {
-	helper := GetTestHelper()
+	helper := newTestHelper()
 
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)
@@ -828,7 +828,7 @@ func TestUsesReplaceRules(t *testing.T) {
 
 // test uses replace rules with complex expressions
 func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
-	helper := GetTestHelper()
+	helper := newTestHelper()
 
 	mockResponse := helper.MockResponseWithHtml()
 
@@ -895,7 +895,7 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 
 // test uses sample rules
 func TestUsesSampleRules(t *testing.T) {
-	helper := GetTestHelper()
+	helper := newTestHelper()
 
 	request := helper.MockRequestWithJson2()
 	mockResponse := helper.MockResponseWithHtml()
@@ -976,7 +976,7 @@ func TestUsesSkipSubmission(t *testing.T) {
 // test uses stop rules
 
 func TestUsesStopRules(t *testing.T) {
-	helper := GetTestHelper()
+	helper := newTestHelper()
 
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)
@@ -1039,7 +1039,7 @@ func TestUsesStopRules(t *testing.T) {
 // test uses stop if rules
 
 func TestUsesStopIfRules(t *testing.T) {
-	helper := GetTestHelper()
+	helper := newTestHelper()
 
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)
@@ -1086,7 +1086,7 @@ func TestUsesStopIfRules(t *testing.T) {
 // test uses stop if found rules
 
 func TestUsesStopIfFoundRules(t *testing.T) {
-	helper := GetTestHelper()
+	helper := newTestHelper()
 
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)
@@ -1142,7 +1142,7 @@ func TestUsesStopIfFoundRules(t *testing.T) {
 
 // test uses stop unless rules
 func TestUsesStopUnlessRules(t *testing.T) {
-	helper := GetTestHelper()
+	helper := newTestHelper()
 
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)
@@ -1187,7 +1187,7 @@ func TestUsesStopUnlessRules(t *testing.T) {
 
 // test uses stop unless found rules
 func TestUsesStopUnlessFoundRules(t *testing.T) {
-	helper := GetTestHelper()
+	helper := newTestHelper()
 
 	mockResponse := helper.MockResponseWithHtml()
 	_queue := make([]string, 0)

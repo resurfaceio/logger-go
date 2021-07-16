@@ -38,7 +38,7 @@ func TestInvalidJson(t *testing.T) {
 }
 
 func TestHelper(t *testing.T) {
-	testHelper := GetTestHelper()
+	testHelper := newTestHelper()
 	if testHelper.demoURL == "" {
 		t.Error("Helper DEMO_URL is empty")
 	}
