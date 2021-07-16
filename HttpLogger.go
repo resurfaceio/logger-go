@@ -13,11 +13,16 @@ import (
 type Options struct {
 	//Rules defines the rules that will be applied to the logger.
 	Rules string
+
 	//Url defines the Url the logger will send the logs to.
 	Url string
+
 	//Enabled defines the state of the logger; enabled or disabled.
 	Enabled interface{}
-	Queue   []string
+
+	//Queue is a slice of strings used to store logs; exclusively for testing purposes.
+	//Queue must be nil for the logger to properly function.
+	Queue []string
 }
 
 const httpLoggerAgent string = "HttpLogger.go"
