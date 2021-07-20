@@ -172,7 +172,10 @@ func hostLookup() string {
 	return hostName
 }
 
-func versionLookup() string { return "1.0.0" }
+func versionLookup() string {
+	version := "2.3.0"
+	return version
+}
 
 func (logger *baseLogger) Enabled() bool {
 	usageLoggers, _ := GetUsageLoggers()

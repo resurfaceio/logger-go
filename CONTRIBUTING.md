@@ -7,15 +7,17 @@
 ## Git Workflow
 
 ```
-git clone git@github.com:resurfaceio/logger-go.git resurfaceio-logger-go
-cd resurfaceio-logger-go
-(tbd - install dependencies like npm install?)
+git clone git@github.com:resurfaceio/logger-go.git
+cd logger-go
+go mod download
+
 ```
 
 Running unit tests:
 
+From inside logger-go directory
 ```
-(tbd))
+go test
 ```
 
 Committing changes:
@@ -29,8 +31,8 @@ git push origin master
 
 ## Release Process
 
-All [integration tests](https://github.com/resurfaceio/logger-tests) must pass first.
-
+Exercise using Golang test apps:
+* test-mux
 Push artifacts to ???:
 
 ```
@@ -44,4 +46,4 @@ git tag v1.x.x
 git push origin master --tags
 ```
 
-Start the next version by incrementing the version number in TBD files.
+Start the next version by incrementing the version number in BaseLogger.go.
