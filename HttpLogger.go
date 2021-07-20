@@ -1,3 +1,5 @@
+// © 2016-2021 Resurface Labs Inc.
+
 //Resurface Go Logger provides tools to log API requests and responses from different Golang web frameworks to a complete API system of record. (https://resurface.io)
 package logger
 

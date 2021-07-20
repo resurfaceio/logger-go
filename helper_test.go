@@ -1,3 +1,5 @@
+// © 2016-2021 Resurface Labs Inc.
+
 package logger
 
 import (
