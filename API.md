@@ -1,7 +1,5 @@
 # API
 
-NOTE: This is obviously not the final version -- this is JS and not Golang! :-)
-
 ## Contents
 
 <ul>
