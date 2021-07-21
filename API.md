@@ -20,27 +20,32 @@ To get started, first you'll need to create a `HttpLogger` instance. Here there 
 messages will be sent) and/or a specific set of <a href="https://resurface.io/rules.html">logging rules</a> (for what privacy 
 protections to apply). Default values will be used for either of these if specific values are not provided.
 
-```js
+```golang
 const resurfaceio = require('resurfaceio-logger');
 const httpLogger = resurfaceio.HttpLogger;
 
 // with default url and rules
-let logger = new httpLogger();
+logger := newHttpLogger(Options{});
 
 // with specific url and default rules
-logger = new httpLogger({url: 'https://...'});
+opt := Options{
+    Url: "https://...",
+}
+logger := newHttpLogger(opt);
 
 // with specific url and rules
-logger = new httpLogger({url: 'https://...', rules: 'include strict'});
+opt := Options{
+    Url: "https://...",
+    Rules: "include_debug\n",
+}
+logger := newHttpLogger(opt);
 
 // with specific url and rules from local file
-logger = new httpLogger({url: 'https://...', rules: 'file://./rules.txt'});
-
-// with specific url and rules/schema as strings
-logger = new httpLogger({url: 'https://...', rules: 'include strict', schema: 'type Foo { bar: String }'});
-
-// with specific url and rules/schemas from local files
-logger = new httpLogger({url: 'https://...', rules: 'file://./rules.txt', schema: 'file://./schema.txt'});
+opt := Options{
+    Url: "https://...",
+    Rules: "file://./rules.txt\n",
+}
+logger := newHttpLogger(opt);
 ```
 
 <a name="logging_http"/>
@@ -50,33 +55,30 @@ logger = new httpLogger({url: 'https://...', rules: 'file://./rules.txt', schema
 Now that you have a logger instance, let's do some logging. Here you can pass standard request/response objects, as well
 as response body and request body content when these are available. 
 
-```js
+```golang
 const HttpMessage = resurfaceio.HttpMessage;
 
 // with standard objects
-HttpMessage.send(logger, request, response);
-
-// with response body
-HttpMessage.send(logger, request, response, 'my-response-body');
-
-// log with response and request body
-HttpMessage.send(logger, request, response, 'my-response-body', 'my-request-body');
+sendHttpMessage(logger, response, request, start_time)
 ```
+Request and Response bodies are automatically logged.
 
 If standard request and response objects aren't available in your case, create mock implementations to pass instead.
 
-```js
+```golang
 // define request to log
-const request = new HttpRequestImpl();
-request.addHeader('Content-Type', 'application/json');
-request.method = 'POST';
-request.body['B'] = '234';  // POST param
-request.url = 'http://resurface.io';
+request := &http.Request{}
+request.Header.Set("Content-Type", "application/json")
+request.Method = "POST"
+request.Body = ioutil.NopCloser(strings.NewReader("body_content"))
+request.URL, err = url.Parse("http://resurface.io")
+if err != nil {/*handle error*/}
+
 
 // define response to log
-const response = new HttpResponseImpl();
-response.addHeader('Content-Type', 'text/html; charset=utf-8');
-response.statusCode = 200;
+response = http.Response{}
+response.Header.Set("Content-Type", "text/html: charset=utf-8")
+response.StatusCode = 200
 
 // log objects defined above
 HttpMessage.send(logger, request, response);
@@ -89,17 +91,14 @@ HttpMessage.send(logger, request, response);
 If no <a href="https://resurface.io/rules.html">rules</a> are provided when creating a logger, the default value of 
 `include strict` will be applied. A different default value can be specified as shown below.
 
-```js
-HttpRules.defaultRules = 'include debug';
+```golang
+HttpRules.SetDefaultRules("include_debug")
 ```
 
-When specifying multiple default rules, put each on a separate line. This is most easily done with a template literal.
+When specifying multiple default rules, put a new line character between each rule.
 
-```js
-HttpRules.defaultRules = `
-    include debug
-    sample 10
-`;
+```golang
+HttpRules.SetDefaultRules("include_debug\nallow_http_url")
 ```
 
 <a name="setting_default_url"/>
@@ -128,9 +127,9 @@ not send any logging data, and the result returned by the `log` method will alwa
 All loggers for an application can be enabled or disabled at once with the `UsageLoggers` class. This even controls
 loggers that have not yet been created by the application.
 
-```js
-UsageLoggers.disable();    // disable all loggers
-UsageLoggers.enable();     // enable all loggers
+```golang
+UsageLoggers.Disable();    // disable all loggers
+UsageLoggers.Enable();     // enable all loggers
 ```
 
 All loggers can be permanently disabled with the `USAGE_LOGGERS_DISABLE` environment variable. When set to true,

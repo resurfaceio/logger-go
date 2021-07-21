@@ -191,6 +191,7 @@ func (rules *HttpRules) DefaultRules() string {
 	return rules.defaultRules
 }
 
+//*HttpRules.SetDefaultRules(r string) sets the default rules of the logger to r
 func (rules *HttpRules) SetDefaultRules(r string) {
 	regex := regexp.MustCompile(`(?m)^\s*include default\s*$`)
 	rules.defaultRules = regex.ReplaceAllString(r, "")
@@ -208,9 +209,6 @@ func (rules *HttpRules) StrictRules() string {
 	return rules.strictRules
 }
 
-/*
-!!! We might be able to remove these getters later !!!
-*/
 func (rules *HttpRules) AllowHttpUrl() bool {
 	return rules.allowHttpUrl
 }

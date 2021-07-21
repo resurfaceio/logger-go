@@ -30,8 +30,7 @@ type (
 //If there is no error, the error value returned will be nil.
 func NewHttpLoggerForMux() (*HttpLoggerForMux, error) {
 
-	options := Options{}
-	httpLogger, err := newHttpLogger(options)
+	httpLogger, err := newHttpLogger(Options{})
 
 	if err != nil {
 		return nil, err
@@ -94,7 +93,7 @@ func (w *loggingResponseWriter) WriteHeader(statusCode int) {
 	w.ResponseWriter.WriteHeader(statusCode)
 }
 
-//LogData() takes in 1 argument of type http.Handler and returns an object of the same type, http.Handler.
+//LogData() takes 1 argument of type http.Handler and returns an object of the same type, http.Handler.
 //This function is intended to be used in a Middleware function in a gorilla/mux server.
 //For details on how to setup Middleware for a mux server see: https://github.com/resurfaceio/logger-go#logging_from_mux
 func (muxLogger HttpLoggerForMux) LogData(next http.Handler) http.Handler {
