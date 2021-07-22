@@ -78,7 +78,9 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 
 }
 
-func sendHttpMessage(logger *httpLogger, resp *http.Response, req *http.Request, start time.Time) {
+// SendHttpMessage(l *httpLogger, resp *http.Response, req *http.Request, t time.Time) Uses logger l to send a log of the given resp, req, and t to the loggers url
+// t defines the start time of the logging process used to calculate a logging interval
+func SendHttpMessage(logger *httpLogger, resp *http.Response, req *http.Request, start time.Time) {
 
 	if !logger.Enabled() {
 		return

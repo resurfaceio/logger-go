@@ -35,8 +35,8 @@ type httpLogger struct {
 	rules *HttpRules
 }
 
-// initialize httpLogger
-func newHttpLogger(options Options) (*httpLogger, error) {
+// NewHttpLogger returns a pointer to a new httpLogger object, with the given options applied, and an error
+func NewHttpLogger(options Options) (*httpLogger, error) {
 	baseLogger := newBaseLogger(httpLoggerAgent, options.Url, options.Enabled, options.Queue)
 
 	loggerRules, err := newHttpRules(options.Rules)

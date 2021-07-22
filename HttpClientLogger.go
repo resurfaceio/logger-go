@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// NetHttpClientLogger defines a struct used to log specifically from the client side of API interactions using the net/http package.
 type NetHttpClientLogger struct {
 	http.Client
 	httpLogger *httpLogger
@@ -18,7 +19,7 @@ type NetHttpClientLogger struct {
 //The NetHttpClientLogger returned by this function has the given options applied.
 //If there is no error, the error value returned will be nil.
 func NewNetHttpClientLoggerOptions(options Options) (*NetHttpClientLogger, error) {
-	httpLogger, err := newHttpLogger(options)
+	httpLogger, err := NewHttpLogger(options)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +33,7 @@ func NewNetHttpClientLoggerOptions(options Options) (*NetHttpClientLogger, error
 //If there is no error, the error value returned will be nil.
 func NewNetHttpClientLogger() (*NetHttpClientLogger, error) {
 	options := Options{}
-	httpLogger, err := newHttpLogger(options)
+	httpLogger, err := NewHttpLogger(options)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +66,7 @@ func (clientLogger *NetHttpClientLogger) Do(req *http.Request) (resp *http.Respo
 	}
 
 	// send logging message
-	sendHttpMessage(logger, resp, resp.Request, start)
+	SendHttpMessage(logger, resp, resp.Request, start)
 
 	return resp, err
 }
@@ -87,7 +88,7 @@ func (clientLogger *NetHttpClientLogger) Get(url string) (resp *http.Response, e
 	}
 
 	// send logging message
-	sendHttpMessage(logger, resp, resp.Request, start)
+	SendHttpMessage(logger, resp, resp.Request, start)
 
 	return resp, err
 }
@@ -107,7 +108,7 @@ func (clientLogger *NetHttpClientLogger) Head(url string) (resp *http.Response, 
 	}
 
 	// send logging message
-	sendHttpMessage(logger, resp, resp.Request, start)
+	SendHttpMessage(logger, resp, resp.Request, start)
 
 	return resp, err
 }
@@ -127,7 +128,7 @@ func (clientLogger *NetHttpClientLogger) Post(url string, contentType string, bo
 	}
 
 	// send logging message
-	sendHttpMessage(logger, resp, resp.Request, start)
+	SendHttpMessage(logger, resp, resp.Request, start)
 
 	return resp, err
 }
@@ -147,7 +148,7 @@ func (clientLogger *NetHttpClientLogger) PostForm(url string, data url.Values) (
 	}
 
 	// send logging message
-	sendHttpMessage(logger, resp, resp.Request, start)
+	SendHttpMessage(logger, resp, resp.Request, start)
 
 	return resp, err
 }

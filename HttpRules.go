@@ -191,7 +191,7 @@ func (rules *HttpRules) DefaultRules() string {
 	return rules.defaultRules
 }
 
-//*HttpRules.SetDefaultRules(r string) sets the default rules of the logger to r
+//*HttpRules.SetDefaultRules(r string) sets the default rules of the logger to rule(s) r
 func (rules *HttpRules) SetDefaultRules(r string) {
 	regex := regexp.MustCompile(`(?m)^\s*include default\s*$`)
 	rules.defaultRules = regex.ReplaceAllString(r, "")

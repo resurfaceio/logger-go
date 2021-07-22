@@ -23,27 +23,27 @@ const resurfaceio = require('resurfaceio-logger');
 const httpLogger = resurfaceio.HttpLogger;
 
 // with default url and rules
-logger := newHttpLogger(Options{});
+logger := NewHttpLogger(Options{});
 
 // with specific url and default rules
 opt := Options{
     Url: "https://...",
 }
-logger := newHttpLogger(opt);
+logger := NewHttpLogger(opt);
 
 // with specific url and rules
 opt := Options{
     Url: "https://...",
     Rules: "include_debug\n",
 }
-logger := newHttpLogger(opt);
+logger := NewHttpLogger(opt);
 
 // with specific url and rules from local file
 opt := Options{
     Url: "https://...",
     Rules: "file://./rules.txt\n",
 }
-logger := newHttpLogger(opt);
+logger := NewHttpLogger(opt);
 ```
 
 <a name="logging_http"/>
@@ -57,7 +57,7 @@ as response body and request body content when these are available.
 const HttpMessage = resurfaceio.HttpMessage;
 
 // with standard objects
-sendHttpMessage(logger, response, request, start_time)
+SendHttpMessage(logger, response, request, start_time)
 ```
 Request and Response bodies are automatically logged.
 

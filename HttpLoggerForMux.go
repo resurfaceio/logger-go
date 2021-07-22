@@ -13,6 +13,7 @@ import (
 )
 
 type (
+	// HttpLoggerForMux defines a struct used to log specifically gorilla/mux apps
 	HttpLoggerForMux struct {
 		httpLogger *httpLogger
 		startTime  time.Time
@@ -26,11 +27,11 @@ type (
 	}
 )
 
-//NewHttpLoggerForMux returns a pointer to an instance of an HttpLoggerForMux struct with the default options applied and an error.
-//If there is no error, the error value returned will be nil.
+// NewHttpLoggerForMux returns a pointer to an instance of an HttpLoggerForMux struct with the default options applied and an error.
+// If there is no error, the error value returned will be nil.
 func NewHttpLoggerForMux() (*HttpLoggerForMux, error) {
 
-	httpLogger, err := newHttpLogger(Options{})
+	httpLogger, err := NewHttpLogger(Options{})
 
 	if err != nil {
 		return nil, err
@@ -46,11 +47,11 @@ func NewHttpLoggerForMux() (*HttpLoggerForMux, error) {
 	return &httpLoggerForMux, nil
 }
 
-//NewHttpLoggerForMuxOptions returns a pointer to a HttpLoggerForMux struct with the given options applied and an error.
-//If there is no error, the error value returned will be nil.
+// NewHttpLoggerForMuxOptions(o Options) returns a pointer to a HttpLoggerForMux struct with the given options o applied and an error.
+// If there is no error, the error value returned will be nil.
 func NewHttpLoggerForMuxOptions(options Options) (*HttpLoggerForMux, error) {
 
-	httpLogger, err := newHttpLogger(options)
+	httpLogger, err := NewHttpLogger(options)
 
 	if err != nil {
 		return nil, err
@@ -66,6 +67,8 @@ func NewHttpLoggerForMuxOptions(options Options) (*HttpLoggerForMux, error) {
 	return &httpLoggerForMux, nil
 }
 
+// Write(b []byte) uses original response writer to write the body b to the client and then logs the response body.
+// This is only used internarnally by response writer.
 func (w *loggingResponseWriter) Write(body []byte) (int, error) { // uses original response writer to write and then logs the size
 
 	w.loggingResp = &http.Response{
@@ -86,16 +89,17 @@ func (w *loggingResponseWriter) Write(body []byte) (int, error) { // uses origin
 	return size, err
 }
 
-// WriteHeader() uses original response writer to write the header and then logs the status code
+// WriteHeader(s int) uses original response writer to write the header with code s and then logs the response status code.
+// This is only used internarnally by response writer.
 func (w *loggingResponseWriter) WriteHeader(statusCode int) {
 	w.loggingResp.StatusCode = statusCode
 
 	w.ResponseWriter.WriteHeader(statusCode)
 }
 
-//LogData() takes 1 argument of type http.Handler and returns an object of the same type, http.Handler.
-//This function is intended to be used in a Middleware function in a gorilla/mux server.
-//For details on how to setup Middleware for a mux server see: https://github.com/resurfaceio/logger-go#logging_from_mux
+// LogData() takes 1 argument of type http.Handler and returns an object of the same type, http.Handler.
+// This function is intended to be used in a Middleware function in a gorilla/mux server.
+// For details on how to setup Middleware for a mux server see: https://github.com/resurfaceio/logger-go#logging_from_mux
 func (muxLogger HttpLoggerForMux) LogData(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -135,10 +139,9 @@ func (muxLogger HttpLoggerForMux) LogData(next http.Handler) http.Handler {
 		}
 
 		next.ServeHTTP(&loggingWriter, r)
-		// loggingWriter.loggingResp.Header = loggingWriter.ResponseWriter.Header()
 
 		muxLogger.startTime = time.Now()
 
-		sendHttpMessage(muxLogger.httpLogger, loggingWriter.loggingResp, loggingReq, muxLogger.startTime)
+		SendHttpMessage(muxLogger.httpLogger, loggingWriter.loggingResp, loggingReq, muxLogger.startTime)
 	})
 }
