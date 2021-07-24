@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// NetHttpClientLogger defines a struct used to log specifically from the client side of API interactions using the net/http package.
+//NetHttpClientLogger defines a struct used to log specifically from the client side of API interactions using the net/http package.
 type NetHttpClientLogger struct {
 	http.Client
 	httpLogger *httpLogger
@@ -46,12 +46,12 @@ func (logger *NetHttpClientLogger) Logger() *httpLogger {
 	return logger.httpLogger
 }
 
-// net.http.Client.CloseIdleConnections() wrapper
+//net.http.Client.CloseIdleConnections() wrapper
 func (clientLogger *NetHttpClientLogger) CloseIdleConnections() {
 	clientLogger.Client.CloseIdleConnections()
 }
 
-// net.http.Client.Do wrapper with logging
+//net.http.Client.Do wrapper with logging
 func (clientLogger *NetHttpClientLogger) Do(req *http.Request) (resp *http.Response, err error) {
 	// start time for logging interval
 	start := time.Now()
