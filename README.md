@@ -5,6 +5,7 @@ Easily log API requests and responses to your own [system of record](https://res
 
 <ul>
   <li><a href="#installation">Installation</a></li>
+	<li><a href="#resurface_setup">Setup the Resurface app</a></li>
   <li><a href="#logging_from_mux">Logging from gorilla/mux</a></li>
   <li><a href="#privacy">Protecting User Privacy</a></li>
 </ul>
@@ -19,6 +20,22 @@ In the same directory as your project's `go.mod` and `go.sum` files.
 go get github.com/resurfaceio/logger-go
 ```
 
+<a name="resurface_setup"/>
+
+## Setup the Resurface app
+*You can also find these instructions [here](https://resurface.io/installation).*
+
+If you don't already have Docker installed, you can do so by following these [instructions](https://docs.docker.com/get-docker/).
+
+From the terminal, run this Docker command to start up the Resurface app using docker.
+
+```
+docker run -d --name resurface -p 4000:4000 -p 4001:4001 -p 4002:4002 resurfaceio/resurface:2.3.1
+```
+
+Point your browser at `http://localhost:4002`.
+
+
 <a name="logging_from_mux"/>
 
 ## Logging from gorilla/mux
@@ -31,27 +48,27 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/resurfaceio/logger-go"
+	"github.com/resurfaceio/logger-go" //<----- 1
 )
 
 
 func main() {
 	router := mux.NewRouter()
   
-	options := logger.Options{
+	options := logger.Options{ //<----- 2
 		Rules:   "include_debug\n",
 		Url:     "http://localhost:4001/message",
 		Enabled: true,
 		Queue:   nil,
 	}
 
-	httpLoggerForMux, err := logger.NewHttpLoggerForMuxOptions(options)
+	httpLoggerForMux, err := logger.NewHttpLoggerForMuxOptions(options) //<----- 3
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	router.Use(httpLoggerForMux.LogData)
+	router.Use(httpLoggerForMux.LogData) //<----- 4
 
 	log.Fatal(http.ListenAndServe(":5000", router))
 }
