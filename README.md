@@ -1,6 +1,8 @@
 # resurfaceio-logger-go
 Easily log API requests and responses to your own [system of record](https://resurface.io).
 
+pkg.go.dev [documentation](https://pkg.go.dev/github.com/resurfaceio/logger-go) for this Go module.
+
 ## Contents
 
 <ul>
