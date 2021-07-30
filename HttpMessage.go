@@ -4,7 +4,7 @@ package logger
 
 import (
 	"fmt"
-	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"regexp"
@@ -49,7 +49,7 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 	appendResponseHeaders(&message, resp)
 
 	if req.Body != nil {
-		bytes, err := io.ReadAll(req.Body)
+		bytes, err := ioutil.ReadAll(req.Body)
 
 		if err != nil {
 			log.Fatal(err)
@@ -62,7 +62,7 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 	}
 
 	if resp.Body != nil {
-		bytes, err := io.ReadAll(resp.Body)
+		bytes, err := ioutil.ReadAll(resp.Body)
 
 		if err != nil {
 			log.Fatal(err)
