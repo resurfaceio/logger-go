@@ -6,7 +6,7 @@ import (
 	"bytes"
 	"compress/zlib"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -136,7 +136,7 @@ func (logger *baseLogger) submit(msg string) {
 		}
 		if submitResponse != nil && submitResponse.StatusCode == 204 {
 			defer submitResponse.Body.Close()
-			_, err := io.ReadAll(submitResponse.Body)
+			_, err := ioutil.ReadAll(submitResponse.Body)
 
 			if err != nil {
 				log.Fatal(err)
