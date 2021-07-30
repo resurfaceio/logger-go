@@ -5,6 +5,7 @@ package logger
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -109,7 +110,7 @@ func (muxLogger HttpLoggerForMux) LogData(next http.Handler) http.Handler {
 			},
 		}
 
-		buf, err := ioutil.ReadAll(r.Body)
+		buf, err := io.ReadAll(r.Body)
 		if err != nil {
 			log.Fatal(err)
 		}
