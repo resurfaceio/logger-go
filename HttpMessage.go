@@ -29,7 +29,7 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 		message = append(message, []string{"request_method", method})
 	}
 
-	//protocol not currently used
+	//protocol is not currently used
 	// message = append(message, []string{"request_protocol", req.Proto})
 
 	var fullUrl string
