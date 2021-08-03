@@ -173,7 +173,7 @@ func hostLookup() string {
 }
 
 func versionLookup() string {
-	version := "2.3.0"
+	version := "0.1.0"
 	return version
 }
 
