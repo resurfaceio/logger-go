@@ -604,7 +604,7 @@ func (rules *HttpRules) apply(details [][]string) [][]string {
 }
 
 /*
-The following unexported Regexps should be treat as constants
+The following unexported Regexps should be treated as constants
 and remain unchanged throughout package usage
 */
 var regexAllowHttpUrl *regexp.Regexp = regexp.MustCompile(`^\s*allow_http_url\s*(#.*)?$`)

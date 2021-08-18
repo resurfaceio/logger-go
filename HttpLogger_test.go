@@ -13,13 +13,13 @@ import (
 func TestCreateInstance(t *testing.T) {
 
 	//Creating a single instance
-	httpLogger, _ := NewHttpLogger(Options{})
-	assert.NotNil(t, httpLogger)
-	assert.Equal(t, httpLoggerAgent, httpLogger.agent)
-	assert.False(t, httpLogger.enableable)
-	assert.False(t, httpLogger.Enabled())
-	assert.Nil(t, httpLogger.queue)
-	assert.Equal(t, "", httpLogger.url)
+	HttpLogger, _ := NewHttpLogger(Options{})
+	assert.NotNil(t, HttpLogger)
+	assert.Equal(t, httpLoggerAgent, HttpLogger.agent)
+	assert.False(t, HttpLogger.enableable)
+	assert.False(t, HttpLogger.Enabled())
+	assert.Nil(t, HttpLogger.queue)
+	assert.Equal(t, "", HttpLogger.url)
 
 }
 
@@ -84,13 +84,13 @@ func TestCreateMultipleInstances(t *testing.T) {
 
 func TestHasValidAgent(t *testing.T) {
 	//Has Valid Agent Test
-	httpLogger, _ := NewHttpLogger(Options{})
+	HttpLogger, _ := NewHttpLogger(Options{})
 
 	assert.Greater(t, len(httpLoggerAgent), 0)
 	assert.Equal(t, ".go", httpLoggerAgent[len(httpLoggerAgent)-3:])
 	assert.NotContains(t, httpLoggerAgent, "\\")
 	assert.NotContains(t, httpLoggerAgent, "\"")
 	assert.NotContains(t, httpLoggerAgent, "'")
-	assert.Equal(t, httpLoggerAgent, httpLogger.agent)
+	assert.Equal(t, httpLoggerAgent, HttpLogger.agent)
 
 }

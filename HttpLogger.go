@@ -29,14 +29,14 @@ type Options struct {
 
 const httpLoggerAgent string = "HttpLogger.go"
 
-//base httpLogger definition
-type httpLogger struct {
+//HttpLogger is the struct contains a pointer to a baseLogger instance and a set of rules used to define the behaviour of the logger.
+type HttpLogger struct {
 	*baseLogger
 	rules *HttpRules
 }
 
-// NewHttpLogger returns a pointer to a new httpLogger object, with the given options applied, and an error
-func NewHttpLogger(options Options) (*httpLogger, error) {
+// NewHttpLogger returns a pointer to a new HttpLogger object, with the given options applied, and an error
+func NewHttpLogger(options Options) (*HttpLogger, error) {
 	baseLogger := newBaseLogger(httpLoggerAgent, options.Url, options.Enabled, options.Queue)
 
 	loggerRules, err := newHttpRules(options.Rules)
@@ -44,7 +44,7 @@ func NewHttpLogger(options Options) (*httpLogger, error) {
 		return nil, err
 	}
 
-	logger := &httpLogger{
+	logger := &HttpLogger{
 		baseLogger,
 		loggerRules,
 	}
@@ -60,7 +60,7 @@ func NewHttpLogger(options Options) (*httpLogger, error) {
 	return logger, nil
 }
 
-func (logger *httpLogger) submitIfPassing(msg [][]string) {
+func (logger *HttpLogger) submitIfPassing(msg [][]string) {
 	msg = logger.rules.apply(msg)
 
 	if msg == nil {

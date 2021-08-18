@@ -14,7 +14,7 @@ import (
 type (
 	// HttpLoggerForMux defines a struct used to log specifically gorilla/mux apps
 	HttpLoggerForMux struct {
-		httpLogger *httpLogger
+		HttpLogger *HttpLogger
 		startTime  time.Time
 		interval   time.Duration
 		response   []byte
@@ -30,14 +30,14 @@ type (
 // If there is no error, the error value returned will be nil.
 func NewHttpLoggerForMux() (*HttpLoggerForMux, error) {
 
-	httpLogger, err := NewHttpLogger(Options{})
+	HttpLogger, err := NewHttpLogger(Options{})
 
 	if err != nil {
 		return nil, err
 	}
 
 	httpLoggerForMux := HttpLoggerForMux{
-		httpLogger: httpLogger,
+		HttpLogger: HttpLogger,
 		startTime:  time.Time{},
 		interval:   0,
 		response:   make([]byte, 0),
@@ -50,14 +50,14 @@ func NewHttpLoggerForMux() (*HttpLoggerForMux, error) {
 // If there is no error, the error value returned will be nil.
 func NewHttpLoggerForMuxOptions(options Options) (*HttpLoggerForMux, error) {
 
-	httpLogger, err := NewHttpLogger(options)
+	HttpLogger, err := NewHttpLogger(options)
 
 	if err != nil {
 		return nil, err
 	}
 
 	httpLoggerForMux := HttpLoggerForMux{
-		httpLogger: httpLogger,
+		HttpLogger: HttpLogger,
 		startTime:  time.Time{},
 		interval:   0,
 		response:   make([]byte, 0),
@@ -141,6 +141,6 @@ func (muxLogger HttpLoggerForMux) LogData(next http.Handler) http.Handler {
 
 		muxLogger.startTime = time.Now()
 
-		SendHttpMessage(muxLogger.httpLogger, loggingWriter.loggingResp, loggingReq, muxLogger.startTime)
+		SendHttpMessage(muxLogger.HttpLogger, loggingWriter.loggingResp, loggingReq, muxLogger.startTime)
 	})
 }

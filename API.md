@@ -12,15 +12,15 @@
 
 <a name="creating_loggers"/>
 
-## Creating Loggers 
+## Creating Loggers
 
-To get started, first you'll need to create a `HttpLogger` instance. Here there are options to specify a URL (for where JSON 
-messages will be sent) and/or a specific set of <a href="https://resurface.io/rules.html">logging rules</a> (for what privacy 
+To get started, first you'll need to create a `HttpLogger` instance. Here there are options to specify a URL (for where JSON
+messages will be sent) and/or a specific set of <a href="https://resurface.io/rules.html">logging rules</a> (for what privacy
 protections to apply). Default values will be used for either of these if specific values are not provided.
 
 ```golang
 const resurfaceio = require('resurfaceio-logger');
-const httpLogger = resurfaceio.HttpLogger;
+const HttpLogger = resurfaceio.HttpLogger;
 
 // with default url and rules
 logger := NewHttpLogger(Options{});
@@ -51,7 +51,7 @@ logger := NewHttpLogger(opt);
 ## Logging HTTP Calls
 
 Now that you have a logger instance, let's do some logging. Here you can pass standard request/response objects, as well
-as response body and request body content when these are available. 
+as response body and request body content when these are available.
 
 ```golang
 const HttpMessage = resurfaceio.HttpMessage;
@@ -59,6 +59,7 @@ const HttpMessage = resurfaceio.HttpMessage;
 // with standard objects
 SendHttpMessage(logger, response, request, start_time)
 ```
+
 Request and Response bodies are automatically logged.
 
 If standard request and response objects aren't available in your case, create mock implementations to pass instead.
@@ -86,7 +87,7 @@ HttpMessage.send(logger, request, response);
 
 ## Setting Default Rules
 
-If no <a href="https://resurface.io/rules.html">rules</a> are provided when creating a logger, the default value of 
+If no <a href="https://resurface.io/rules.html">rules</a> are provided when creating a logger, the default value of
 `include strict` will be applied. A different default value can be specified as shown below.
 
 ```golang
@@ -131,8 +132,8 @@ UsageLoggers.Enable();     // enable all loggers
 ```
 
 All loggers can be permanently disabled with the `USAGE_LOGGERS_DISABLE` environment variable. When set to true,
-loggers will never become enabled, even if `UsageLoggers.enable()` is called by the application. This is primarily 
-done by automated tests to disable all logging even if other control logic exists. 
+loggers will never become enabled, even if `UsageLoggers.enable()` is called by the application. This is primarily
+done by automated tests to disable all logging even if other control logic exists.
 
 ```bash
 # from command line
@@ -143,4 +144,5 @@ heroku config:set USAGE_LOGGERS_DISABLE=true
 ```
 
 ---
+
 <small>&copy; 2016-2021 <a href="https://resurface.io">Resurface Labs Inc.</a></small>
