@@ -182,6 +182,10 @@ func (logger *baseLogger) Enabled() bool {
 	return logger.enabled && usageLoggers.IsEnabled()
 }
 
+func (logger *baseLogger) Queue() []string {
+	return logger.queue
+}
+
 type baseLogger struct {
 	agent           string
 	enableable      bool
