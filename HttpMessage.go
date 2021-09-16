@@ -10,7 +10,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // create Http message for any logger
@@ -82,7 +81,7 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 
 // SendHttpMessage(l *HttpLogger, resp *http.Response, req *http.Request, t time.Time) Uses logger l to send a log of the given resp, req, and t to the loggers url
 // t defines the start time of the logging process used to calculate the logging interval
-func SendHttpMessage(logger *HttpLogger, resp *http.Response, req *http.Request, start time.Time) {
+func SendHttpMessage(logger *HttpLogger, resp *http.Response, req *http.Request, now int64, interval int64) {
 
 	if !logger.Enabled() {
 		return
@@ -109,17 +108,19 @@ func SendHttpMessage(logger *HttpLogger, resp *http.Response, req *http.Request,
 			}
 		}
 	}
-	// append time of logging
-	now := time.Now().UnixNano() / int64(time.Millisecond)
-	message = append(message, []string{"now", strconv.FormatInt(now, 10)})
-
-	// append interval noting the time it took to log
-	// Interval has floor of 1 millisecond
-	interval := time.Since(start).Milliseconds()
-	if interval < 1 {
-		interval = 1
+	// append request time
+	if now == 0 {
+		message = append(message, []string{"now", ""})
+	} else {
+		message = append(message, []string{"now", strconv.FormatInt(now, 10)})
 	}
-	message = append(message, []string{"interval", strconv.FormatInt(interval, 10)})
+
+	// append interval noting the time between request and response
+	if interval == 0 {
+		message = append(message, []string{"interval", ""})
+	} else {
+		message = append(message, []string{"interval", strconv.FormatInt(interval, 10)})
+	}
 
 	logger.submitIfPassing(message)
 }
