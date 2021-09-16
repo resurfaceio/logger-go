@@ -143,6 +143,7 @@ func (logger *baseLogger) submit(msg string) {
 			}
 
 			atomic.AddInt64(&logger.submitSuccesses, 1)
+			// log.Print("!message successfully sent to: ", logger.url, "!\n")
 			return
 		} else {
 			if submitResponse == nil {
