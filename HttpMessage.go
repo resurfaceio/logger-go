@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // create Http message for any logger
@@ -108,17 +109,14 @@ func SendHttpMessage(logger *HttpLogger, resp *http.Response, req *http.Request,
 			}
 		}
 	}
-	// append request time
+	// append request time, if given. If not, append logging time
 	if now == 0 {
-		message = append(message, []string{"now", ""})
-	} else {
-		message = append(message, []string{"now", strconv.FormatInt(now, 10)})
+		now = time.Now().UnixNano() / int64(time.Millisecond)
 	}
+	message = append(message, []string{"now", strconv.FormatInt(now, 10)})
 
 	// append interval noting the time between request and response
-	if interval == 0 {
-		message = append(message, []string{"interval", ""})
-	} else {
+	if interval != 0 {
 		message = append(message, []string{"interval", strconv.FormatInt(interval, 10)})
 	}
 
