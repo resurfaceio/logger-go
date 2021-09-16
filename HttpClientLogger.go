@@ -54,19 +54,21 @@ func (clientLogger *NetHttpClientLogger) CloseIdleConnections() {
 //net.http.Client.Do wrapper with logging
 func (clientLogger *NetHttpClientLogger) Do(req *http.Request) (resp *http.Response, err error) {
 	// start time for logging interval
-	start := time.Now()
-
 	logger := clientLogger.HttpLogger
+
+	now := time.Now()
 
 	// capture the response or error
 	resp, err = clientLogger.Client.Do(req)
+
+	interval := time.Since(now).Milliseconds()
 
 	if err != nil {
 		return resp, err
 	}
 
 	// send logging message
-	SendHttpMessage(logger, resp, resp.Request, start)
+	SendHttpMessage(logger, resp, resp.Request, (now.Unix() * 1000), interval)
 
 	return resp, err
 }
@@ -74,21 +76,23 @@ func (clientLogger *NetHttpClientLogger) Do(req *http.Request) (resp *http.Respo
 // net.http.Client.Get wrapper with logging
 func (clientLogger *NetHttpClientLogger) Get(url string) (resp *http.Response, err error) {
 	// start time for logging interval
-	start := time.Now()
-
 	logger := clientLogger.HttpLogger
+
+	now := time.Now()
 
 	// capture the response or error
 	// Devin 03/31/2021
 	// Something happens here with the .Get where err does return an error = "unsupported protocol scheme"
 	resp, err = clientLogger.Client.Get(url)
 
+	interval := time.Since(now).Milliseconds()
+
 	if err != nil {
 		return resp, err
 	}
 
 	// send logging message
-	SendHttpMessage(logger, resp, resp.Request, start)
+	SendHttpMessage(logger, resp, resp.Request, (now.Unix() * 1000), interval)
 
 	return resp, err
 }
@@ -96,19 +100,22 @@ func (clientLogger *NetHttpClientLogger) Get(url string) (resp *http.Response, e
 // net.http.Client.Head wrapper with logging
 func (clientLogger *NetHttpClientLogger) Head(url string) (resp *http.Response, err error) {
 	// start time for logging interval
-	start := time.Now()
 
 	logger := clientLogger.HttpLogger
 
+	now := time.Now()
+
 	// capture the response or error
 	resp, err = clientLogger.Client.Head(url)
+
+	interval := time.Since(now).Milliseconds()
 
 	if err != nil {
 		return resp, err
 	}
 
 	// send logging message
-	SendHttpMessage(logger, resp, resp.Request, start)
+	SendHttpMessage(logger, resp, resp.Request, (now.Unix() * 1000), interval)
 
 	return resp, err
 }
@@ -116,19 +123,22 @@ func (clientLogger *NetHttpClientLogger) Head(url string) (resp *http.Response, 
 // net.http.Client.Post wrapper with logging
 func (clientLogger *NetHttpClientLogger) Post(url string, contentType string, body io.Reader) (resp *http.Response, err error) {
 	// start time for logging interval
-	start := time.Now()
 
 	logger := clientLogger.HttpLogger
 
+	now := time.Now()
+
 	// capture the response or error
 	resp, err = clientLogger.Client.Post(url, contentType, body)
+
+	interval := time.Since(now).Milliseconds()
 
 	if err != nil {
 		return resp, err
 	}
 
 	// send logging message
-	SendHttpMessage(logger, resp, resp.Request, start)
+	SendHttpMessage(logger, resp, resp.Request, (now.Unix() * 1000), interval)
 
 	return resp, err
 }
@@ -136,19 +146,22 @@ func (clientLogger *NetHttpClientLogger) Post(url string, contentType string, bo
 // net.http.Client.PostForm wrapper with logging
 func (clientLogger *NetHttpClientLogger) PostForm(url string, data url.Values) (resp *http.Response, err error) {
 	// start time for logging interval
-	start := time.Now()
 
 	logger := clientLogger.HttpLogger
 
+	now := time.Now()
+
 	// capture the response or error
 	resp, err = clientLogger.Client.PostForm(url, data)
+
+	interval := time.Since(now).Milliseconds()
 
 	if err != nil {
 		return resp, err
 	}
 
 	// send logging message
-	SendHttpMessage(logger, resp, resp.Request, start)
+	SendHttpMessage(logger, resp, resp.Request, (now.Unix() * 1000), interval)
 
 	return resp, err
 }
