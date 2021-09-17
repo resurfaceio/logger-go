@@ -3,7 +3,10 @@
 package logger
 
 import (
+	"log"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -92,5 +95,33 @@ func TestHasValidAgent(t *testing.T) {
 	assert.NotContains(t, httpLoggerAgent, "\"")
 	assert.NotContains(t, httpLoggerAgent, "'")
 	assert.Equal(t, httpLoggerAgent, HttpLogger.agent)
+}
 
+func TestSetsNowAndInterval(t *testing.T) {
+	helper := newTestHelper()
+
+	opt := Options{
+		Queue:   make([]string, 0),
+		Enabled: true,
+		Url:     helper.demoURL1,
+	}
+
+	logger, _ := NewHttpLogger(opt)
+
+	SendHttpMessage(logger, helper.MockResponse(), helper.MockRequestWithJson(), 0, 0)
+
+	assert.Equal(t, true, strings.Contains(logger.queue[0], "[\"now"), "SendHttpMessage did not append 'now' to message on null entry")
+	assert.Equal(t, false, strings.Contains(logger.queue[0], "[\"interval"), "SendHttpMessage appended 'interval' to message on null entry")
+
+	logger, _ = NewHttpLogger(opt)
+
+	now := time.Now()
+	time.Sleep(100 * time.Millisecond)
+	interval := time.Since(now).Milliseconds()
+
+	SendHttpMessage(logger, helper.MockResponse(), helper.MockRequestWithJson(), (now.Unix() * int64(time.Millisecond)), interval)
+
+	assert.Equal(t, true, strings.Contains(logger.queue[0], "[\"now"), "SendHttpMessage did not append 'now' to message on manual entry")
+	assert.Equal(t, true, strings.Contains(logger.queue[0], "[\"interval\",\"100\"]"), "SendHttpMessage did not appended 'interval' to message on manual entry")
+	log.Println(time.Millisecond)
 }
