@@ -3,6 +3,8 @@
 package logger
 
 import (
+	"log"
+	"strings"
 	"testing"
 	"time"
 
