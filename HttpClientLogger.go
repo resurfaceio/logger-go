@@ -68,7 +68,7 @@ func (clientLogger *NetHttpClientLogger) Do(req *http.Request) (resp *http.Respo
 	}
 
 	// send logging message
-	SendHttpMessage(logger, resp, resp.Request, (now.Unix() * 1000), interval)
+	SendHttpMessage(logger, resp, resp.Request, (now.Unix() * int64(time.Millisecond)), interval)
 
 	return resp, err
 }
@@ -92,7 +92,7 @@ func (clientLogger *NetHttpClientLogger) Get(url string) (resp *http.Response, e
 	}
 
 	// send logging message
-	SendHttpMessage(logger, resp, resp.Request, (now.Unix() * 1000), interval)
+	SendHttpMessage(logger, resp, resp.Request, (now.Unix() * int64(time.Millisecond)), interval)
 
 	return resp, err
 }
@@ -115,7 +115,7 @@ func (clientLogger *NetHttpClientLogger) Head(url string) (resp *http.Response, 
 	}
 
 	// send logging message
-	SendHttpMessage(logger, resp, resp.Request, (now.Unix() * 1000), interval)
+	SendHttpMessage(logger, resp, resp.Request, (now.Unix() * int64(time.Millisecond)), interval)
 
 	return resp, err
 }
@@ -138,7 +138,7 @@ func (clientLogger *NetHttpClientLogger) Post(url string, contentType string, bo
 	}
 
 	// send logging message
-	SendHttpMessage(logger, resp, resp.Request, (now.Unix() * 1000), interval)
+	SendHttpMessage(logger, resp, resp.Request, (now.Unix() * int64(time.Millisecond)), interval)
 
 	return resp, err
 }
@@ -161,7 +161,7 @@ func (clientLogger *NetHttpClientLogger) PostForm(url string, data url.Values) (
 	}
 
 	// send logging message
-	SendHttpMessage(logger, resp, resp.Request, (now.Unix() * 1000), interval)
+	SendHttpMessage(logger, resp, resp.Request, (now.Unix() * int64(time.Millisecond)), interval)
 
 	return resp, err
 }
