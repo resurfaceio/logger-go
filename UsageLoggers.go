@@ -25,7 +25,7 @@ func GetUsageLoggers() (*UsageLoggers, error) {
 	//var envError error
 	var parseError error
 	onceUsageLoggers.Do(func() {
-		//lookup returns a false bool is it fails, along with a nil value.
+		//lookup returns a false bool if it fails, along with a nil value.
 		//We can ignore this because parsebool will throw an error anyway if this fails
 		envLookup, _ := os.LookupEnv("USAGE_LOGGERS_DISABLE")
 		_bricked, err := strconv.ParseBool(envLookup)
