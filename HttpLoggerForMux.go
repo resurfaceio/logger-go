@@ -137,10 +137,12 @@ func (muxLogger HttpLoggerForMux) LogData(next http.Handler) http.Handler {
 			Body:          ioutil.NopCloser(bytes.NewBuffer(buf)),
 		}
 
+		now := time.Now()
+
 		next.ServeHTTP(&loggingWriter, r)
 
-		muxLogger.startTime = time.Now()
+		interval := time.Since(now).Milliseconds()
 
-		SendHttpMessage(muxLogger.HttpLogger, loggingWriter.loggingResp, loggingReq, muxLogger.startTime)
+		SendHttpMessage(muxLogger.HttpLogger, loggingWriter.loggingResp, loggingReq, (now.Unix() * int64(time.Millisecond)), interval)
 	})
 }
