@@ -3,7 +3,6 @@
 package logger
 
 import (
-	"strings"
 	"testing"
 	"time"
 
@@ -109,8 +108,8 @@ func TestSetsNowAndInterval(t *testing.T) {
 
 	SendHttpMessage(logger, helper.MockResponse(), helper.MockRequestWithJson(), 0, 0)
 
-	assert.Equal(t, true, strings.Contains(logger.queue[0], "[\"now"), "SendHttpMessage did not append 'now' to message on null entry")
-	assert.Equal(t, false, strings.Contains(logger.queue[0], "[\"interval"), "SendHttpMessage appended 'interval' to message on null entry")
+	assert.Contains(t, logger.queue[0], "[\"now", "SendHttpMessage did not append 'now' to message on null entry")
+	assert.NotContains(t, logger.queue[0], "[\"interval", "SendHttpMessage appended 'interval' to message on null entry")
 
 	logger, _ = NewHttpLogger(opt)
 
@@ -120,6 +119,6 @@ func TestSetsNowAndInterval(t *testing.T) {
 
 	SendHttpMessage(logger, helper.MockResponse(), helper.MockRequestWithJson(), (now.Unix() * int64(time.Millisecond)), interval)
 
-	assert.Equal(t, true, strings.Contains(logger.queue[0], "[\"now"), "SendHttpMessage did not append 'now' to message on manual entry")
-	assert.Equal(t, true, strings.Contains(logger.queue[0], "[\"interval\",\"10"), "SendHttpMessage did not append 'interval' to message on manual entry")
+	assert.Contains(t, logger.queue[0], "[\"now", "SendHttpMessage did not append 'now' to message on manual entry")
+	assert.Contains(t, logger.queue[0], "[\"interval\",\"10", "SendHttpMessage did not append 'interval' to message on manual entry")
 }
