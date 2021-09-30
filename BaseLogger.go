@@ -11,10 +11,33 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"sync/atomic"
 
 	"github.com/asaskevich/govalidator"
 )
+
+type ndjsonBundle struct {
+	buffer     strings.Builder
+	count      int
+	sendThresh int
+}
+
+type baseLogger struct {
+	agent           string
+	enableable      bool
+	enabled         bool
+	host            string
+	queue           []string
+	skipCompression bool
+	skipSubmission  bool
+	submitFailures  int64
+	submitSuccesses int64
+	url             string
+	urlParsed       *url.URL
+	version         string
+	bundle          *ndjsonBundle
+}
 
 // BaseLogger constructor
 func newBaseLogger(_agent string, _url string, _enabled interface{}, _queue []string) *baseLogger {
@@ -58,6 +81,7 @@ func newBaseLogger(_agent string, _url string, _enabled interface{}, _queue []st
 		url:             _url,
 		urlParsed:       _urlParsed,
 		version:         versionLookup(),
+		bundle:          nil,
 	}
 	return constructedBaseLogger
 }
@@ -70,11 +94,19 @@ func (logger *baseLogger) Disable() {
 	logger.enabled = false
 }
 
-/**
- * Submits JSON message to intended destination.
- */
-func (logger *baseLogger) submit(msg string) {
-	//woah congrats you submitted the message
+func (logger *baseLogger) ndjsonHandler() {
+	for {
+		if logger.bundle.count >= logger.bundle.sendThresh {
+			break
+		}
+	}
+	msg := logger.bundle.buffer.String()
+	logger.bundle = nil
+	logger.submit(msg)
+}
+
+func (logger *baseLogger) buildNdjson(msg string) {
+	log.Println("Building NDJSON message...")
 	if msg == "" || logger.skipSubmission || !logger.Enabled() {
 		//do nothing
 	} else if logger.queue != nil {
@@ -82,77 +114,96 @@ func (logger *baseLogger) submit(msg string) {
 		atomic.AddInt64(&logger.submitSuccesses, 1)
 		return
 	} else {
-
-		var submitRequest *http.Request
-		var reqError error
-
-		if !logger.skipCompression { // Compression will not be skipped
-			var body bytes.Buffer
-
-			zWriter := zlib.NewWriter(&body)
-
-			b, err := zWriter.Write([]byte(msg))
-			if err != nil || b != len([]byte(msg)) {
-				log.Fatal("error compressing log: ", err)
+		if logger.bundle == nil {
+			logger.bundle = &ndjsonBundle{
+				buffer:     strings.Builder{},
+				count:      1,
+				sendThresh: 3,
 			}
-
-			err = zWriter.Close()
-
-			if err != nil {
-				log.Fatal("error closing compression writer: ", err)
-			}
-
-			submitRequest, reqError = http.NewRequest("POST", logger.url, &body)
-
-			if reqError != nil {
-				fmt.Printf("Error creating submit request: %s", reqError.Error())
-				log.Println("Error making submit request...")
-				atomic.AddInt64(&logger.submitFailures, 1)
-				return
-			}
-
-			submitRequest.Header.Set("Content-Encoding", "deflated")
-			submitRequest.Header.Set("Content-Type", "application/json; charset=UTF-8")
-			submitRequest.Header.Set("User-Agent", "Resurface/"+logger.version+" ("+logger.agent+")")
-
-		} else { // Compression will be skipped
-			submitRequest, reqError = http.NewRequest("POST", logger.url, bytes.NewBuffer([]byte(msg)))
-
-			if reqError != nil {
-				fmt.Printf("Error creating submit request: %s", reqError.Error())
-				atomic.AddInt64(&logger.submitFailures, 1)
-				return
-			}
-
-			submitRequest.Header.Set("Content-Type", "application/json; charset=UTF-8")
-			submitRequest.Header.Set("User-Agent", "Resurface/"+logger.version+" ("+logger.agent+")")
-		}
-
-		submitResponse, err := httpLoggerClient.Do(submitRequest)
-
-		if err != nil {
-			atomic.AddInt64(&logger.submitFailures, 1)
-			return
-		}
-		if submitResponse != nil && submitResponse.StatusCode == 204 {
-			defer submitResponse.Body.Close()
-			_, err := ioutil.ReadAll(submitResponse.Body)
-
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			atomic.AddInt64(&logger.submitSuccesses, 1)
-			// log.Print("!message successfully sent to: ", logger.url, "!\n")
-			return
+			logger.bundle.buffer.WriteString(msg + "\n")
+			go logger.ndjsonHandler()
 		} else {
-			if submitResponse == nil {
-				log.Println("Response is nil")
-			}
-			atomic.AddInt64(&logger.submitFailures, 1)
-			return
+			logger.bundle.buffer.WriteString(msg + "\n")
+			logger.bundle.count += 1
 		}
 	}
+}
+
+/**
+ * Submits JSON message to intended destination.
+ */
+func (logger *baseLogger) submit(msg string) {
+
+	var submitRequest *http.Request
+	var reqError error
+
+	if !logger.skipCompression { // Compression will not be skipped
+		var body bytes.Buffer
+
+		zWriter := zlib.NewWriter(&body)
+
+		b, err := zWriter.Write([]byte(msg))
+		if err != nil || b != len([]byte(msg)) {
+			log.Fatal("error compressing log: ", err)
+		}
+
+		err = zWriter.Close()
+
+		if err != nil {
+			log.Fatal("error closing compression writer: ", err)
+		}
+
+		submitRequest, reqError = http.NewRequest("POST", logger.url, &body)
+
+		if reqError != nil {
+			fmt.Printf("Error creating submit request: %s", reqError.Error())
+			log.Println("Error making submit request...")
+			atomic.AddInt64(&logger.submitFailures, 1)
+			return
+		}
+
+		submitRequest.Header.Set("Content-Encoding", "deflated")
+		submitRequest.Header.Set("Content-Type", "application/json; charset=UTF-8")
+		submitRequest.Header.Set("User-Agent", "Resurface/"+logger.version+" ("+logger.agent+")")
+
+	} else { // Compression will be skipped
+		submitRequest, reqError = http.NewRequest("POST", logger.url, bytes.NewBuffer([]byte(msg)))
+
+		if reqError != nil {
+			fmt.Printf("Error creating submit request: %s", reqError.Error())
+			atomic.AddInt64(&logger.submitFailures, 1)
+			return
+		}
+
+		submitRequest.Header.Set("Content-Type", "application/json; charset=UTF-8")
+		submitRequest.Header.Set("User-Agent", "Resurface/"+logger.version+" ("+logger.agent+")")
+	}
+
+	submitResponse, err := httpLoggerClient.Do(submitRequest)
+
+	if err != nil {
+		atomic.AddInt64(&logger.submitFailures, 1)
+		return
+	}
+	if submitResponse != nil && submitResponse.StatusCode == 204 {
+		defer submitResponse.Body.Close()
+		_, err := ioutil.ReadAll(submitResponse.Body)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		atomic.AddInt64(&logger.submitSuccesses, 1)
+		// log.Print("!message successfully sent to: ", logger.url, "!\n")
+		return
+	} else {
+		if submitResponse == nil {
+			log.Println("Response is nil")
+		}
+		atomic.AddInt64(&logger.submitFailures, 1)
+		return
+	}
+
 }
 
 /**
@@ -185,19 +236,4 @@ func (logger *baseLogger) Enabled() bool {
 
 func (logger *baseLogger) Queue() []string {
 	return logger.queue
-}
-
-type baseLogger struct {
-	agent           string
-	enableable      bool
-	enabled         bool
-	host            string
-	queue           []string
-	skipCompression bool
-	skipSubmission  bool
-	submitFailures  int64
-	submitSuccesses int64
-	url             string
-	urlParsed       *url.URL
-	version         string
 }
