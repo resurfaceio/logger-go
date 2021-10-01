@@ -106,7 +106,6 @@ func (logger *baseLogger) ndjsonHandler() {
 }
 
 func (logger *baseLogger) buildNdjson(msg string) {
-	log.Println("Building NDJSON message...")
 	if msg == "" || logger.skipSubmission || !logger.Enabled() {
 		//do nothing
 	} else if logger.queue != nil {
@@ -118,7 +117,7 @@ func (logger *baseLogger) buildNdjson(msg string) {
 			logger.bundle = &ndjsonBundle{
 				buffer:     strings.Builder{},
 				count:      1,
-				sendThresh: 3,
+				sendThresh: 5,
 			}
 			logger.bundle.buffer.WriteString(msg + "\n")
 			go logger.ndjsonHandler()
@@ -175,7 +174,7 @@ func (logger *baseLogger) submit(msg string) {
 			return
 		}
 
-		submitRequest.Header.Set("Content-Type", "application/json; charset=UTF-8")
+		submitRequest.Header.Set("Content-Type", "application/ndjson; charset=UTF-8")
 		submitRequest.Header.Set("User-Agent", "Resurface/"+logger.version+" ("+logger.agent+")")
 	}
 
@@ -194,7 +193,7 @@ func (logger *baseLogger) submit(msg string) {
 		}
 
 		atomic.AddInt64(&logger.submitSuccesses, 1)
-		// log.Print("!message successfully sent to: ", logger.url, "!\n")
+		log.Print("Message successfully sent to: ", logger.url, "\n")
 		return
 	} else {
 		if submitResponse == nil {
@@ -225,7 +224,7 @@ func hostLookup() string {
 }
 
 func versionLookup() string {
-	version := "2.3.0"
+	version := "1.2.0"
 	return version
 }
 
