@@ -74,7 +74,6 @@ func (logger *HttpLogger) submitIfPassing(msg [][]string) {
 	msgString := string(byteStr)
 	msgString = strings.Replace(msgString, "\\u003c", "<", -1)
 	msgString = strings.Replace(msgString, "\\u003e", ">", -1)
-	log.Println("Got here!")
 	logger.buildNdjson(msgString)
 }
 
