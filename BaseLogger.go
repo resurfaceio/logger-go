@@ -13,6 +13,7 @@ import (
 	"os"
 	"strings"
 	"sync/atomic"
+	"time"
 
 	"github.com/asaskevich/govalidator"
 )
@@ -21,6 +22,7 @@ type ndjsonBundle struct {
 	buffer     strings.Builder
 	count      int
 	sendThresh int
+	full       bool
 }
 
 type baseLogger struct {
@@ -81,7 +83,12 @@ func newBaseLogger(_agent string, _url string, _enabled interface{}, _queue []st
 		url:             _url,
 		urlParsed:       _urlParsed,
 		version:         versionLookup(),
-		bundle:          nil,
+		bundle: &ndjsonBundle{
+			buffer:     strings.Builder{},
+			count:      0,
+			sendThresh: 1,
+			full:       true,
+		},
 	}
 	return constructedBaseLogger
 }
@@ -95,13 +102,16 @@ func (logger *baseLogger) Disable() {
 }
 
 func (logger *baseLogger) ndjsonHandler() {
+	start := time.Now()
 	for {
-		if logger.bundle.count >= logger.bundle.sendThresh {
+		if (logger.bundle.count >= logger.bundle.sendThresh) || (time.Since(start)).Milliseconds() >= 1000 {
 			break
 		}
 	}
+	logger.bundle.full = true
 	msg := logger.bundle.buffer.String()
-	logger.bundle = nil
+	msg = msg[0:(len(msg) - 1)]
+	// log.Print(msg, "testing**********************")
 	logger.submit(msg)
 }
 
@@ -113,13 +123,15 @@ func (logger *baseLogger) buildNdjson(msg string) {
 		atomic.AddInt64(&logger.submitSuccesses, 1)
 		return
 	} else {
-		if logger.bundle == nil {
+		if logger.bundle.full {
 			logger.bundle = &ndjsonBundle{
 				buffer:     strings.Builder{},
-				count:      1,
-				sendThresh: 5,
+				count:      0,
+				sendThresh: logger.bundle.sendThresh,
+				full:       false,
 			}
 			logger.bundle.buffer.WriteString(msg + "\n")
+			logger.bundle.count += 1
 			go logger.ndjsonHandler()
 		} else {
 			logger.bundle.buffer.WriteString(msg + "\n")
@@ -193,7 +205,7 @@ func (logger *baseLogger) submit(msg string) {
 		}
 
 		atomic.AddInt64(&logger.submitSuccesses, 1)
-		log.Print("Message successfully sent to: ", logger.url, "\n")
+		// log.Print("Message successfully sent to: ", logger.url, "\n")
 		return
 	} else {
 		if submitResponse == nil {
