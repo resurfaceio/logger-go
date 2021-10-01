@@ -6,6 +6,7 @@
 *.dylib
 *.xml
 *.iml
+*.vscode
 
 # Test binary, built with `go test -c`
 *.test
