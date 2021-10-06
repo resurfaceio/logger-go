@@ -13,17 +13,9 @@ import (
 	"os"
 	"strings"
 	"sync/atomic"
-	"time"
 
 	"github.com/asaskevich/govalidator"
 )
-
-type ndjsonBundle struct {
-	buffer     strings.Builder
-	count      int
-	sendThresh int
-	full       bool
-}
 
 type baseLogger struct {
 	agent           string
@@ -38,7 +30,7 @@ type baseLogger struct {
 	url             string
 	urlParsed       *url.URL
 	version         string
-	bundle          *ndjsonBundle
+	workerExists    bool
 }
 
 // BaseLogger constructor
@@ -83,12 +75,7 @@ func newBaseLogger(_agent string, _url string, _enabled interface{}, _queue []st
 		url:             _url,
 		urlParsed:       _urlParsed,
 		version:         versionLookup(),
-		bundle: &ndjsonBundle{
-			buffer:     strings.Builder{},
-			count:      0,
-			sendThresh: 1,
-			full:       true,
-		},
+		workerExists:    false,
 	}
 	return constructedBaseLogger
 }
@@ -101,21 +88,56 @@ func (logger *baseLogger) Disable() {
 	logger.enabled = false
 }
 
-func (logger *baseLogger) ndjsonHandler() {
-	start := time.Now()
-	for {
-		if (logger.bundle.count >= logger.bundle.sendThresh) || (time.Since(start)).Milliseconds() >= 1000 {
-			break
+// func (logger *baseLogger) worker(msgChan chan string) {
+// 	count := 0
+// 	thresh := 3
+
+// 	var msg string
+// 	buffer := strings.Builder{}
+// 	for count < thresh {
+// 		msg = <-msgChan
+// 		count += 1
+// 		if count+1 == thresh {
+// 			buffer.WriteString(msg)
+// 		} else {
+// 			buffer.WriteString(msg + "\n")
+// 		}
+// 	}
+// 	logger.workerExists = false
+// 	close(msgChan)
+// 	bundle := buffer.String()
+// 	logger.submit(bundle)
+// }
+
+func (logger *baseLogger) dispatcher() chan string {
+	msgChan := make(chan string, 5)
+	go func() {
+		thresh := 3
+		buffer := strings.Builder{}
+
+		for {
+			log.Println(len(msgChan))
+			if len(msgChan) >= thresh {
+				logger.workerExists = false
+				i := 0
+				for i < len(msgChan) {
+					msg := <-msgChan
+					if i+1 == len(msgChan) {
+						buffer.WriteString(msg)
+					} else {
+						buffer.WriteString(msg + "\n")
+					}
+				}
+				bundle := buffer.String()
+				logger.submit(bundle)
+			}
 		}
-	}
-	logger.bundle.full = true
-	msg := logger.bundle.buffer.String()
-	msg = msg[0:(len(msg) - 1)]
-	// log.Print(msg, "testing**********************")
-	logger.submit(msg)
+	}()
+	logger.workerExists = true
+	return msgChan
 }
 
-func (logger *baseLogger) buildNdjson(msg string) {
+func (logger *baseLogger) ndjsonHandler(msg string) {
 	if msg == "" || logger.skipSubmission || !logger.Enabled() {
 		//do nothing
 	} else if logger.queue != nil {
@@ -123,19 +145,12 @@ func (logger *baseLogger) buildNdjson(msg string) {
 		atomic.AddInt64(&logger.submitSuccesses, 1)
 		return
 	} else {
-		if logger.bundle.full {
-			logger.bundle = &ndjsonBundle{
-				buffer:     strings.Builder{},
-				count:      0,
-				sendThresh: logger.bundle.sendThresh,
-				full:       false,
-			}
-			logger.bundle.buffer.WriteString(msg + "\n")
-			logger.bundle.count += 1
-			go logger.ndjsonHandler()
+		var msgChan chan string
+		if !logger.workerExists {
+			msgChan = logger.dispatcher()
+			msgChan <- msg
 		} else {
-			logger.bundle.buffer.WriteString(msg + "\n")
-			logger.bundle.count += 1
+			msgChan <- msg
 		}
 	}
 }
