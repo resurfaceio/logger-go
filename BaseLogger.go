@@ -30,7 +30,7 @@ type baseLogger struct {
 	url             string
 	urlParsed       *url.URL
 	version         string
-	msgChannel      chan string
+	msgQueue        chan string
 }
 
 // BaseLogger constructor
@@ -75,8 +75,11 @@ func newBaseLogger(_agent string, _url string, _enabled interface{}, _queue []st
 		url:             _url,
 		urlParsed:       _urlParsed,
 		version:         versionLookup(),
-		msgChannel:      nil,
+		msgQueue:        make(chan string, 1000),
 	}
+
+	go constructedBaseLogger.dispatcher()
+
 	return constructedBaseLogger
 }
 
@@ -88,53 +91,33 @@ func (logger *baseLogger) Disable() {
 	logger.enabled = false
 }
 
-// func (logger *baseLogger) worker(msgChan chan string) {
-// 	count := 0
-// 	thresh := 3
+func (logger *baseLogger) worker(buffer strings.Builder) {
+	bundle := buffer.String()
+	logger.submit(bundle)
+}
 
-// 	var msg string
-// 	buffer := strings.Builder{}
-// 	for count < thresh {
-// 		msg = <-msgChan
-// 		count += 1
-// 		if count+1 == thresh {
-// 			buffer.WriteString(msg)
-// 		} else {
-// 			buffer.WriteString(msg + "\n")
-// 		}
-// 	}
-// 	close(msgChan)
-// 	bundle := buffer.String()
-// 	logger.submit(bundle)
-// }
-
-func (logger *baseLogger) dispatcher() chan string {
-	thresh := 3
-	msgChan := make(chan string, thresh)
-	go func() {
-		buffer := strings.Builder{}
-		for {
-			// start := time.Now()
-			// || (time.Since(start).Milliseconds() >= 1000 && len(msgChan) > 0)
-			if len(msgChan) == thresh {
-				logger.msgChannel = nil
-				for n := 0; n < thresh; n++ {
-					msg := <-msgChan
-					if len(msgChan) == 0 {
-						buffer.WriteString(msg)
-					} else {
-						buffer.WriteString(msg + "\n")
-					}
-				}
-				break
-			} else if len(msgChan) > thresh {
-				log.Fatal("channel contains more items than send threshold")
+func (logger *baseLogger) dispatcher() {
+	thresh := 100
+	buffer := strings.Builder{}
+	var msg string
+	for {
+		select {
+		case msg = <-logger.msgQueue:
+			if buffer.Len() != thresh {
+				buffer.WriteString(msg + "\n")
+			} else {
+				buffer.WriteString(msg)
+				go logger.worker(buffer)
+				buffer = strings.Builder{}
+			}
+		default:
+			if buffer.Len() != 0 {
+				go logger.worker(buffer)
+				buffer = strings.Builder{}
 			}
 		}
-		bundle := buffer.String()
-		logger.submit(bundle)
-	}()
-	return msgChan
+	}
+
 }
 
 func (logger *baseLogger) ndjsonHandler(msg string) {
@@ -145,13 +128,7 @@ func (logger *baseLogger) ndjsonHandler(msg string) {
 		atomic.AddInt64(&logger.submitSuccesses, 1)
 		return
 	} else {
-		select {
-		case logger.msgChannel <- msg:
-			//do nothing
-		default:
-			logger.msgChannel = logger.dispatcher()
-			logger.msgChannel <- msg
-		}
+		logger.msgQueue <- msg
 	}
 }
 
@@ -209,7 +186,10 @@ func (logger *baseLogger) submit(msg string) {
 
 	if err != nil {
 		atomic.AddInt64(&logger.submitFailures, 1)
-		log.Println(err)
+		// log.Println(err)
+		if atomic.LoadInt64(&logger.submitFailures)%10 == 0 {
+			log.Print("IT FAILED")
+		}
 		return
 	}
 	if submitResponse != nil && submitResponse.StatusCode == 204 {
@@ -221,7 +201,10 @@ func (logger *baseLogger) submit(msg string) {
 		}
 
 		atomic.AddInt64(&logger.submitSuccesses, 1)
-		log.Print("Message successfully sent to: ", logger.url, "\n")
+		// log.Print("Message successfully sent to: ", logger.url, "\n")
+		if atomic.LoadInt64(&logger.submitSuccesses)%1000 == 0 {
+			log.Printf("\n\n%v REQUESTS SUCESSFULLY SENT\n\n", atomic.LoadInt64(&logger.submitSuccesses))
+		}
 		return
 	} else {
 		if submitResponse == nil {
@@ -229,6 +212,9 @@ func (logger *baseLogger) submit(msg string) {
 		}
 		log.Println("I don't know what happened...")
 		atomic.AddInt64(&logger.submitFailures, 1)
+		if atomic.LoadInt64(&logger.submitFailures)%10 == 0 {
+			log.Print("IT FAILED :(")
+		}
 		return
 	}
 
