@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"sync"
 	"sync/atomic"
 
 	"github.com/asaskevich/govalidator"
@@ -31,6 +32,7 @@ type baseLogger struct {
 	urlParsed       *url.URL
 	version         string
 	msgQueue        chan string
+	submitMutex     sync.Mutex
 }
 
 // BaseLogger constructor
@@ -76,6 +78,7 @@ func newBaseLogger(_agent string, _url string, _enabled interface{}, _queue []st
 		urlParsed:       _urlParsed,
 		version:         versionLookup(),
 		msgQueue:        make(chan string, 1000),
+		submitMutex:     sync.Mutex{},
 	}
 
 	go constructedBaseLogger.dispatcher()
@@ -92,12 +95,14 @@ func (logger *baseLogger) Disable() {
 }
 
 func (logger *baseLogger) worker(buffer strings.Builder) {
+	logger.submitMutex.Lock()
 	bundle := buffer.String()
 	logger.submit(bundle)
+	logger.submitMutex.Unlock()
 }
 
 func (logger *baseLogger) dispatcher() {
-	thresh := 100
+	thresh := 10
 	buffer := strings.Builder{}
 	var msg string
 	for {
