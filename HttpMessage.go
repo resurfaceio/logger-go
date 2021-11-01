@@ -155,7 +155,12 @@ func appendRequestParams(message *[][]string, req *http.Request) {
 func appendRequestHeaders(message *[][]string, req *http.Request) {
 	reqHeaders := req.Header
 	for headerName, headerValues := range reqHeaders {
-		name := "request_header:" + strings.ToLower(headerName)
+		var name string
+		if strings.HasPrefix(headerName, "X-RSRFC-CUSTOM") {
+			name = "custom_field:" + strings.ToLower(headerName[15:])
+		} else {
+			name = "request_header:" + strings.ToLower(headerName)
+		}
 		for _, value := range headerValues {
 			*message = append(*message, []string{name, value})
 		}
