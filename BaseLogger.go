@@ -171,7 +171,7 @@ func (logger *baseLogger) submit(msg string) {
 		}
 
 		submitRequest.Header.Set("Content-Encoding", "deflated")
-		submitRequest.Header.Set("Content-Type", "application/json; charset=UTF-8")
+		submitRequest.Header.Set("Content-Type", "application/ndjson; charset=UTF-8")
 		submitRequest.Header.Set("User-Agent", "Resurface/"+logger.version+" ("+logger.agent+")")
 
 	} else { // Compression will be skipped
