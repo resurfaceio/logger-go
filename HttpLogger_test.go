@@ -106,7 +106,7 @@ func TestSetsNowAndInterval(t *testing.T) {
 
 	logger, _ := NewHttpLogger(opt)
 
-	SendHttpMessage(logger, helper.MockResponse(), helper.MockRequestWithJson(), 0, 0)
+	SendHttpMessage(logger, helper.MockResponse(), helper.MockRequestWithJson(), 0, 0, nil)
 
 	assert.Contains(t, logger.queue[0], "[\"now", "SendHttpMessage did not append 'now' to message on null entry")
 	assert.NotContains(t, logger.queue[0], "[\"interval", "SendHttpMessage appended 'interval' to message on null entry")
@@ -117,7 +117,7 @@ func TestSetsNowAndInterval(t *testing.T) {
 	time.Sleep(100 * time.Millisecond)
 	interval := time.Since(now).Milliseconds()
 
-	SendHttpMessage(logger, helper.MockResponse(), helper.MockRequestWithJson(), (now.Unix() * int64(time.Millisecond)), interval)
+	SendHttpMessage(logger, helper.MockResponse(), helper.MockRequestWithJson(), (now.Unix() * int64(time.Millisecond)), interval, nil)
 
 	assert.Contains(t, logger.queue[0], "[\"now", "SendHttpMessage did not append 'now' to message on manual entry")
 	assert.Contains(t, logger.queue[0], "[\"interval\",\"1", "SendHttpMessage did not append 'interval' to message on manual entry")
