@@ -77,7 +77,7 @@ func newBaseLogger(_agent string, _url string, _enabled interface{}, _queue []st
 		url:             _url,
 		urlParsed:       _urlParsed,
 		version:         versionLookup(),
-		msgQueue:        make(chan string, 1000),
+		msgQueue:        make(chan string, 10000),
 		submitMutex:     sync.Mutex{},
 	}
 
@@ -102,7 +102,8 @@ func (logger *baseLogger) worker(buffer strings.Builder) {
 }
 
 func (logger *baseLogger) dispatcher() {
-	thresh := 10
+	// Threshold that determines when NDJSON bundles are sent to Resurface
+	thresh := 100
 	buffer := strings.Builder{}
 	var msg string
 	for {
@@ -191,10 +192,6 @@ func (logger *baseLogger) submit(msg string) {
 
 	if err != nil {
 		atomic.AddInt64(&logger.submitFailures, 1)
-		// log.Println(err)
-		if atomic.LoadInt64(&logger.submitFailures)%10 == 0 {
-			log.Print("IT FAILED")
-		}
 		return
 	}
 	if submitResponse != nil && submitResponse.StatusCode == 204 {
@@ -206,10 +203,6 @@ func (logger *baseLogger) submit(msg string) {
 		}
 
 		atomic.AddInt64(&logger.submitSuccesses, 1)
-		// log.Print("Message successfully sent to: ", logger.url, "\n")
-		if atomic.LoadInt64(&logger.submitSuccesses)%1000 == 0 {
-			log.Printf("\n\n%v REQUESTS SUCESSFULLY SENT\n\n", atomic.LoadInt64(&logger.submitSuccesses))
-		}
 		return
 	} else {
 		if submitResponse == nil {
@@ -217,9 +210,6 @@ func (logger *baseLogger) submit(msg string) {
 		}
 		log.Println("I don't know what happened...")
 		atomic.AddInt64(&logger.submitFailures, 1)
-		if atomic.LoadInt64(&logger.submitFailures)%10 == 0 {
-			log.Print("IT FAILED :(")
-		}
 		return
 	}
 
