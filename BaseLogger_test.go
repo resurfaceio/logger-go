@@ -80,7 +80,7 @@ func TestHasValidVersion(t *testing.T) {
 	assert.Greater(t, len(version), 0)
 	//replacement of the java "startswith" assertion
 	//won't work rn since version is a dummy string
-	assert.True(t, strings.HasPrefix(version, "2."))
+	assert.True(t, strings.HasPrefix(version, "3."))
 	assert.NotContains(t, version, "\\")
 	assert.NotContains(t, version, "\"")
 	assert.NotContains(t, version, "'")
