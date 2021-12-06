@@ -60,11 +60,15 @@ func NewHttpLogger(options Options) (*HttpLogger, error) {
 	return logger, nil
 }
 
-func (logger *HttpLogger) submitIfPassing(msg [][]string) {
+func (logger *HttpLogger) submitIfPassing(msg [][]string, customFields map[string]string) {
 	msg = logger.rules.apply(msg)
 
 	if msg == nil {
 		return
+	}
+
+	for key, val := range customFields {
+		msg = append(msg, []string{key, val})
 	}
 
 	msg = append(msg, []string{"host", logger.host})
