@@ -81,7 +81,7 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 }
 
 // SendHttpMessage(l *HttpLogger, resp *http.Response, req *http.Request, now int64, interval int64) Uses logger l to send a log of the given resp and req to the loggers url
-// here, now refers to the time at which the request was received and interval corresponds to the time between request and response
+// here, now refers to the time at which the request was received and interval corresponds to the time between request and response. customFields are used to pass custom information fields through the logger to Resurface.
 func SendHttpMessage(logger *HttpLogger, resp *http.Response, req *http.Request, now int64, interval int64, customFields map[string]string) {
 
 	if !logger.Enabled() {
@@ -118,6 +118,8 @@ func SendHttpMessage(logger *HttpLogger, resp *http.Response, req *http.Request,
 	// append interval noting the time between request and response
 	if interval != 0 {
 		message = append(message, []string{"interval", strconv.FormatInt(interval, 10)})
+	} else {
+		message = append(message, []string{"interval", strconv.FormatInt(1, 10)})
 	}
 
 	logger.submitIfPassing(message, customFields)
