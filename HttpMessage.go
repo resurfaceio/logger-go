@@ -116,9 +116,9 @@ func SendHttpMessage(logger *HttpLogger, resp *http.Response, req *http.Request,
 	message = append(message, []string{"now", strconv.FormatInt(now, 10)})
 
 	// append interval noting the time between request and response
-	if interval != 0 {
+	if interval >= 1 {
 		message = append(message, []string{"interval", strconv.FormatInt(interval, 10)})
-	} else {
+	} else if interval < 1 {
 		message = append(message, []string{"interval", strconv.FormatInt(1, 10)})
 	}
 
