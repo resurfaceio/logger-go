@@ -53,8 +53,6 @@ func newBaseLogger(_agent string, _url string, _enabled interface{}, _queue []st
 	if _url != "" {
 		_urlParsed, parsingError = url.ParseRequestURI(_url)
 		isUrl := govalidator.IsURL(_url)
-		// fmt.Println("parsed url: " + _urlParsed.String())
-		// fmt.Println("is Url:" + strconv.FormatBool(isUrl))
 		if parsingError != nil || !isUrl {
 			_url = ""
 			_urlParsed = nil
@@ -147,6 +145,7 @@ func (logger *baseLogger) submit(msg string) {
 	var reqError error
 
 	if !logger.skipCompression { // Compression will not be skipped
+
 		var body bytes.Buffer
 
 		zWriter := zlib.NewWriter(&body)
@@ -176,6 +175,7 @@ func (logger *baseLogger) submit(msg string) {
 		submitRequest.Header.Set("User-Agent", "Resurface/"+logger.version+" ("+logger.agent+")")
 
 	} else { // Compression will be skipped
+
 		submitRequest, reqError = http.NewRequest("POST", logger.url, bytes.NewBuffer([]byte(msg)))
 
 		if reqError != nil {
@@ -208,7 +208,7 @@ func (logger *baseLogger) submit(msg string) {
 		if submitResponse == nil {
 			log.Println("Response is nil")
 		}
-		log.Println("I don't know what happened...")
+		log.Println("An unknown error occurred")
 		atomic.AddInt64(&logger.submitFailures, 1)
 		return
 	}
