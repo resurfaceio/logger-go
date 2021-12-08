@@ -187,7 +187,7 @@ func TestSubmitsToDeniedUrl(t *testing.T) {
 		assert.True(t, logger.enableable)
 		assert.True(t, logger.Enabled())
 		logger.ndjsonHandler("{}")
-		time.Sleep(2 * time.Second) // Added because with async worker the test was checking for fail/seccess values before worker could actually try sending the request.
+		time.Sleep(2 * time.Second) // Added because with async worker the test was checking for fail/success values before worker could actually try sending the request.
 		assert.Equal(t, int64(1), logger.submitFailures)
 		assert.Equal(t, int64(0), logger.submitSuccesses)
 	}
