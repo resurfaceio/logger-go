@@ -5,6 +5,7 @@ package logger
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -80,7 +81,7 @@ func TestHasValidVersion(t *testing.T) {
 	assert.Greater(t, len(version), 0)
 	//replacement of the java "startswith" assertion
 	//won't work rn since version is a dummy string
-	assert.True(t, strings.HasPrefix(version, "2."))
+	assert.True(t, strings.HasPrefix(version, "3."))
 	assert.NotContains(t, version, "\\")
 	assert.NotContains(t, version, "\"")
 	assert.NotContains(t, version, "'")
@@ -140,7 +141,7 @@ func TestSubmitsToDemoUrl(t *testing.T) {
 	message = append(message, []string{"now", string(fmt.Sprint(helper.mockNow))})
 	message = append(message, []string{"protocol", "https"})
 	marshalled, _ := json.Marshal(message)
-	logger.submit(string(marshalled))
+	logger.ndjsonHandler(string(marshalled))
 	assert.Equal(t, int64(0), logger.submitFailures)
 	assert.Equal(t, int64(1), logger.submitSuccesses)
 }
@@ -156,7 +157,7 @@ func TestSubmitsToDemoUrlViaHttp(t *testing.T) {
 	message = append(message, []string{"now", string(fmt.Sprint(helper.mockNow))})
 	message = append(message, []string{"protocol", "http"})
 	marshalled, _ := json.Marshal(message)
-	logger.submit(string(marshalled))
+	logger.ndjsonHandler(string(marshalled))
 	assert.Equal(t, int64(0), logger.submitFailures)
 	assert.Equal(t, int64(1), logger.submitSuccesses)
 }
@@ -174,7 +175,7 @@ func TestSubmitsToDemoUrlWihoutCompression(t *testing.T) {
 	message = append(message, []string{"protocol", "https"})
 	message = append(message, []string{"skip_compression", "true"})
 	marshalled, _ := json.Marshal(message)
-	logger.submit(string(marshalled))
+	logger.ndjsonHandler(string(marshalled))
 	assert.Equal(t, int64(0), logger.submitFailures)
 	assert.Equal(t, int64(1), logger.submitSuccesses)
 }
@@ -185,7 +186,13 @@ func TestSubmitsToDeniedUrl(t *testing.T) {
 		logger := newBaseLogger(helper.mockAgent, url, true, nil)
 		assert.True(t, logger.enableable)
 		assert.True(t, logger.Enabled())
-		logger.submit("{}")
+		logger.ndjsonHandler("{}")
+		time.Sleep(5 * time.Second) // Added because with async worker the test was checking for fail/success values before worker could actually try sending the request.
+		fmt.Print("\n***************")
+		fmt.Print(logger.submitFailures)
+		fmt.Print(" | ")
+		fmt.Print(logger.submitSuccesses)
+		fmt.Print("***************\n")
 		assert.Equal(t, int64(1), logger.submitFailures)
 		assert.Equal(t, int64(0), logger.submitSuccesses)
 	}
@@ -200,9 +207,9 @@ func TestSubmitsToQueue(t *testing.T) {
 	assert.True(t, logger.enableable)
 	assert.True(t, logger.Enabled())
 	assert.Equal(t, 0, len(logger.queue))
-	logger.submit("{}")
+	logger.ndjsonHandler("{}")
 	assert.Equal(t, 1, len(logger.queue))
-	logger.submit("{}")
+	logger.ndjsonHandler("{}")
 	assert.Equal(t, 2, len(logger.queue))
 	assert.Equal(t, int64(0), logger.submitFailures)
 	assert.Equal(t, int64(2), logger.submitSuccesses)

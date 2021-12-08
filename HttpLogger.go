@@ -60,11 +60,15 @@ func NewHttpLogger(options Options) (*HttpLogger, error) {
 	return logger, nil
 }
 
-func (logger *HttpLogger) submitIfPassing(msg [][]string) {
+func (logger *HttpLogger) submitIfPassing(msg [][]string, customFields map[string]string) {
 	msg = logger.rules.apply(msg)
 
 	if msg == nil {
 		return
+	}
+
+	for key, val := range customFields {
+		msg = append(msg, []string{key, val})
 	}
 
 	msg = append(msg, []string{"host", logger.host})
@@ -74,7 +78,7 @@ func (logger *HttpLogger) submitIfPassing(msg [][]string) {
 	msgString := string(byteStr)
 	msgString = strings.Replace(msgString, "\\u003c", "<", -1)
 	msgString = strings.Replace(msgString, "\\u003e", ">", -1)
-	logger.submit(msgString)
+	logger.ndjsonHandler(msgString)
 }
 
 // global client to avoid opening a new connection for every request

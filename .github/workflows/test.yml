@@ -5,9 +5,11 @@ on:
   push:
     branches:
       - master
+      - dev
   pull_request:
     branches:
       - master
+      - dev
 
 jobs:
   test:
@@ -21,16 +23,16 @@ jobs:
     runs-on: ${{ matrix.platform }}
 
     steps:
-    # install Go and check it out to
-    # the container for running the tests
-    - name: Install go
-      uses: actions/setup-go@v2
-      with:
-        go-version: ${{ matrix.go-version }}
+      # install Go and check it out to
+      # the container for running the tests
+      - name: Install go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
 
-    - name: Checkout Code
-      uses: actions/checkout@v2
+      - name: Checkout Code
+        uses: actions/checkout@v2
 
-    # run the tests from the following project path
-    - name: Test
-      run: go test ./...
+      # run the tests from the following project path
+      - name: Test
+        run: go test ./...

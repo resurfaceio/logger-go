@@ -143,6 +143,6 @@ func (muxLogger HttpLoggerForMux) LogData(next http.Handler) http.Handler {
 
 		interval := time.Since(now).Milliseconds()
 
-		SendHttpMessage(muxLogger.HttpLogger, loggingWriter.loggingResp, loggingReq, (now.UnixNano() / int64(time.Millisecond)), interval)
+		SendHttpMessage(muxLogger.HttpLogger, loggingWriter.loggingResp, loggingReq, (now.UnixNano() / int64(time.Millisecond)), interval, nil)
 	})
 }
