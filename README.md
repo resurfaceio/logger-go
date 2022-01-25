@@ -19,7 +19,7 @@ pkg.go.dev [documentation](https://pkg.go.dev/github.com/resurfaceio/logger-go/v
 In the same directory as your project's `go.mod` and `go.sum` files.
 
 ```
-go get github.com/resurfaceio/logger-go
+go get github.com/resurfaceio/logger-go/v3
 ```
 
 <a name="resurface_setup"/>
@@ -51,7 +51,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/resurfaceio/logger-go" //<----- 1
+	"github.com/resurfaceio/logger-go/v3" //<----- 1
 )
 
 
@@ -59,7 +59,7 @@ func main() {
 	router := mux.NewRouter()
   
 	options := logger.Options{ //<----- 2
-		Rules:   "include_debug\n",
+		Rules:   "include debug\n",
 		Url:     "http://localhost:7701/message",
 		Enabled: true,
 		Queue:   nil,
