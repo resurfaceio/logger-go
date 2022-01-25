@@ -1,7 +1,7 @@
 # resurfaceio-logger-go
 Easily log API requests and responses to your own [system of record](https://resurface.io).
 
-pkg.go.dev [documentation](https://pkg.go.dev/github.com/resurfaceio/logger-go) for this Go module.
+pkg.go.dev [documentation](https://pkg.go.dev/github.com/resurfaceio/logger-go/v3) for this Go module.
 
 ## Contents
 
@@ -25,17 +25,18 @@ go get github.com/resurfaceio/logger-go
 <a name="resurface_setup"/>
 
 ## Setup the Resurface app
-*You can also find these instructions [here](https://resurface.io/installation).*
 
 If you don't already have Docker installed, you can do so by following these [instructions](https://docs.docker.com/get-docker/).
+
+Register [here](https://resurface.io/installation) to get access to the Resurface private container registry.
 
 From the terminal, run this Docker command to start up the Resurface app using docker.
 
 ```
-docker run -d --name resurface -p 4000:4000 -p 4001:4001 -p 4002:4002 resurfaceio/resurface:2.3.1
+docker run -v resurface:/db -d --name resurface -p 7700:7700 -p 7701:7701 --cpus=4 --memory=8g docker.resurface.io/release/resurface:3.0.34
 ```
 
-Point your browser at `http://localhost:4002`.
+Point your browser at `http://localhost:7700`.
 
 
 <a name="logging_from_mux"/>
@@ -59,7 +60,7 @@ func main() {
   
 	options := logger.Options{ //<----- 2
 		Rules:   "include_debug\n",
-		Url:     "http://localhost:4001/message",
+		Url:     "http://localhost:7701/message",
 		Enabled: true,
 		Queue:   nil,
 	}
