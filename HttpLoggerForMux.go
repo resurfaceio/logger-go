@@ -5,7 +5,6 @@ package logger
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -89,11 +88,10 @@ func (w *loggingResponseWriter) Write(body []byte) (int, error) { // uses origin
 		} else {
 			loggedBodyBytes = []byte(fmt.Sprintf("{ overflowed: %d }", size))
 		}
-		var loggedBody io.ReadCloser = ioutil.NopCloser(bytes.NewBuffer(loggedBodyBytes))
 
 		w.loggingResp = &http.Response{
 			Header:     w.loggingResp.Header,
-			Body:       loggedBody,
+			Body:       ioutil.NopCloser(bytes.NewBuffer(loggedBodyBytes)),
 			StatusCode: w.loggingResp.StatusCode, // Status Code 200 will only be overriden if writeHeader is called
 		}
 	}
