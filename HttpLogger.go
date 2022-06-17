@@ -68,7 +68,7 @@ func (logger *HttpLogger) submitIfPassing(msg [][]string, customFields map[strin
 	}
 
 	for key, val := range customFields {
-		msg = append(msg, []string{key, val})
+		msg = append(msg, []string{"custom_field:" + key, val})
 	}
 
 	msg = append(msg, []string{"host", logger.host})
