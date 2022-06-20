@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+var LIMIT int = 1024 * 1024
+
 type (
 	// HttpLoggerForMux defines a struct used to log specifically gorilla/mux apps
 	HttpLoggerForMux struct {
@@ -70,20 +72,29 @@ func NewHttpLoggerForMuxOptions(options Options) (*HttpLoggerForMux, error) {
 // This is only used internarnally by response writer.
 func (w *loggingResponseWriter) Write(body []byte) (int, error) { // uses original response writer to write and then logs the size
 
-	w.loggingResp = &http.Response{
-		Header:     w.loggingResp.Header,
-		Body:       ioutil.NopCloser(bytes.NewBuffer(body)),
-		StatusCode: w.loggingResp.StatusCode, // Status Code 200 will only be overriden if writeHeader is called
-	}
-
 	size, err := w.ResponseWriter.Write(body)
 
-	defer func() {
-		w.loggingResp.Header = w.ResponseWriter.Header()
-		if len(body) > 0 {
-			w.loggingResp.Header.Set("Content-Length", fmt.Sprint(len(body)))
+	if err == nil {
+		defer func() {
+			w.loggingResp.Header = w.ResponseWriter.Header()
+			if size > 0 {
+				w.loggingResp.Header.Set("Content-Length", fmt.Sprint(size))
+			}
+		}()
+
+		var loggedBodyBytes []byte
+		if size < LIMIT {
+			loggedBodyBytes = body
+		} else {
+			loggedBodyBytes = []byte(fmt.Sprintf("{ overflowed: %d }", size))
 		}
-	}()
+
+		w.loggingResp = &http.Response{
+			Header:     w.loggingResp.Header,
+			Body:       ioutil.NopCloser(bytes.NewBuffer(loggedBodyBytes)),
+			StatusCode: w.loggingResp.StatusCode, // Status Code 200 will only be overriden if writeHeader is called
+		}
+	}
 
 	return size, err
 }
