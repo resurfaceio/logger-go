@@ -68,17 +68,13 @@ func (uLogger *UsageLoggers) IsEnabled() bool {
 * Returns url to use by default.
  */
 func (uLogger *UsageLoggers) UrlByDefault() string {
-	url := ""
-	err := godotenv.Load()
+	err := godotenv.Overload()
 	if err != nil {
-		log.Println("env file not loaded, logger disabled: ", err)
-	} else {
-		var exists bool
-		url, exists = os.LookupEnv("USAGE_LOGGERS_URL")
-
-		if url == "" || !exists {
-			log.Println("USAGE_LOGGERS_URL env var not set or does not exist; logger dissabled")
-		}
+		log.Println(".env file not loaded: ", err)
+	}
+	url := os.Getenv("USAGE_LOGGERS_URL")
+	if url == "" {
+		log.Println("USAGE_LOGGERS_URL env var not set or does not exist; logger disabled")
 	}
 	return url
 }
