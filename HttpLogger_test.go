@@ -27,6 +27,7 @@ func TestCreateInstance(t *testing.T) {
 
 func TestCreateInstanceWithURLByDefault(t *testing.T) {
 
+	defer os.Setenv("USAGE_LOGGERS_URL", os.Getenv("USAGE_LOGGERS_URL"))
 	url := "http://whatever.com:8123/some/path"
 	os.Setenv("USAGE_LOGGERS_URL", url)
 	//Creating a single instance
@@ -37,7 +38,6 @@ func TestCreateInstanceWithURLByDefault(t *testing.T) {
 	assert.False(t, HttpLogger.Enabled())
 	assert.Nil(t, HttpLogger.queue)
 	assert.Equal(t, url, HttpLogger.url)
-
 }
 
 func TestCreateMultipleInstances(t *testing.T) {
