@@ -25,8 +25,11 @@ func TestProvidesDefaultUrl(t *testing.T) {
 	if _, err := os.Stat(".env"); err == nil {
 		t.Skip(".env file exists")
 	}
+	key := "USAGE_LOGGERS_URL"
+	defer os.Setenv(key, os.Getenv(key))
+
 	url := "http://thisurlisnotfrom.env/file"
-	os.Setenv("USAGE_LOGGERS_URL", url)
+	os.Setenv(key, url)
 	uLogger, error := GetUsageLoggers()
 	if error != nil {
 		assert.Falsef(t, true, "GetUsageLoggers failed: %s", error.Error())

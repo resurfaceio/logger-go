@@ -26,9 +26,11 @@ func TestCreateInstance(t *testing.T) {
 }
 
 func TestCreateInstanceWithURLByDefault(t *testing.T) {
+	key := "USAGE_LOGGERS_URL"
+	defer os.Setenv(key, os.Getenv(key))
 
 	url := "http://whatever.com:8123/some/path"
-	os.Setenv("USAGE_LOGGERS_URL", url)
+	os.Setenv(key, url)
 	//Creating a single instance
 	HttpLogger, _ := NewHttpLogger(Options{})
 	assert.NotNil(t, HttpLogger)
@@ -37,7 +39,6 @@ func TestCreateInstanceWithURLByDefault(t *testing.T) {
 	assert.False(t, HttpLogger.Enabled())
 	assert.Nil(t, HttpLogger.queue)
 	assert.Equal(t, url, HttpLogger.url)
-
 }
 
 func TestCreateMultipleInstances(t *testing.T) {
