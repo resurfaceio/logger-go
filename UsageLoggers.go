@@ -73,7 +73,8 @@ func (uLogger *UsageLoggers) UrlByDefault() string {
 	if err != nil {
 		log.Println("env file not loaded, logger disabled: ", err)
 	} else {
-		url, exists := os.LookupEnv("USAGE_LOGGERS_URL")
+		var exists bool
+		url, exists = os.LookupEnv("USAGE_LOGGERS_URL")
 
 		if url == "" || !exists {
 			log.Println("USAGE_LOGGERS_URL env var not set or does not exist; logger dissabled")
