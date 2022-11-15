@@ -1,6 +1,6 @@
 // © 2016-2022 Resurface Labs Inc.
 
-//Resurface Go Logger provides tools to log API requests and responses from different Golang web frameworks to a complete API system of record. (https://resurface.io)
+// Resurface Go Logger provides tools to log API requests and responses from different Golang web frameworks to a complete API system of record. (https://resurface.io)
 package logger
 
 import (
@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-//Options struct is passed to a "NewLogger" function to specifiy the desired configuration of the logger to be created.
+// Options struct is passed to a "NewLogger" function to specifiy the desired configuration of the logger to be created.
 type Options struct {
 	//Rules defines the rules that will be applied to the logger.
 	Rules string
@@ -29,7 +29,7 @@ type Options struct {
 
 const httpLoggerAgent string = "HttpLogger.go"
 
-//HttpLogger is the struct contains a pointer to a baseLogger instance and a set of rules used to define the behaviour of the logger.
+// HttpLogger is the struct contains a pointer to a baseLogger instance and a set of rules used to define the behaviour of the logger.
 type HttpLogger struct {
 	*baseLogger
 	rules *HttpRules
@@ -68,7 +68,7 @@ func (logger *HttpLogger) submitIfPassing(msg [][]string, customFields map[strin
 	}
 
 	for key, val := range customFields {
-		msg = append(msg, []string{"custom_field:" + key, val})
+		msg = append(msg, []string{"custom_field:" + strings.ToLower(key), strings.ToLower(val)})
 	}
 
 	msg = append(msg, []string{"host", logger.host})
