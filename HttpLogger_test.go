@@ -3,6 +3,7 @@
 package logger
 
 import (
+	"os"
 	"testing"
 	"time"
 
@@ -21,6 +22,21 @@ func TestCreateInstance(t *testing.T) {
 	assert.False(t, HttpLogger.Enabled())
 	assert.Nil(t, HttpLogger.queue)
 	assert.Equal(t, "", HttpLogger.url)
+
+}
+
+func TestCreateInstanceWithURLByDefault(t *testing.T) {
+
+	url := "http://whatever.com:8123/some/path"
+	os.Setenv("USAGE_LOGGERS_URL", url)
+	//Creating a single instance
+	HttpLogger, _ := NewHttpLogger(Options{})
+	assert.NotNil(t, HttpLogger)
+	assert.Equal(t, httpLoggerAgent, HttpLogger.agent)
+	assert.False(t, HttpLogger.enableable)
+	assert.False(t, HttpLogger.Enabled())
+	assert.Nil(t, HttpLogger.queue)
+	assert.Equal(t, url, HttpLogger.url)
 
 }
 
