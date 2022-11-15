@@ -33,6 +33,8 @@ type baseLogger struct {
 	version         string
 	msgQueue        chan string
 	submitMutex     sync.Mutex
+	poisonChan      chan string
+	wg              sync.WaitGroup
 }
 
 // BaseLogger constructor
@@ -77,8 +79,10 @@ func newBaseLogger(_agent string, _url string, _enabled interface{}, _queue []st
 		version:         versionLookup(),
 		msgQueue:        make(chan string, 10000),
 		submitMutex:     sync.Mutex{},
+		poisonChan:      make(chan string, 1),
 	}
 
+	constructedBaseLogger.wg.Add(1)
 	go constructedBaseLogger.dispatcher()
 
 	return constructedBaseLogger
@@ -93,6 +97,7 @@ func (logger *baseLogger) Disable() {
 }
 
 func (logger *baseLogger) worker(buffer strings.Builder) {
+	defer logger.wg.Done()
 	logger.submitMutex.Lock()
 	bundle := buffer.String()
 	logger.submit(bundle)
@@ -100,10 +105,12 @@ func (logger *baseLogger) worker(buffer strings.Builder) {
 }
 
 func (logger *baseLogger) dispatcher() {
+	defer logger.wg.Done()
 	// Threshold that determines when NDJSON bundles are sent to Resurface
 	thresh := 100
 	buffer := strings.Builder{}
-	var msg string
+	var msg, poisonpill string
+dispatch:
 	for {
 		select {
 		case msg = <-logger.msgQueue:
@@ -111,17 +118,22 @@ func (logger *baseLogger) dispatcher() {
 				buffer.WriteString(msg + "\n")
 			} else {
 				buffer.WriteString(msg)
+				logger.wg.Add(1)
 				go logger.worker(buffer)
 				buffer = strings.Builder{}
 			}
+		case poisonpill = <-logger.poisonChan:
 		default:
 			if buffer.Len() != 0 {
+				logger.wg.Add(1)
 				go logger.worker(buffer)
 				buffer = strings.Builder{}
+			}
+			if poisonpill == "POISON PILL" {
+				break dispatch
 			}
 		}
 	}
-
 }
 
 func (logger *baseLogger) ndjsonHandler(msg string) {
@@ -213,6 +225,11 @@ func (logger *baseLogger) submit(msg string) {
 		return
 	}
 
+}
+
+func (logger *baseLogger) stopDispatcher() {
+	logger.poisonChan <- "POISON PILL"
+	logger.wg.Wait()
 }
 
 /**

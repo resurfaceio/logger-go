@@ -5,7 +5,6 @@ package logger
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -107,7 +106,7 @@ func TestPerformsEnablingWhenExpected(t *testing.T) {
 	assert.True(t, logger.Enabled())
 }
 
-//needs some more stuff in the baselogger class for this to compile
+// needs some more stuff in the baselogger class for this to compile
 func TestSkipsEnablingForInvalidUrls(t *testing.T) {
 	helper := newTestHelper()
 	for _, url := range helper.mockURLSinvalid {
@@ -187,7 +186,7 @@ func TestSubmitsToDeniedUrl(t *testing.T) {
 		assert.True(t, logger.enableable)
 		assert.True(t, logger.Enabled())
 		logger.ndjsonHandler("{}")
-		time.Sleep(5 * time.Second) // Added because with async worker the test was checking for fail/success values before worker could actually try sending the request.
+		logger.stopDispatcher()
 		assert.Equal(t, int64(1), logger.submitFailures)
 		assert.Equal(t, int64(0), logger.submitSuccesses)
 	}
