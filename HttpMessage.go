@@ -17,13 +17,6 @@ import (
 func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 	var message [][]string
 
-	if req.Body != nil {
-		err := req.ParseForm()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-
 	method := req.Method
 	if method != "" {
 		message = append(message, []string{"request_method", method})
@@ -33,35 +26,46 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 	// message = append(message, []string{"request_protocol", req.Proto})
 
 	var fullUrl string
-
-	//Not sure of a better way to do this at the moment - 6/24/21
-	//check for other tls proto
-	if req.TLS == nil {
-		fullUrl = "http://" + req.Host + req.URL.Path
+	if req.URL.IsAbs() {
+		fullUrl = req.RequestURI
 	} else {
-		fullUrl = "https://" + req.Host + req.URL.Path
+		//Not sure of a better way to do this at the moment - 6/24/21
+		//check for other tls proto
+		if req.TLS == nil {
+			fullUrl = "http://" + req.Host + req.URL.Path
+		} else {
+			fullUrl = "https://" + req.Host + req.URL.Path
+		}
+		// ---
 	}
-	// ---
 
 	message = append(message, []string{"request_url", fullUrl})
 	message = append(message, []string{"response_code", fmt.Sprint(resp.StatusCode)})
 
-	appendRequestHeaders(&message, req)
-	appendRequestParams(&message, req)
-	appendResponseHeaders(&message, resp)
-
 	if req.Body != nil {
 		bytes, err := ioutil.ReadAll(req.Body)
-
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		err = req.Body.Close()
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		// Unescaped semicolons in querystring make ParseForm return a non-nil error
+		req.URL.RawQuery = strings.ReplaceAll(req.URL.RawQuery, ";", "%3B")
+		err = req.ParseForm()
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		message = append(message, []string{"request_body", string(bytes)})
 	}
+
+	appendRequestHeaders(&message, req)
+	appendRequestParams(&message, req)
+	appendResponseHeaders(&message, resp)
 
 	if resp.Body != nil {
 		bytes, err := ioutil.ReadAll(resp.Body)
