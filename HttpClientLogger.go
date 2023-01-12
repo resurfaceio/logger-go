@@ -1,4 +1,4 @@
-// © 2016-2022 Resurface Labs Inc.
+// © 2016-2023 Resurface Labs Inc.
 
 package logger
 
@@ -9,15 +9,15 @@ import (
 	"time"
 )
 
-//NetHttpClientLogger defines a struct used to log specifically from the client side of API interactions using the net/http package.
+// NetHttpClientLogger defines a struct used to log specifically from the client side of API interactions using the net/http package.
 type NetHttpClientLogger struct {
 	http.Client
 	HttpLogger *HttpLogger
 }
 
-//NewNetHttpClientLoggerOptions() takes 1 argument of type logger.Options and returns 2 objects; a pointer to an instance of an NetHttpClientLogger struct and an error.
-//The NetHttpClientLogger returned by this function has the given options applied.
-//If there is no error, the error value returned will be nil.
+// NewNetHttpClientLoggerOptions() takes 1 argument of type logger.Options and returns 2 objects; a pointer to an instance of an NetHttpClientLogger struct and an error.
+// The NetHttpClientLogger returned by this function has the given options applied.
+// If there is no error, the error value returned will be nil.
 func NewNetHttpClientLoggerOptions(options Options) (*NetHttpClientLogger, error) {
 	HttpLogger, err := NewHttpLogger(options)
 	if err != nil {
@@ -28,9 +28,9 @@ func NewNetHttpClientLoggerOptions(options Options) (*NetHttpClientLogger, error
 	}, nil
 }
 
-//NewNetHttpClientLogger() takes no arguments and returns 2 objects; a pointer to an instance of an NetHttpClientLogger struct and an error.
-//The NetHttpClientLogger returned by this function has the default options applied.
-//If there is no error, the error value returned will be nil.
+// NewNetHttpClientLogger() takes no arguments and returns 2 objects; a pointer to an instance of an NetHttpClientLogger struct and an error.
+// The NetHttpClientLogger returned by this function has the default options applied.
+// If there is no error, the error value returned will be nil.
 func NewNetHttpClientLogger() (*NetHttpClientLogger, error) {
 	options := Options{}
 	HttpLogger, err := NewHttpLogger(options)
@@ -46,12 +46,12 @@ func (logger *NetHttpClientLogger) Logger() *HttpLogger {
 	return logger.HttpLogger
 }
 
-//net.http.Client.CloseIdleConnections() wrapper
+// net.http.Client.CloseIdleConnections() wrapper
 func (clientLogger *NetHttpClientLogger) CloseIdleConnections() {
 	clientLogger.Client.CloseIdleConnections()
 }
 
-//net.http.Client.Do wrapper with logging
+// net.http.Client.Do wrapper with logging
 func (clientLogger *NetHttpClientLogger) Do(req *http.Request) (resp *http.Response, err error) {
 	// start time for logging interval
 	logger := clientLogger.HttpLogger

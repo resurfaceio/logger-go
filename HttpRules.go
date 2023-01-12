@@ -1,4 +1,4 @@
-// © 2016-2022 Resurface Labs Inc.
+// © 2016-2023 Resurface Labs Inc.
 
 package logger
 
@@ -17,6 +17,7 @@ var onceHttpRules sync.Once
 
 /*
 package global containing default:
+
 	debugRules
 	standardRules
 	strictRules
@@ -191,7 +192,7 @@ func (rules *HttpRules) DefaultRules() string {
 	return rules.defaultRules
 }
 
-//*HttpRules.SetDefaultRules(r string) sets the default rules of the logger to rule(s) r
+// *HttpRules.SetDefaultRules(r string) sets the default rules of the logger to rule(s) r
 func (rules *HttpRules) SetDefaultRules(r string) {
 	regex := regexp.MustCompile(`(?m)^\s*include default\s*$`)
 	rules.defaultRules = regex.ReplaceAllString(r, "")

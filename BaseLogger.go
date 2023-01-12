@@ -1,4 +1,4 @@
-// © 2016-2022 Resurface Labs Inc.
+// © 2016-2023 Resurface Labs Inc.
 
 package logger
 
