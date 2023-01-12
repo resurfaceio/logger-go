@@ -4,6 +4,7 @@ package logger
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,6 +13,21 @@ import (
 	"strings"
 	"time"
 )
+
+// helper function to read body bytes
+func readBody(rBody io.ReadCloser) (string, error) {
+	bytes, err := ioutil.ReadAll(rBody)
+	if err != nil {
+		return "", err
+	}
+
+	err = rBody.Close()
+	if err != nil {
+		return "", err
+	}
+
+	return string(bytes), err
+}
 
 // create Http message for any logger
 func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
@@ -43,24 +59,18 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 	message = append(message, []string{"response_code", fmt.Sprint(resp.StatusCode)})
 
 	if req.Body != nil {
-		bytes, err := ioutil.ReadAll(req.Body)
+		requestBody, err := readBody(req.Body)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
-
-		err = req.Body.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
+		message = append(message, []string{"request_body", requestBody})
 
 		// Unescaped semicolons in querystring make ParseForm return a non-nil error
 		req.URL.RawQuery = strings.ReplaceAll(req.URL.RawQuery, ";", "%3B")
 		err = req.ParseForm()
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
-
-		message = append(message, []string{"request_body", string(bytes)})
 	}
 
 	appendRequestHeaders(&message, req)
@@ -68,16 +78,11 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 	appendResponseHeaders(&message, resp)
 
 	if resp.Body != nil {
-		bytes, err := ioutil.ReadAll(resp.Body)
-
+		responseBody, err := readBody(resp.Body)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
-		err = resp.Body.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-		message = append(message, []string{"response_body", string(bytes)})
+		message = append(message, []string{"response_body", responseBody})
 	}
 
 	return message

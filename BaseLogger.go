@@ -164,13 +164,17 @@ func (logger *baseLogger) submit(msg string) {
 
 		b, err := zWriter.Write([]byte(msg))
 		if err != nil || b != len([]byte(msg)) {
-			log.Fatal("error compressing log: ", err)
+			log.Println("error compressing log: ", err)
+			atomic.AddInt64(&logger.submitFailures, 1)
+			return
 		}
 
 		err = zWriter.Close()
 
 		if err != nil {
-			log.Fatal("error closing compression writer: ", err)
+			log.Println("error closing compression writer: ", err)
+			atomic.AddInt64(&logger.submitFailures, 1)
+			return
 		}
 
 		submitRequest, reqError = http.NewRequest("POST", logger.url, &body)
@@ -211,7 +215,7 @@ func (logger *baseLogger) submit(msg string) {
 		_, err := ioutil.ReadAll(submitResponse.Body)
 
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 
 		atomic.AddInt64(&logger.submitSuccesses, 1)

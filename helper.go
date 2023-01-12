@@ -36,17 +36,18 @@ type helper struct {
 
 var testHelper *helper
 
-//This is a rough outline.
-//I am thinking we need to cover the requests rather than the responses.
-//MockGetRequest covers a get request to compare against loggin.
-//https://appdividend.com/2019/12/02/golang-http-example-get-post-http-requests-in-golang/
-func (testHelper *helper) MockGetRequest() http.Request {
+// This is a rough outline.
+// I am thinking we need to cover the requests rather than the responses.
+// MockGetRequest covers a get request to compare against loggin.
+// https://appdividend.com/2019/12/02/golang-http-example-get-post-http-requests-in-golang/
+func (testHelper *helper) MockGetRequest() (request http.Request, err error) {
 	resp, err := http.Get(testHelper.demoURL)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return
 	}
-	request := resp.Request
-	return *request
+	request = *resp.Request
+	return
 }
 
 // func MockDoRequest() http.Request {
@@ -57,72 +58,75 @@ func (testHelper *helper) MockGetRequest() http.Request {
 // 	return *request
 // }
 
-func (testHelper *helper) MockHeadRequest() http.Request {
+func (testHelper *helper) MockHeadRequest() (request http.Request, err error) {
 	resp, err := http.Head(testHelper.demoURL)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return
 	}
-	request := resp.Request
-	return *request
+	request = *resp.Request
+	return
 }
 
-func (testHelper *helper) MockPostRequest() http.Request {
+func (testHelper *helper) MockPostRequest() (request http.Request, err error) {
 	resp, err := http.Post(testHelper.demoURL, "html", bytes.NewBuffer([]byte(testHelper.mockJSON)))
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return
 	}
-	request := resp.Request
-	return *request
+	request = *resp.Request
+	return
 }
 
-func (testHelper *helper) MockPostFormRequest() http.Request {
+func (testHelper *helper) MockPostFormRequest() (request http.Request, err error) {
 	form := url.Values{}
 	form.Add("username", "resurfaceio")
 	resp, err := http.PostForm(testHelper.demoURL, form)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return
 	}
-	request := resp.Request
-	return *request
+	request = *resp.Request
+	return
 }
 
-func (h *helper) MockRequestWithJson() *http.Request {
+func (h *helper) MockRequestWithJson() (request *http.Request) {
 	// request, _ := http.NewRequest("POST", h.mockURL, requestBody)
 	// request.Header.Add("Content-Type", "Application/JSON")
 	// request.PostForm.Add("message", "{ \"hello\" : \"world\" }")
 	requestBody, _ := json.Marshal(h.mockJSON)
-	request, _ := http.NewRequest("POST", h.mockURL, bytes.NewBuffer(requestBody))
+	request, _ = http.NewRequest("POST", h.mockURL, bytes.NewBuffer(requestBody))
 	request.Header.Add("content-type", "Application/JSON")
-	return request
+	return
 }
 
-func (h *helper) MockRequestWithJson2() *http.Request {
-	request := h.MockRequestWithJson()
+func (h *helper) MockRequestWithJson2() (request *http.Request) {
+	request = h.MockRequestWithJson()
 	request.Header.Add("ABC", "123")
 	request.Header.Add("A", "1")
 	request.Header.Add("A", "2")
 	request.Header.Add("ABC", "123")
 	request.Header.Add("ABC", "234")
-	return request
+	return
 }
 
-func (h *helper) MockResponse() *http.Response {
-	response := http.Response{
+func (h *helper) MockResponse() (response *http.Response) {
+	response = &http.Response{
 		Body:   ioutil.NopCloser(bytes.NewBufferString(h.mockHTML)),
 		Header: map[string][]string{},
 	}
-	return &response
+	return
 }
 
-func (h *helper) MockResponseWithHtml() *http.Response {
-	response := h.MockResponse()
+func (h *helper) MockResponseWithHtml() (response *http.Response) {
+	response = h.MockResponse()
 	response.StatusCode = 200
 	response.Header.Add("content-type", "text/html; charset=utf-8")
 	response.Request = h.MockRequestWithJson2()
-	return response
+	return
 }
 
-//https://golang.org/pkg/encoding/json/#example_Unmarshal
+// https://golang.org/pkg/encoding/json/#example_Unmarshal
 func parseable(msg string) bool {
 	if msg == "" || !strings.HasPrefix(msg, "[") || !strings.HasSuffix(msg, "]") || strings.Contains(msg, "[]") || strings.Contains(msg, ",,") {
 		return false
