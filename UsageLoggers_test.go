@@ -34,7 +34,7 @@ func TestProvidesDefaultUrl(t *testing.T) {
 	if error != nil {
 		assert.Falsef(t, true, "GetUsageLoggers failed: %s", error.Error())
 	}
-	//compare to empty string because there is no nil string in go
+	//compare to hard-coded string assigned to url above
 	assert.Equal(t, url, uLogger.UrlByDefault())
 }
 
@@ -46,6 +46,6 @@ func TestProvidesDefaultUrlFromFile(t *testing.T) {
 	if error != nil {
 		assert.Falsef(t, true, "GetUsageLoggers failed: %s", error.Error())
 	}
-	//compare to empty string because there is no nil string in go
+	//compare to hard-coded string that must also be set inside a .env file
 	assert.Equal(t, "http://thisurlisfrom.env/file", uLogger.UrlByDefault())
 }
