@@ -139,7 +139,7 @@ func parseable(msg string) bool {
 	return json.Valid([]byte(msg))
 }
 
-func newTestHelper() (testHelper *helper) {
+func newTestHelper() *helper {
 	helperOnce.Do(func() {
 		testHelper = &helper{
 			demoURL: "https://demo.resurface.io/ping",
@@ -183,5 +183,5 @@ func newTestHelper() (testHelper *helper) {
 		}
 	})
 
-	return
+	return testHelper
 }
