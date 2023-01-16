@@ -164,34 +164,19 @@ func appendRequestParams(message *[][]string, req *http.Request) {
 * Adds request headers to message.
  */
 func appendRequestHeaders(message *[][]string, req *http.Request) {
-	addressInHeaders := false
 	reqHeaders := req.Header
 	for headerName, headerValues := range reqHeaders {
-		lowerHeaderName := strings.ToLower(headerName)
-		name := "request_header:" + lowerHeaderName
+		name := "request_header:" + strings.ToLower(headerName)
 		for _, value := range headerValues {
 			*message = append(*message, []string{name, value})
 		}
+	}
 
-		if !addressInHeaders {
-			if lowerHeaderName == "x-forwarded-for" ||
-				lowerHeaderName == "forwarded-for" ||
-				lowerHeaderName == "forwarded" ||
-				lowerHeaderName == "cf-connecting-ip" ||
-				lowerHeaderName == "fastly-client-ip" ||
-				lowerHeaderName == "true-client-ip" {
-				addressInHeaders = true
-			} else if lowerHeaderName == "x-forwarded" ||
-				lowerHeaderName == "x-client-ip" ||
-				lowerHeaderName == "x-real-ip" ||
-				lowerHeaderName == "x-cluster-client-ip" {
-				*message = append(*message, []string{"request_header: x-forwarded-for", reqHeaders.Get(headerName)})
-				addressInHeaders = true
-			}
+	if req.RemoteAddr != "" {
+		addr := req.RemoteAddr
+		if idx := strings.Index(addr, ":"); idx != -1 {
+			addr = addr[:idx]
 		}
+		*message = append(*message, []string{"request_header:x-forwarded-for", addr})
 	}
-	if !addressInHeaders && req.RemoteAddr != "" {
-		*message = append(*message, []string{"request_header: x-forwarded-for", req.RemoteAddr})
-	}
-
 }
