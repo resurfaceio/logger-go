@@ -1,5 +1,5 @@
 # resurfaceio-logger-go
-Easily log API requests and responses to your own [system of record](https://resurface.io).
+Easily log API requests and responses to your own <a href="https://resurface.io">security data lake</a>.
 
 [![Go project version](https://badge.fury.io/go/github.com%2Fresurfaceio%2Flogger-go.svg)](https://badge.fury.io/go/github.com%2Fresurfaceio%2Flogger-go)
 [![CodeFactor](https://www.codefactor.io/repository/github/resurfaceio/logger-go/badge)](https://www.codefactor.io/repository/github/resurfaceio/logger-go)
