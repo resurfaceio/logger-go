@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/brotli/go/cbrotli"
+	"github.com/andybalholm/brotli"
 )
 
 // helper function to read body bytes
@@ -37,7 +37,7 @@ func readBody(rBody io.ReadCloser, encoding string) (string, error) {
 			return "", err
 		}
 	case "br":
-		reader = cbrotli.NewReader(rBody)
+		reader = brotli.NewReader(rBody)
 	case "", "identity":
 		reader = rBody
 	default:
