@@ -7,6 +7,7 @@ import (
 	"compress/zlib"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"regexp"
@@ -44,7 +45,7 @@ func readBody(rBody io.ReadCloser, encoding string) (string, error) {
 	}
 	reader = io.LimitReader(reader, bodyLimit)
 
-	bodyBytes, err := io.ReadAll(reader)
+	bodyBytes, err := ioutil.ReadAll(reader)
 	if err != nil {
 		return "", nil
 	}
