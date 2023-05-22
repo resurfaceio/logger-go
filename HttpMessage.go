@@ -3,30 +3,53 @@
 package logger
 
 import (
+	"compress/gzip"
+	"compress/zlib"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/google/brotli/go/cbrotli"
 )
 
 // helper function to read body bytes
-func readBody(rBody io.ReadCloser) (string, error) {
-	bytes, err := ioutil.ReadAll(rBody)
+func readBody(rBody io.ReadCloser, encoding string) (string, error) {
+	const bodyLimit = 1024 * 1024
+	var reader io.Reader
+	var err error
+	defer rBody.Close()
+
+	switch encoding {
+	case "gzip", "x-gzip":
+		reader, err = gzip.NewReader(rBody)
+		if err != nil {
+			return "", err
+		}
+	case "deflate", "zlib", "deflated":
+		reader, err = zlib.NewReader(rBody)
+		if err != nil {
+			return "", err
+		}
+	case "br":
+		reader = cbrotli.NewReader(rBody)
+	case "", "identity":
+		reader = rBody
+	default:
+		return "", io.ErrNoProgress
+	}
+	reader = io.LimitReader(reader, bodyLimit)
+
+	bodyBytes, err := io.ReadAll(reader)
 	if err != nil {
-		return "", err
+		return "", nil
 	}
 
-	err = rBody.Close()
-	if err != nil {
-		return "", err
-	}
-
-	return string(bytes), err
+	return string(bodyBytes), err
 }
 
 // create Http message for any logger
@@ -59,7 +82,11 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 	message = append(message, []string{"response_code", fmt.Sprint(resp.StatusCode)})
 
 	if req.Body != nil {
-		requestBody, err := readBody(req.Body)
+		var contentEncoding string
+		if encodings, encoded := req.Header["Content-Encoding"]; encoded {
+			contentEncoding = encodings[0]
+		}
+		requestBody, err := readBody(req.Body, contentEncoding)
 		if err != nil {
 			log.Println(err)
 		}
@@ -78,7 +105,11 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 	appendResponseHeaders(&message, resp)
 
 	if resp.Body != nil {
-		responseBody, err := readBody(resp.Body)
+		var contentEncoding string
+		if encodings, encoded := resp.Header["Content-Encoding"]; encoded {
+			contentEncoding = encodings[0]
+		}
+		responseBody, err := readBody(resp.Body, contentEncoding)
 		if err != nil {
 			log.Println(err)
 		}
