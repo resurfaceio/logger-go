@@ -17,22 +17,24 @@ import (
 	"github.com/liamg/magic"
 )
 
-// helper function to read body bytes
+// helper function to read and decode body bytes
 func readBody(rBody io.ReadCloser, contentEncoding *string) (string, error) {
+	// Don't read anything if there's nothing to read
+	if rBody == nil || rBody == http.NoBody {
+		return "", nil
+	}
 	// Overflow cap wrapper
 	const bodyLimit = 1024 * 1024
 	reader := io.LimitReader(rBody, bodyLimit)
 	defer rBody.Close()
 
-	// Slice reader into two: 'magicReader' containing magic bytes and 'reader' with the rest of the unread bytes
-	var magicReader *bytes.Reader
-	reader, magicReader, err := updateMagicReader(reader, magicReader)
-	if magicReader == nil || (err != nil && err != io.EOF) {
+	var magicReader bytes.Reader
+	var magicCheckEnabled bool = true
+
+	magicEncoding, err := checkMagic(&reader, &magicReader)
+	if err != nil && err != magic.ErrUnknown {
 		return "", err
 	}
-
-	// Get encoding from magic bytes
-	magicEncoding, err := checkMagicBytes(magicReader)
 	knownMagicIsPresent := err == nil
 
 	// Considering both the Content-Encoding header and the magic encoding, there are four combinations:
@@ -49,65 +51,74 @@ func readBody(rBody io.ReadCloser, contentEncoding *string) (string, error) {
 	//     - Payload could be compressed as br (misconfig), or
 	//     - Payload could be some other file type
 
+	// TODO: Content-Encoding Header and Magic Bytes mismatch check
 	// var encodingMismatch bool
 	if contentEncoding != nil {
 		encodings := strings.Split(*contentEncoding, ",")
 
 		for i := len(encodings) - 1; i >= 0; i-- {
 			encoding := strings.Trim(encodings[i], " ")
-			reader, err = wrapReader(&reader, magicReader, encoding, magicEncoding)
-			// // Header-magic mismatch check
-			// if knownMagicIsPresent {
+			reader, err, magicCheckEnabled = wrapReader(&reader, &magicReader, encoding, magicEncoding)
+			// TODO: CEH-MB mismatch check
+			// if knownMagicIsPresent && !encodingMismatch {
 			// 	// 1. Content-Encoding header is present and there are known magic bytes
 			// 	encodingMismatch = encodings[i] != magicEncoding
 			// } else {
-			// 	// 2. Content-Encoding header is present and there are *not* known magic bytes
-			// 	if err == nil {
-			// 		encodingMismatch = encodings[i] != "" || encodings[i] != "identity"
-			// 	} else {
-			// 		if encodingMismatch = !(encodings[i] == "br" && err.IsBrotli); encodingMismatch {
-			// 			return "", nil
-			// 		}
-			// 	}
+			// 2. Content-Encoding header is present and there are *not* known magic bytes
+			// encodingMismatch = encodings[i] != "" || encodings[i] != "identity" || !(encodings[i] == "br" && isBrotli)
 			// }
 			if err != nil {
 				return "", nil
 			}
 
-			reader, magicReader, err = updateMagicReader(reader, magicReader)
-			if magicReader == nil || (err != nil && err != io.EOF) {
-				return "", err
+			if magicCheckEnabled {
+				magicEncoding, err = checkMagic(&reader, &magicReader)
+				if err != nil && err != magic.ErrUnknown {
+					return "", err
+				}
+			} else {
+				magicEncoding, err = "", nil
 			}
 
-			magicEncoding, err = checkMagicBytes(magicReader)
-			if err != nil && err != magic.ErrUnknown {
-				log.Println(err)
-			}
-			// knownMagicIsPresent = err == nil
+			// Can be used in mismatch check, but also checks if there's still magic after there are no more encodings from CEH (i.e. misconfig)
+			// magicCheckEnabled -> the moment we know magic bytes are wrong, no further magic checks
+			knownMagicIsPresent = magicCheckEnabled && err == nil
 		}
 
-	} else if knownMagicIsPresent {
+	}
+
+	if knownMagicIsPresent {
 		// 3. Content-Encoding header is *not* present but there are known magic bytes
 		for knownMagicIsPresent {
 			// guess magic bytes for each iteration
-			reader, err = newWrap(&reader, magicReader, magicEncoding)
+			reader, err, magicCheckEnabled = wrapReader(&reader, &magicReader, magicEncoding, magicEncoding)
 			if err != nil {
 				return "", err
 			}
 
-			reader, magicReader, err = updateMagicReader(reader, magicReader)
-			if magicReader == nil || (err != nil && err != io.EOF) {
-				return "", err
+			if magicCheckEnabled {
+				magicEncoding, err = checkMagic(&reader, &magicReader)
+				if err != nil && err != magic.ErrUnknown {
+					return "", err
+				}
+			} else {
+				magicEncoding, err = "", nil
 			}
 
-			magicEncoding, err = checkMagicBytes(magicReader)
-			knownMagicIsPresent = err == nil
+			knownMagicIsPresent = magicCheckEnabled && err == nil
 		}
 	} else {
 		// 4. Content-Encoding header is *not* present and there are *not* known magic bytes
-		// It might be too expensive to check for br given that a brotli check requires reading all bytes. Then, decompression would be attempted for all uncompressed payloads
-		// If payload contains something other than gzip, deflate (zlib), zstd, compress (lzw), br, or text, reading shouldn't be attempted. Not sure how to check for this, though.
-		// Because of this, every payload is assumed to be uncompressed (identity) at this last combination (for now)
+		// It might be too expensive to check for br given that a brotli check requires reading all bytes
+		// Thus, br decompression would be attempted even for all uncompressed payloads
+		// If payload contains something other than gzip, deflate (zlib), zstd, compress (lzw), br, or text, reading shouldn't be attempted
+		// Because of this, every payload is assumed to be uncompressed (identity) at this last combination (i.e. brotliFallbackEnabled is false for now)
+		if brotliFallbackEnabled {
+			reader, err = newWrap(&reader, &magicReader, "br")
+			if reader == nil {
+				return "", err
+			}
+		}
 	}
 
 	bodyBytes, err := ioutil.ReadAll(reader)

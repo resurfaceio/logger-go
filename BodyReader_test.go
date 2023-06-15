@@ -99,6 +99,29 @@ func TestIdentityPlainText(t *testing.T) {
 
 	req := MockGetNoBodyRequest()
 	res := MockGetPlainTextResponse(&req)
+	res.Header.Add("Content-Encoding", "identity")
+
+	SendHttpMessage(logger, &res, &req, 0, 0, nil)
+	msgMap := retrieveLastMessage(t, logger)
+
+	assert.Equal(t, expectedBody, msgMap["response_body"])
+
+	res = MockGetPlainTextResponse(&req)
+	res.Header.Add("Content-Encoding", "")
+
+	SendHttpMessage(logger, &res, &req, 0, 0, nil)
+	msgMap = retrieveLastMessage(t, logger)
+
+	assert.Equal(t, expectedBody, msgMap["response_body"])
+}
+
+func TestIdentityPlainTextNoHeader(t *testing.T) {
+	logger := setup()
+
+	expectedBody := string(bodies["plain"])
+
+	req := MockGetNoBodyRequest()
+	res := MockGetPlainTextResponse(&req)
 
 	SendHttpMessage(logger, &res, &req, 0, 0, nil)
 	msgMap := retrieveLastMessage(t, logger)
@@ -107,6 +130,29 @@ func TestIdentityPlainText(t *testing.T) {
 }
 
 func TestIdentityJSON(t *testing.T) {
+	logger := setup()
+
+	expectedBody := string(bodies["json"])
+
+	req := MockGetNoBodyRequest()
+	res := MockGetJSONResponse(&req)
+	res.Header.Add("Content-Encoding", "identity")
+
+	SendHttpMessage(logger, &res, &req, 0, 0, nil)
+	msgMap := retrieveLastMessage(t, logger)
+
+	assert.Equal(t, expectedBody, msgMap["response_body"])
+
+	res = MockGetJSONResponse(&req)
+	res.Header.Add("Content-Encoding", "")
+
+	SendHttpMessage(logger, &res, &req, 0, 0, nil)
+	msgMap = retrieveLastMessage(t, logger)
+
+	assert.Equal(t, expectedBody, msgMap["response_body"])
+}
+
+func TestIdentityJSONNoHeader(t *testing.T) {
 	logger := setup()
 
 	expectedBody := string(bodies["json"])
@@ -142,6 +188,29 @@ func TestDeflate(t *testing.T) {
 	assert.Equal(t, expectedBody, msgMap["response_body"])
 }
 
+func TestDeflateNoHeader(t *testing.T) {
+	logger := setup()
+
+	decoded, err := zlib.NewReader(bytes.NewReader(bodies["deflate"]))
+	if err != nil {
+		log.Panicln(err)
+	}
+	decodedBytes, err := ioutil.ReadAll(decoded)
+	if err != nil {
+		log.Panicln(err)
+	}
+	expectedBody := string(decodedBytes)
+
+	req := MockGetNoBodyRequest()
+	res := MockGetDeflateResponse(&req)
+
+	res.Header.Del("Content-Encoding")
+	SendHttpMessage(logger, &res, &req, 0, 0, nil)
+	msgMap := retrieveLastMessage(t, logger)
+
+	assert.Equal(t, expectedBody, msgMap["response_body"])
+}
+
 func TestGzip(t *testing.T) {
 	logger := setup()
 
@@ -158,6 +227,28 @@ func TestGzip(t *testing.T) {
 	req := MockGetNoBodyRequest()
 	res := MockGetGzipResponse(&req)
 
+	SendHttpMessage(logger, &res, &req, 0, 0, nil)
+	msgMap := retrieveLastMessage(t, logger)
+
+	assert.Equal(t, expectedBody, msgMap["response_body"])
+}
+
+func TestGzipNoHeader(t *testing.T) {
+	logger := setup()
+
+	decoded, err := gzip.NewReader(bytes.NewReader(bodies["gzip"]))
+	if err != nil {
+		log.Panicln(err)
+	}
+	decodedBytes, err := ioutil.ReadAll(decoded)
+	if err != nil {
+		log.Panicln(err)
+	}
+	expectedBody := string(decodedBytes)
+
+	req := MockGetNoBodyRequest()
+	res := MockGetGzipResponse(&req)
+	res.Header.Del("Content-Encoding")
 	SendHttpMessage(logger, &res, &req, 0, 0, nil)
 	msgMap := retrieveLastMessage(t, logger)
 
@@ -183,12 +274,135 @@ func TestBrotli(t *testing.T) {
 	assert.Equal(t, expectedBody, msgMap["response_body"])
 }
 
-func TestUnreadable(t *testing.T) {
-	t.Skip("failing: body bytes are modified by json.Marshall in HttpLogger.submitIfpassing") // TODO - fix this
-
+func TestBrotliNoHeader(t *testing.T) {
 	logger := setup()
 
-	expectedBody := string(bodies["jpg"])
+	decoded := brotli.NewReader(bytes.NewReader(bodies["br"]))
+	decodedBytes, err := ioutil.ReadAll(decoded)
+	if err != nil {
+		log.Panicln(err)
+	}
+	expectedBody := string(decodedBytes)
+
+	req := MockGetNoBodyRequest()
+	res := MockGetBrotliResponse(&req)
+	res.Header.Del("Content-Encoding")
+
+	SendHttpMessage(logger, &res, &req, 0, 0, nil)
+	msgMap := retrieveLastMessage(t, logger)
+
+	if brotliFallbackEnabled {
+		assert.Equal(t, expectedBody, msgMap["response_body"])
+	} else {
+		// The way algo is implemented, br can never be decoded if Content-Encoding header != "br"
+		assert.NotEqual(t, expectedBody, msgMap["response_body"])
+	}
+
+}
+
+func TestMisleadingMagic(t *testing.T) {
+	logger := setup()
+
+	// payload is actually br but it looks like gzip (case where magic bytes are wrong)
+	payload := bodies["misleading"]
+	decoded := brotli.NewReader(bytes.NewReader(payload))
+	decodedBytes, err := ioutil.ReadAll(decoded)
+	if err != nil {
+		log.Panicln(err)
+	}
+	expectedBody := string(decodedBytes)
+
+	req := MockGetNoBodyRequest()
+
+	headers := map[string][]string{
+		"Content-Length":   {strconv.Itoa(len(payload))},
+		"Content-Type":     {"application/json"},
+		"Content-Encoding": {"gzip"},
+	}
+	res := mockGetCustomResponse(&req, headers, payload)
+
+	SendHttpMessage(logger, &res, &req, 0, 0, nil)
+	msgMap := retrieveLastMessage(t, logger)
+
+	assert.Equal(t, expectedBody, msgMap["response_body"])
+
+	// double misleading (CEH say it's deflate, magic bytes look like gzip, but it's actually br)
+	headers["Content-Encoding"][0] = "deflate"
+	res = mockGetCustomResponse(&req, headers, payload)
+
+	SendHttpMessage(logger, &res, &req, 0, 0, nil)
+	msgMap = retrieveLastMessage(t, logger)
+
+	assert.Equal(t, expectedBody, msgMap["response_body"])
+
+	// only magic bytes are misleading
+	headers["Content-Encoding"][0] = "br"
+	res = mockGetCustomResponse(&req, headers, payload)
+
+	SendHttpMessage(logger, &res, &req, 0, 0, nil)
+	msgMap = retrieveLastMessage(t, logger)
+
+	assert.Equal(t, expectedBody, msgMap["response_body"])
+
+}
+
+func TestMisleadingMagicIdentity(t *testing.T) {
+	logger := setup()
+
+	// payload is actually not encoded but it looks like gzip (case where magic bytes are wrong)
+	payload := []byte{31, 139}
+	payload = append(payload, bodies["plain"]...)
+
+	// json.Unmarshall replaces invalid UTF-8 characters with Unicode replacement character U+FFFD (65533 in decimal)
+	expectedBody := string([]rune{31, 65533}) + string(payload)[2:]
+	req := MockGetNoBodyRequest()
+
+	headers := map[string][]string{
+		"Content-Length":   {strconv.Itoa(len(payload))},
+		"Content-Type":     {"application/json"},
+		"Content-Encoding": {"gzip"},
+	}
+	res := mockGetCustomResponse(&req, headers, payload)
+
+	SendHttpMessage(logger, &res, &req, 0, 0, nil)
+	msgMap := retrieveLastMessage(t, logger)
+
+	assert.Equal(t, expectedBody, msgMap["response_body"])
+
+	// double misleading (CEH say it's deflate, magic bytes look like gzip, but it's actually not encoded)
+	headers["Content-Encoding"][0] = "deflate"
+	res = mockGetCustomResponse(&req, headers, payload)
+
+	SendHttpMessage(logger, &res, &req, 0, 0, nil)
+	msgMap = retrieveLastMessage(t, logger)
+
+	assert.Equal(t, expectedBody, msgMap["response_body"])
+
+	// only magic bytes are misleading
+	headers["Content-Encoding"][0] = "identity"
+	res = mockGetCustomResponse(&req, headers, payload)
+
+	SendHttpMessage(logger, &res, &req, 0, 0, nil)
+	msgMap = retrieveLastMessage(t, logger)
+
+	assert.Equal(t, expectedBody, msgMap["response_body"])
+}
+
+func TestUnreadable(t *testing.T) {
+	logger := setup()
+
+	payload := []string{string(bodies["jpg"])}
+	b, e := json.Marshal(payload)
+	if e != nil {
+		log.Println(e)
+	}
+
+	var expectedPayload []string
+	e = json.Unmarshal(b, &expectedPayload)
+	if e != nil {
+		log.Println(e)
+	}
+	expectedBody := expectedPayload[0]
 
 	req := MockGetNoBodyRequest()
 	res := MockGetJPEGResponse(&req)
@@ -366,8 +580,11 @@ func TestMisconfiguredBrotli(t *testing.T) {
 		SendHttpMessage(logger, &res, &req, 0, 0, nil)
 
 		msgMap := retrieveLastMessage(t, logger)
-		// The way algo is implemented, br can never be decoded if Content-Encoding header != "br"
-		assert.NotEqual(t, expectedBody, msgMap["response_body"], "Content-Encoding header value: "+enc)
+		if brotliFallbackEnabled {
+			assert.Equal(t, expectedBody, msgMap["response_body"], "Content-Encoding header value: "+enc)
+		} else {
+			// The way algo is implemented, br can never be decoded if Content-Encoding header != "br"
+			assert.NotEqual(t, expectedBody, msgMap["response_body"], "Content-Encoding header value: "+enc)
+		}
 	}
-
 }
