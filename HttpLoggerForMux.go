@@ -1,4 +1,4 @@
-// © 2016-2023 Resurface Labs Inc.
+// © 2016-2023 Graylog, Inc.
 
 package logger
 
