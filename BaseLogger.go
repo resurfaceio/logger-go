@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"compress/zlib"
 	"fmt"
+	"github.com/asaskevich/govalidator"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -14,27 +15,26 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
-
-	"github.com/asaskevich/govalidator"
 )
 
 type baseLogger struct {
-	agent           string
-	enableable      bool
-	enabled         bool
-	host            string
-	queue           []string
-	skipCompression bool
-	skipSubmission  bool
-	submitFailures  int64
-	submitSuccesses int64
-	url             string
-	urlParsed       *url.URL
-	version         string
-	msgQueue        chan string
-	submitMutex     sync.Mutex
-	poisonChan      chan string
-	wg              sync.WaitGroup
+	agent              string
+	enableable         bool
+	enabled            bool
+	host               string
+	queue              []string
+	skipCompression    bool
+	skipSubmission     bool
+	submitFailures     int64
+	submitSuccesses    int64
+	url                string
+	urlParsed          *url.URL
+	version            string
+	msgQueue           chan string
+	submitQueue        chan strings.Builder
+	dispatchPoisonChan chan string
+	workerPoisonChan   chan string
+	wg                 sync.WaitGroup
 }
 
 // BaseLogger constructor
@@ -65,21 +65,22 @@ func newBaseLogger(_agent string, _url string, _enabled interface{}, _queue []st
 	_enableable := (_url != "" || _queue != nil)
 
 	constructedBaseLogger := &baseLogger{
-		agent:           _agent,
-		enableable:      _enableable,
-		enabled:         _enabled.(bool),
-		host:            hostLookup(),
-		queue:           _queue,
-		skipCompression: false,
-		skipSubmission:  false,
-		submitFailures:  0,
-		submitSuccesses: 0,
-		url:             _url,
-		urlParsed:       _urlParsed,
-		version:         versionLookup(),
-		msgQueue:        make(chan string, 10000),
-		submitMutex:     sync.Mutex{},
-		poisonChan:      make(chan string, 1),
+		agent:              _agent,
+		enableable:         _enableable,
+		enabled:            _enabled.(bool),
+		host:               hostLookup(),
+		queue:              _queue,
+		skipCompression:    false,
+		skipSubmission:     false,
+		submitFailures:     0,
+		submitSuccesses:    0,
+		url:                _url,
+		urlParsed:          _urlParsed,
+		version:            versionLookup(),
+		msgQueue:           make(chan string, 10000),
+		submitQueue:        make(chan strings.Builder, 128),
+		dispatchPoisonChan: make(chan string, 1),
+		workerPoisonChan:   make(chan string, 1),
 	}
 
 	constructedBaseLogger.wg.Add(1)
@@ -96,40 +97,51 @@ func (logger *baseLogger) Disable() {
 	logger.enabled = false
 }
 
-func (logger *baseLogger) worker(buffer strings.Builder) {
+func (logger *baseLogger) worker() {
 	defer logger.wg.Done()
-	logger.submitMutex.Lock()
-	bundle := buffer.String()
-	logger.submit(bundle)
-	logger.submitMutex.Unlock()
+	var submission strings.Builder
+	var poisonPill string
+worker:
+	for {
+		select {
+		case submission = <-logger.submitQueue:
+			bundle := submission.String()
+			logger.submit(bundle)
+		case poisonPill = <-logger.workerPoisonChan:
+			if poisonPill == "POISON PILL" {
+				break worker
+			}
+		}
+	}
 }
 
 func (logger *baseLogger) dispatcher() {
 	defer logger.wg.Done()
 	// Threshold that determines when NDJSON bundles are sent to Resurface
-	thresh := 100
+	thresh := 1000
 	buffer := strings.Builder{}
-	var msg, poisonpill string
+	var msg, poisonPill string
+	go logger.worker()
 dispatch:
 	for {
 		select {
 		case msg = <-logger.msgQueue:
-			if buffer.Len() != thresh {
+			if buffer.Len() < thresh {
 				buffer.WriteString(msg + "\n")
 			} else {
 				buffer.WriteString(msg)
 				logger.wg.Add(1)
-				go logger.worker(buffer)
+				logger.submitQueue <- buffer
 				buffer = strings.Builder{}
 			}
-		case poisonpill = <-logger.poisonChan:
+		case poisonPill = <-logger.dispatchPoisonChan:
 		default:
 			if buffer.Len() != 0 {
 				logger.wg.Add(1)
-				go logger.worker(buffer)
+				logger.submitQueue <- buffer
 				buffer = strings.Builder{}
 			}
-			if poisonpill == "POISON PILL" {
+			if poisonPill == "POISON PILL" {
 				break dispatch
 			}
 		}
@@ -225,6 +237,7 @@ func (logger *baseLogger) submit(msg string) {
 			log.Println("Response is nil")
 		}
 		log.Println("An unknown error occurred")
+		log.Println(submitResponse.StatusCode)
 		atomic.AddInt64(&logger.submitFailures, 1)
 		return
 	}
@@ -232,7 +245,8 @@ func (logger *baseLogger) submit(msg string) {
 }
 
 func (logger *baseLogger) stopDispatcher() {
-	logger.poisonChan <- "POISON PILL"
+	logger.workerPoisonChan <- "POISON PILL"
+	logger.dispatchPoisonChan <- "POISON PILL"
 	logger.wg.Wait()
 }
 

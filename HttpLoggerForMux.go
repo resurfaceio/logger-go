@@ -69,7 +69,7 @@ func NewHttpLoggerForMuxOptions(options Options) (*HttpLoggerForMux, error) {
 }
 
 // Write(b []byte) uses original response writer to write the body b to the client and then logs the response body.
-// This is only used internarnally by response writer.
+// This is only used internally by response writer.
 func (w *loggingResponseWriter) Write(body []byte) (int, error) { // uses original response writer to write and then logs the size
 
 	size, err := w.ResponseWriter.Write(body)

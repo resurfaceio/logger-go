@@ -1,9 +1,10 @@
-// © 2016-2023 Graylog, Inc.
+// © 2016-2023 Resurface Labs Inc.
 
 package logger
 
 import (
-	"bytes"
+	"compress/gzip"
+	"compress/zlib"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -14,116 +15,44 @@ import (
 	"strings"
 	"time"
 
-	"github.com/liamg/magic"
+	"github.com/andybalholm/brotli"
 )
 
-// helper function to read and decode body bytes
-func readBody(rBody io.ReadCloser, contentEncoding *string) (string, error) {
-	// Don't read anything if there's nothing to read
-	if rBody == nil || rBody == http.NoBody {
-		return "", nil
-	}
-	// Overflow cap wrapper
+// helper function to read body bytes
+func readBody(rBody *io.ReadCloser, encoding string) (string, error) {
 	const bodyLimit = 1024 * 1024
-	reader := io.LimitReader(rBody, bodyLimit)
-	defer rBody.Close()
+	var reader io.ReadCloser
+	var err error
+	defer (*rBody).Close()
 
-	var magicReader bytes.Reader
-	var magicCheckEnabled bool = true
-
-	magicEncoding, err := checkMagic(&reader, &magicReader)
-	if err != nil && err != magic.ErrUnknown {
-		return "", err
-	}
-	knownMagicIsPresent := err == nil
-
-	// Considering both the Content-Encoding header and the magic encoding, there are four combinations:
-	// 1. Content-Encoding header is present and there are known magic bytes
-	//     - All good if header and magic bytes match, attack/misconfiguration if not
-	// 2. Content-Encoding header is present and there are *not* known magic bytes
-	//     - Header could be identity or brotli (no magic bytes to match either), or
-	//     - Misconfiguration (as resp) or attack (as req), e.g. header says gzip but data is brotli, or
-	//     - Magic bytes could be invalid/corrupted/not present, e.g. header says brotli but data is gzip (with broken magic bytes)
-	// 3. Content-Encoding header is *not* present and there are known magic bytes
-	//     - Misconfiguration (as resp) or attack (as req)
-	// 4. Content-Encoding header is *not* present and there are *not* known magic bytes
-	//     - Payload could be identity/not compressed, or
-	//     - Payload could be compressed as br (misconfig), or
-	//     - Payload could be some other file type
-
-	// TODO: Content-Encoding Header and Magic Bytes mismatch check
-	// var encodingMismatch bool
-	if contentEncoding != nil {
-		encodings := strings.Split(*contentEncoding, ",")
-
-		for i := len(encodings) - 1; i >= 0; i-- {
-			encoding := strings.Trim(encodings[i], " ")
-			reader, err, magicCheckEnabled = wrapReader(&reader, &magicReader, encoding, magicEncoding)
-			// TODO: CEH-MB mismatch check
-			// if knownMagicIsPresent && !encodingMismatch {
-			// 	// 1. Content-Encoding header is present and there are known magic bytes
-			// 	encodingMismatch = encodings[i] != magicEncoding
-			// } else {
-			// 2. Content-Encoding header is present and there are *not* known magic bytes
-			// encodingMismatch = encodings[i] != "" || encodings[i] != "identity" || !(encodings[i] == "br" && isBrotli)
-			// }
-			if err != nil {
-				return "", nil
-			}
-
-			if magicCheckEnabled {
-				magicEncoding, err = checkMagic(&reader, &magicReader)
-				if err != nil && err != magic.ErrUnknown {
-					return "", err
-				}
-			} else {
-				magicEncoding, err = "", nil
-			}
-
-			// Can be used in mismatch check, but also checks if there's still magic after there are no more encodings from CEH (i.e. misconfig)
-			// magicCheckEnabled -> the moment we know magic bytes are wrong, no further magic checks
-			knownMagicIsPresent = magicCheckEnabled && err == nil
+	switch encoding {
+	case "gzip", "x-gzip":
+		reader, err = gzip.NewReader(*rBody)
+		if err != nil {
+			return "", err
 		}
-
-	}
-
-	if knownMagicIsPresent {
-		// 3. Content-Encoding header is *not* present but there are known magic bytes
-		for knownMagicIsPresent {
-			// guess magic bytes for each iteration
-			reader, err, magicCheckEnabled = wrapReader(&reader, &magicReader, magicEncoding, magicEncoding)
-			if err != nil {
-				return "", err
-			}
-
-			if magicCheckEnabled {
-				magicEncoding, err = checkMagic(&reader, &magicReader)
-				if err != nil && err != magic.ErrUnknown {
-					return "", err
-				}
-			} else {
-				magicEncoding, err = "", nil
-			}
-
-			knownMagicIsPresent = magicCheckEnabled && err == nil
+	case "deflate", "zlib", "deflated":
+		reader, err = zlib.NewReader(*rBody)
+		if err != nil {
+			return "", err
 		}
-	} else {
-		// 4. Content-Encoding header is *not* present and there are *not* known magic bytes
-		// It might be too expensive to check for br given that a brotli check requires reading all bytes
-		// Thus, br decompression would be attempted even for all uncompressed payloads
-		// If payload contains something other than gzip, deflate (zlib), zstd, compress (lzw), br, or text, reading shouldn't be attempted
-		// Because of this, every payload is assumed to be uncompressed (identity) at this last combination (i.e. brotliFallbackEnabled is false for now)
-		if brotliFallbackEnabled {
-			reader, err = newWrap(&reader, &magicReader, "br")
-			if reader == nil {
-				return "", err
-			}
-		}
+	case "br":
+		reader = io.NopCloser(brotli.NewReader(*rBody))
+	case "", "identity":
+		reader = *rBody
+	default:
+		return "", io.ErrNoProgress
 	}
+	reader = io.NopCloser(io.LimitReader(reader, bodyLimit))
 
 	bodyBytes, err := ioutil.ReadAll(reader)
 	if err != nil {
-		return "", err
+		return "", nil
+	}
+
+	err = reader.Close()
+	if err != nil {
+		return "", nil
 	}
 
 	return string(bodyBytes), err
@@ -159,11 +88,11 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 	message = append(message, []string{"response_code", fmt.Sprint(resp.StatusCode)})
 
 	if req.Body != nil {
-		var contentEncoding *string
+		var contentEncoding string
 		if encodings, encoded := req.Header["Content-Encoding"]; encoded {
-			contentEncoding = &encodings[0]
+			contentEncoding = encodings[0]
 		}
-		requestBody, err := readBody(req.Body, contentEncoding)
+		requestBody, err := readBody(&req.Body, contentEncoding)
 		if err != nil {
 			log.Println(err)
 		}
@@ -182,11 +111,11 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 	appendResponseHeaders(&message, resp)
 
 	if resp.Body != nil {
-		var contentEncoding *string
+		var contentEncoding string
 		if encodings, encoded := resp.Header["Content-Encoding"]; encoded {
-			contentEncoding = &encodings[0]
+			contentEncoding = encodings[0]
 		}
-		responseBody, err := readBody(resp.Body, contentEncoding)
+		responseBody, err := readBody(&resp.Body, contentEncoding)
 		if err != nil {
 			log.Println(err)
 		}
