@@ -19,23 +19,21 @@ import (
 )
 
 type baseLogger struct {
-	agent              string
-	enableable         bool
-	enabled            bool
-	host               string
-	queue              []string
-	skipCompression    bool
-	skipSubmission     bool
-	submitFailures     int64
-	submitSuccesses    int64
-	url                string
-	urlParsed          *url.URL
-	version            string
-	msgQueue           chan string
-	submitQueue        chan strings.Builder
-	dispatchPoisonChan chan string
-	workerPoisonChan   chan string
-	wg                 sync.WaitGroup
+	agent           string
+	enableable      bool
+	enabled         bool
+	host            string
+	queue           []string
+	skipCompression bool
+	skipSubmission  bool
+	submitFailures  int64
+	submitSuccesses int64
+	url             string
+	urlParsed       *url.URL
+	version         string
+	msgQueue        chan string
+	submitQueue     chan strings.Builder
+	wg              sync.WaitGroup
 }
 
 // BaseLogger constructor
@@ -66,22 +64,20 @@ func newBaseLogger(_agent string, _url string, _enabled interface{}, _queue []st
 	_enableable := (_url != "" || _queue != nil)
 
 	constructedBaseLogger := &baseLogger{
-		agent:              _agent,
-		enableable:         _enableable,
-		enabled:            _enabled.(bool),
-		host:               hostLookup(),
-		queue:              _queue,
-		skipCompression:    false,
-		skipSubmission:     false,
-		submitFailures:     0,
-		submitSuccesses:    0,
-		url:                _url,
-		urlParsed:          _urlParsed,
-		version:            versionLookup(),
-		msgQueue:           make(chan string, 10000),
-		submitQueue:        make(chan strings.Builder, 128),
-		dispatchPoisonChan: make(chan string, 1),
-		workerPoisonChan:   make(chan string, 1),
+		agent:           _agent,
+		enableable:      _enableable,
+		enabled:         _enabled.(bool),
+		host:            hostLookup(),
+		queue:           _queue,
+		skipCompression: false,
+		skipSubmission:  false,
+		submitFailures:  0,
+		submitSuccesses: 0,
+		url:             _url,
+		urlParsed:       _urlParsed,
+		version:         versionLookup(),
+		msgQueue:        make(chan string, 10000),
+		submitQueue:     make(chan strings.Builder, 128),
 	}
 
 	constructedBaseLogger.wg.Add(1)
@@ -100,18 +96,15 @@ func (logger *baseLogger) Disable() {
 
 func (logger *baseLogger) worker() {
 	defer logger.wg.Done()
-	var submission strings.Builder
-	var poisonPill string
-worker:
+work:
 	for {
-		select {
-		case submission = <-logger.submitQueue:
+		submission, open := <-logger.submitQueue
+		if submission.Len() > 0 {
 			bundle := submission.String()
 			logger.submit(bundle)
-		case poisonPill = <-logger.workerPoisonChan:
-			if poisonPill == "POISON PILL" {
-				break worker
-			}
+		}
+		if !open {
+			break work
 		}
 	}
 }
@@ -121,29 +114,32 @@ func (logger *baseLogger) dispatcher() {
 	// Threshold that determines when NDJSON bundles are sent to Resurface
 	thresh := 1000
 	buffer := strings.Builder{}
-	var msg, poisonPill string
+	logger.wg.Add(1)
 	go logger.worker()
 dispatch:
 	for {
 		select {
-		case msg = <-logger.msgQueue:
-			if buffer.Len() < thresh {
-				buffer.WriteString(msg + "\n")
-			} else {
-				buffer.WriteString(msg)
-				logger.wg.Add(1)
-				logger.submitQueue <- buffer
-				buffer = strings.Builder{}
+		case msg, open := <-logger.msgQueue:
+			if msg != "" {
+				if buffer.Len() < thresh {
+					buffer.WriteString(msg + "\n")
+				} else {
+					buffer.WriteString(msg)
+					logger.submitQueue <- buffer
+					buffer = strings.Builder{}
+				}
 			}
-		case poisonPill = <-logger.dispatchPoisonChan:
+			if !open {
+				if buffer.Len() != 0 {
+					logger.submitQueue <- buffer
+					close(logger.submitQueue)
+				}
+				break dispatch
+			}
 		default:
 			if buffer.Len() != 0 {
-				logger.wg.Add(1)
 				logger.submitQueue <- buffer
 				buffer = strings.Builder{}
-			}
-			if poisonPill == "POISON PILL" {
-				break dispatch
 			}
 		}
 	}
@@ -247,8 +243,8 @@ func (logger *baseLogger) submit(msg string) {
 }
 
 func (logger *baseLogger) stopDispatcher() {
-	logger.dispatchPoisonChan <- "POISON PILL"
-	logger.workerPoisonChan <- "POISON PILL"
+	logger.Disable()
+	close(logger.msgQueue)
 	logger.wg.Wait()
 }
 
