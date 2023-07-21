@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"compress/zlib"
 	"fmt"
-	"github.com/asaskevich/govalidator"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -15,6 +14,8 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+
+	"github.com/asaskevich/govalidator"
 )
 
 type baseLogger struct {
@@ -235,9 +236,10 @@ func (logger *baseLogger) submit(msg string) {
 	} else {
 		if submitResponse == nil {
 			log.Println("Response is nil")
+		} else {
+			log.Println("Response from fluke:", submitResponse.StatusCode)
 		}
 		log.Println("An unknown error occurred")
-		log.Println(submitResponse.StatusCode)
 		atomic.AddInt64(&logger.submitFailures, 1)
 		return
 	}
@@ -245,8 +247,8 @@ func (logger *baseLogger) submit(msg string) {
 }
 
 func (logger *baseLogger) stopDispatcher() {
-	logger.workerPoisonChan <- "POISON PILL"
 	logger.dispatchPoisonChan <- "POISON PILL"
+	logger.workerPoisonChan <- "POISON PILL"
 	logger.wg.Wait()
 }
 
