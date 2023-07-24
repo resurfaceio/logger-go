@@ -5,7 +5,7 @@ import (
 	"compress/gzip"
 	"compress/zlib"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"log"
 	"strconv"
 	"strings"
@@ -33,7 +33,7 @@ func setup() *HttpLogger {
 	return logger
 }
 
-func retrieveLastMessage(t *testing.T, logger *HttpLogger) map[string]string {
+func retrieveLastMessage(logger *HttpLogger) map[string]string {
 	msg := make([][]string, 1)
 	queue := logger.Queue()
 
@@ -102,7 +102,7 @@ func TestIdentityPlainText(t *testing.T) {
 	res.Header.Add("Content-Encoding", "identity")
 
 	SendHttpMessage(logger, &res, &req, 0, 0, nil)
-	msgMap := retrieveLastMessage(t, logger)
+	msgMap := retrieveLastMessage(logger)
 
 	assert.Equal(t, expectedBody, msgMap["response_body"])
 
@@ -110,7 +110,7 @@ func TestIdentityPlainText(t *testing.T) {
 	res.Header.Add("Content-Encoding", "")
 
 	SendHttpMessage(logger, &res, &req, 0, 0, nil)
-	msgMap = retrieveLastMessage(t, logger)
+	msgMap = retrieveLastMessage(logger)
 
 	assert.Equal(t, expectedBody, msgMap["response_body"])
 }
@@ -124,7 +124,7 @@ func TestIdentityPlainTextNoHeader(t *testing.T) {
 	res := MockGetPlainTextResponse(&req)
 
 	SendHttpMessage(logger, &res, &req, 0, 0, nil)
-	msgMap := retrieveLastMessage(t, logger)
+	msgMap := retrieveLastMessage(logger)
 
 	assert.Equal(t, expectedBody, msgMap["response_body"])
 }
@@ -139,7 +139,7 @@ func TestIdentityJSON(t *testing.T) {
 	res.Header.Add("Content-Encoding", "identity")
 
 	SendHttpMessage(logger, &res, &req, 0, 0, nil)
-	msgMap := retrieveLastMessage(t, logger)
+	msgMap := retrieveLastMessage(logger)
 
 	assert.Equal(t, expectedBody, msgMap["response_body"])
 
@@ -147,7 +147,7 @@ func TestIdentityJSON(t *testing.T) {
 	res.Header.Add("Content-Encoding", "")
 
 	SendHttpMessage(logger, &res, &req, 0, 0, nil)
-	msgMap = retrieveLastMessage(t, logger)
+	msgMap = retrieveLastMessage(logger)
 
 	assert.Equal(t, expectedBody, msgMap["response_body"])
 }
@@ -161,7 +161,7 @@ func TestIdentityJSONNoHeader(t *testing.T) {
 	res := MockGetJSONResponse(&req)
 
 	SendHttpMessage(logger, &res, &req, 0, 0, nil)
-	msgMap := retrieveLastMessage(t, logger)
+	msgMap := retrieveLastMessage(logger)
 
 	assert.Equal(t, expectedBody, msgMap["response_body"])
 }
@@ -173,7 +173,7 @@ func TestDeflate(t *testing.T) {
 	if err != nil {
 		log.Panicln(err)
 	}
-	decodedBytes, err := ioutil.ReadAll(decoded)
+	decodedBytes, err := io.ReadAll(decoded)
 	if err != nil {
 		log.Panicln(err)
 	}
@@ -183,7 +183,7 @@ func TestDeflate(t *testing.T) {
 	res := MockGetDeflateResponse(&req)
 
 	SendHttpMessage(logger, &res, &req, 0, 0, nil)
-	msgMap := retrieveLastMessage(t, logger)
+	msgMap := retrieveLastMessage(logger)
 
 	assert.Equal(t, expectedBody, msgMap["response_body"])
 }
@@ -195,7 +195,7 @@ func TestDeflateNoHeader(t *testing.T) {
 	if err != nil {
 		log.Panicln(err)
 	}
-	decodedBytes, err := ioutil.ReadAll(decoded)
+	decodedBytes, err := io.ReadAll(decoded)
 	if err != nil {
 		log.Panicln(err)
 	}
@@ -206,7 +206,7 @@ func TestDeflateNoHeader(t *testing.T) {
 
 	res.Header.Del("Content-Encoding")
 	SendHttpMessage(logger, &res, &req, 0, 0, nil)
-	msgMap := retrieveLastMessage(t, logger)
+	msgMap := retrieveLastMessage(logger)
 
 	assert.Equal(t, expectedBody, msgMap["response_body"])
 }
@@ -218,7 +218,7 @@ func TestGzip(t *testing.T) {
 	if err != nil {
 		log.Panicln(err)
 	}
-	decodedBytes, err := ioutil.ReadAll(decoded)
+	decodedBytes, err := io.ReadAll(decoded)
 	if err != nil {
 		log.Panicln(err)
 	}
@@ -228,7 +228,7 @@ func TestGzip(t *testing.T) {
 	res := MockGetGzipResponse(&req)
 
 	SendHttpMessage(logger, &res, &req, 0, 0, nil)
-	msgMap := retrieveLastMessage(t, logger)
+	msgMap := retrieveLastMessage(logger)
 
 	assert.Equal(t, expectedBody, msgMap["response_body"])
 }
@@ -240,7 +240,7 @@ func TestGzipNoHeader(t *testing.T) {
 	if err != nil {
 		log.Panicln(err)
 	}
-	decodedBytes, err := ioutil.ReadAll(decoded)
+	decodedBytes, err := io.ReadAll(decoded)
 	if err != nil {
 		log.Panicln(err)
 	}
@@ -250,7 +250,7 @@ func TestGzipNoHeader(t *testing.T) {
 	res := MockGetGzipResponse(&req)
 	res.Header.Del("Content-Encoding")
 	SendHttpMessage(logger, &res, &req, 0, 0, nil)
-	msgMap := retrieveLastMessage(t, logger)
+	msgMap := retrieveLastMessage(logger)
 
 	assert.Equal(t, expectedBody, msgMap["response_body"])
 }
@@ -259,7 +259,7 @@ func TestBrotli(t *testing.T) {
 	logger := setup()
 
 	decoded := brotli.NewReader(bytes.NewReader(bodies["br"]))
-	decodedBytes, err := ioutil.ReadAll(decoded)
+	decodedBytes, err := io.ReadAll(decoded)
 	if err != nil {
 		log.Panicln(err)
 	}
@@ -269,7 +269,7 @@ func TestBrotli(t *testing.T) {
 	res := MockGetBrotliResponse(&req)
 
 	SendHttpMessage(logger, &res, &req, 0, 0, nil)
-	msgMap := retrieveLastMessage(t, logger)
+	msgMap := retrieveLastMessage(logger)
 
 	assert.Equal(t, expectedBody, msgMap["response_body"])
 }
@@ -278,7 +278,7 @@ func TestBrotliNoHeader(t *testing.T) {
 	logger := setup()
 
 	decoded := brotli.NewReader(bytes.NewReader(bodies["br"]))
-	decodedBytes, err := ioutil.ReadAll(decoded)
+	decodedBytes, err := io.ReadAll(decoded)
 	if err != nil {
 		log.Panicln(err)
 	}
@@ -289,7 +289,7 @@ func TestBrotliNoHeader(t *testing.T) {
 	res.Header.Del("Content-Encoding")
 
 	SendHttpMessage(logger, &res, &req, 0, 0, nil)
-	msgMap := retrieveLastMessage(t, logger)
+	msgMap := retrieveLastMessage(logger)
 
 	if brotliFallbackEnabled {
 		assert.Equal(t, expectedBody, msgMap["response_body"])
@@ -303,10 +303,10 @@ func TestBrotliNoHeader(t *testing.T) {
 func TestMisleadingMagic(t *testing.T) {
 	logger := setup()
 
-	// payload is actually br but it looks like gzip (case where magic bytes are wrong)
+	// payload is actually br, but it looks like gzip (case where magic bytes are wrong)
 	payload := bodies["misleading"]
 	decoded := brotli.NewReader(bytes.NewReader(payload))
-	decodedBytes, err := ioutil.ReadAll(decoded)
+	decodedBytes, err := io.ReadAll(decoded)
 	if err != nil {
 		log.Panicln(err)
 	}
@@ -322,7 +322,7 @@ func TestMisleadingMagic(t *testing.T) {
 	res := mockGetCustomResponse(&req, headers, payload)
 
 	SendHttpMessage(logger, &res, &req, 0, 0, nil)
-	msgMap := retrieveLastMessage(t, logger)
+	msgMap := retrieveLastMessage(logger)
 
 	assert.Equal(t, expectedBody, msgMap["response_body"])
 
@@ -331,7 +331,7 @@ func TestMisleadingMagic(t *testing.T) {
 	res = mockGetCustomResponse(&req, headers, payload)
 
 	SendHttpMessage(logger, &res, &req, 0, 0, nil)
-	msgMap = retrieveLastMessage(t, logger)
+	msgMap = retrieveLastMessage(logger)
 
 	assert.Equal(t, expectedBody, msgMap["response_body"])
 
@@ -340,7 +340,7 @@ func TestMisleadingMagic(t *testing.T) {
 	res = mockGetCustomResponse(&req, headers, payload)
 
 	SendHttpMessage(logger, &res, &req, 0, 0, nil)
-	msgMap = retrieveLastMessage(t, logger)
+	msgMap = retrieveLastMessage(logger)
 
 	assert.Equal(t, expectedBody, msgMap["response_body"])
 
@@ -349,7 +349,7 @@ func TestMisleadingMagic(t *testing.T) {
 func TestMisleadingMagicIdentity(t *testing.T) {
 	logger := setup()
 
-	// payload is actually not encoded but it looks like gzip (case where magic bytes are wrong)
+	// payload is actually not encoded, but it looks like gzip (case where magic bytes are wrong)
 	payload := []byte{31, 139}
 	payload = append(payload, bodies["plain"]...)
 
@@ -365,7 +365,7 @@ func TestMisleadingMagicIdentity(t *testing.T) {
 	res := mockGetCustomResponse(&req, headers, payload)
 
 	SendHttpMessage(logger, &res, &req, 0, 0, nil)
-	msgMap := retrieveLastMessage(t, logger)
+	msgMap := retrieveLastMessage(logger)
 
 	assert.Equal(t, expectedBody, msgMap["response_body"])
 
@@ -374,7 +374,7 @@ func TestMisleadingMagicIdentity(t *testing.T) {
 	res = mockGetCustomResponse(&req, headers, payload)
 
 	SendHttpMessage(logger, &res, &req, 0, 0, nil)
-	msgMap = retrieveLastMessage(t, logger)
+	msgMap = retrieveLastMessage(logger)
 
 	assert.Equal(t, expectedBody, msgMap["response_body"])
 
@@ -383,7 +383,7 @@ func TestMisleadingMagicIdentity(t *testing.T) {
 	res = mockGetCustomResponse(&req, headers, payload)
 
 	SendHttpMessage(logger, &res, &req, 0, 0, nil)
-	msgMap = retrieveLastMessage(t, logger)
+	msgMap = retrieveLastMessage(logger)
 
 	assert.Equal(t, expectedBody, msgMap["response_body"])
 }
@@ -408,7 +408,7 @@ func TestUnreadable(t *testing.T) {
 	res := MockGetJPEGResponse(&req)
 
 	SendHttpMessage(logger, &res, &req, 0, 0, nil)
-	msgMap := retrieveLastMessage(t, logger)
+	msgMap := retrieveLastMessage(logger)
 
 	assert.Equal(t, expectedBody, msgMap["response_body"])
 
@@ -481,7 +481,7 @@ func TestMultipleEncodings(t *testing.T) {
 		res := mockGetCustomResponse(&req, headers, payload)
 
 		SendHttpMessage(logger, &res, &req, 0, 0, nil)
-		msgMap := retrieveLastMessage(t, logger)
+		msgMap := retrieveLastMessage(logger)
 
 		assert.Equal(t, expectedBody, msgMap["response_body"])
 	}
@@ -501,7 +501,7 @@ func TestMisconfiguredIdentity(t *testing.T) {
 
 		SendHttpMessage(logger, &res, &req, 0, 0, nil)
 
-		msgMap := retrieveLastMessage(t, logger)
+		msgMap := retrieveLastMessage(logger)
 		assert.Equal(t, expectedBody, msgMap["response_body"], "Content-Encoding header value: "+enc)
 	}
 
@@ -514,7 +514,7 @@ func TestMisconfiguredDeflate(t *testing.T) {
 	if err != nil {
 		log.Panicln(err)
 	}
-	decodedBytes, err := ioutil.ReadAll(decoded)
+	decodedBytes, err := io.ReadAll(decoded)
 	if err != nil {
 		log.Panicln(err)
 	}
@@ -528,7 +528,7 @@ func TestMisconfiguredDeflate(t *testing.T) {
 
 		SendHttpMessage(logger, &res, &req, 0, 0, nil)
 
-		msgMap := retrieveLastMessage(t, logger)
+		msgMap := retrieveLastMessage(logger)
 		assert.Equal(t, expectedBody, msgMap["response_body"], "Content-Encoding header value: "+enc)
 	}
 
@@ -541,7 +541,7 @@ func TestMisconfiguredGzip(t *testing.T) {
 	if err != nil {
 		log.Panicln(err)
 	}
-	decodedBytes, err := ioutil.ReadAll(decoded)
+	decodedBytes, err := io.ReadAll(decoded)
 	if err != nil {
 		log.Panicln(err)
 	}
@@ -555,7 +555,7 @@ func TestMisconfiguredGzip(t *testing.T) {
 
 		SendHttpMessage(logger, &res, &req, 0, 0, nil)
 
-		msgMap := retrieveLastMessage(t, logger)
+		msgMap := retrieveLastMessage(logger)
 		assert.Equal(t, expectedBody, msgMap["response_body"], "Content-Encoding header value: "+enc)
 	}
 
@@ -565,7 +565,7 @@ func TestMisconfiguredBrotli(t *testing.T) {
 	logger := setup()
 
 	decoded := brotli.NewReader(bytes.NewReader(bodies["br"]))
-	decodedBytes, err := ioutil.ReadAll(decoded)
+	decodedBytes, err := io.ReadAll(decoded)
 	if err != nil {
 		log.Panicln(err)
 	}
@@ -579,7 +579,7 @@ func TestMisconfiguredBrotli(t *testing.T) {
 
 		SendHttpMessage(logger, &res, &req, 0, 0, nil)
 
-		msgMap := retrieveLastMessage(t, logger)
+		msgMap := retrieveLastMessage(logger)
 		if brotliFallbackEnabled {
 			assert.Equal(t, expectedBody, msgMap["response_body"], "Content-Encoding header value: "+enc)
 		} else {

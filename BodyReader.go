@@ -57,7 +57,7 @@ func checkMagic(reader *io.Reader, magicReader *bytes.Reader) (string, error) {
 	// According to https://github.com/liamg/magic/blob/master/magic.go#L18 the first 1024 bytes should be provided (i.e. magicLimit = 1024)
 	// However, this is not actually required anywhere in the code. Logically, magicLimit > offset + magic bytes
 	// Offset is 0 for both gzip and zlib, and the number of magic bytes is 4 for both as well. Then, magicLimit = 4 if just checking for gzip/zlib
-	// Largest possible offset in magic lib (excluding .iso filetype) is 257 bytes, and largest posible sum (offset + magic bytes) is 265. Thus, magicLimit = 265
+	// Largest possible offset in magic lib (excluding .iso filetype) is 257 bytes, and largest possible sum (offset + magic bytes) is 265. Thus, magicLimit = 265
 	const magicLimit = 265
 	magicBytes := make([]byte, magicLimit)
 	n, err := (*reader).Read(magicBytes)
@@ -135,7 +135,7 @@ func newWrap(reader *io.Reader, magicReader *bytes.Reader, encoding string) (io.
 }
 
 func wrapReader(reader *io.Reader, magicReader *bytes.Reader, encoding string, magicEncoding string) (io.Reader, error, bool) {
-	var accurateMagic bool = true
+	var accurateMagic = true
 	// First wrapping attempt assumes Content-Encoding header value is correct
 	wrappedReader, err := newWrap(reader, magicReader, encoding)
 	// First wrap failed (header error -> wrong type, or decoding error -> corrupted file)
@@ -170,7 +170,7 @@ func wrapReader(reader *io.Reader, magicReader *bytes.Reader, encoding string, m
 			}
 			// Brotli reader check requires reading the entire thing, and then decoding it.
 			// This is the decoding step failing with wrappedReader being the non-decoded bytes read.
-			// (when would this happen? e.g. header says br but it is actually identity -> err != nil, reader stays undecoded)
+			// (when would this happen? e.g. header says br, but it is actually identity -> err != nil, reader stays encoded)
 			return wrappedReader, nil, accurateMagic
 		}
 	} else if magicEncoding != encoding {

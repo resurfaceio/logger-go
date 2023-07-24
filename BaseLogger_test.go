@@ -78,8 +78,6 @@ func TestHasValidVersion(t *testing.T) {
 	version := versionLookup()
 	assert.NotNil(t, version)
 	assert.Greater(t, len(version), 0)
-	//replacement of the java "startswith" assertion
-	//won't work rn since version is a dummy string
 	assert.True(t, strings.HasPrefix(version, "3."))
 	assert.NotContains(t, version, "\\")
 	assert.NotContains(t, version, "\"")
@@ -106,7 +104,6 @@ func TestPerformsEnablingWhenExpected(t *testing.T) {
 	assert.True(t, logger.Enabled())
 }
 
-// needs some more stuff in the baselogger class for this to compile
 func TestSkipsEnablingForInvalidUrls(t *testing.T) {
 	helper := newTestHelper()
 	for _, url := range helper.mockURLSinvalid {
@@ -137,7 +134,7 @@ func TestSubmitsToDemoUrl(t *testing.T) {
 	message := [][]string{}
 	message = append(message, []string{"agent", logger.agent})
 	message = append(message, []string{"version", logger.version})
-	message = append(message, []string{"now", string(fmt.Sprint(helper.mockNow))})
+	message = append(message, []string{"now", fmt.Sprint(helper.mockNow)})
 	message = append(message, []string{"protocol", "https"})
 	marshalled, _ := json.Marshal(message)
 	logger.ndjsonHandler(string(marshalled))
@@ -153,7 +150,7 @@ func TestSubmitsToDemoUrlViaHttp(t *testing.T) {
 	message := [][]string{}
 	message = append(message, []string{"agent", logger.agent})
 	message = append(message, []string{"version", logger.version})
-	message = append(message, []string{"now", string(fmt.Sprint(helper.mockNow))})
+	message = append(message, []string{"now", fmt.Sprint(helper.mockNow)})
 	message = append(message, []string{"protocol", "http"})
 	marshalled, _ := json.Marshal(message)
 	logger.ndjsonHandler(string(marshalled))
@@ -161,7 +158,7 @@ func TestSubmitsToDemoUrlViaHttp(t *testing.T) {
 	assert.Equal(t, int64(1), logger.submitSuccesses)
 }
 
-func TestSubmitsToDemoUrlWihoutCompression(t *testing.T) {
+func TestSubmitsToDemoUrlWithoutCompression(t *testing.T) {
 	helper := newTestHelper()
 	queue := []string{}
 	logger := newBaseLogger(helper.mockAgent, helper.demoURL, true, queue)
@@ -170,7 +167,7 @@ func TestSubmitsToDemoUrlWihoutCompression(t *testing.T) {
 	message := [][]string{}
 	message = append(message, []string{"agent", logger.agent})
 	message = append(message, []string{"version", logger.version})
-	message = append(message, []string{"now", string(fmt.Sprint(helper.mockNow))})
+	message = append(message, []string{"now", fmt.Sprint(helper.mockNow)})
 	message = append(message, []string{"protocol", "https"})
 	message = append(message, []string{"skip_compression", "true"})
 	marshalled, _ := json.Marshal(message)

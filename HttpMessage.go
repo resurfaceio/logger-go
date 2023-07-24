@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"regexp"
@@ -29,7 +28,7 @@ func readBody(rBody io.ReadCloser, contentEncoding *string) (string, error) {
 	defer rBody.Close()
 
 	var magicReader bytes.Reader
-	var magicCheckEnabled bool = true
+	var magicCheckEnabled = true
 
 	magicEncoding, err := checkMagic(&reader, &magicReader)
 	if err != nil && err != magic.ErrUnknown {
@@ -48,7 +47,7 @@ func readBody(rBody io.ReadCloser, contentEncoding *string) (string, error) {
 	//     - Misconfiguration (as resp) or attack (as req)
 	// 4. Content-Encoding header is *not* present and there are *not* known magic bytes
 	//     - Payload could be identity/not compressed, or
-	//     - Payload could be compressed as br (misconfig), or
+	//     - Payload could be compressed as br (misconfiguration), or
 	//     - Payload could be some other file type
 
 	// TODO: Content-Encoding Header and Magic Bytes mismatch check
@@ -80,7 +79,7 @@ func readBody(rBody io.ReadCloser, contentEncoding *string) (string, error) {
 				magicEncoding, err = "", nil
 			}
 
-			// Can be used in mismatch check, but also checks if there's still magic after there are no more encodings from CEH (i.e. misconfig)
+			// Can be used in mismatch check, but also checks if there's still magic after there are no more encodings from CEH (i.e. misconfiguration)
 			// magicCheckEnabled -> the moment we know magic bytes are wrong, no further magic checks
 			knownMagicIsPresent = magicCheckEnabled && err == nil
 		}
@@ -121,7 +120,7 @@ func readBody(rBody io.ReadCloser, contentEncoding *string) (string, error) {
 		}
 	}
 
-	bodyBytes, err := ioutil.ReadAll(reader)
+	bodyBytes, err := io.ReadAll(reader)
 	if err != nil {
 		return "", err
 	}

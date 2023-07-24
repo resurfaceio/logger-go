@@ -5,7 +5,7 @@ package logger
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -36,9 +36,7 @@ type helper struct {
 
 var testHelper *helper
 
-// This is a rough outline.
-// I am thinking we need to cover the requests rather than the responses.
-// MockGetRequest covers a get request to compare against loggin.
+// MockGetRequest covers a get request to compare against logging.
 // https://appdividend.com/2019/12/02/golang-http-example-get-post-http-requests-in-golang/
 func (testHelper *helper) MockGetRequest() (request http.Request, err error) {
 	resp, err := http.Get(testHelper.demoURL)
@@ -112,7 +110,7 @@ func (h *helper) MockRequestWithJson2() (request *http.Request) {
 
 func (h *helper) MockResponse() (response *http.Response) {
 	response = &http.Response{
-		Body:   ioutil.NopCloser(bytes.NewBufferString(h.mockHTML)),
+		Body:   io.NopCloser(bytes.NewBufferString(h.mockHTML)),
 		Header: map[string][]string{},
 	}
 	return

@@ -5,13 +5,13 @@ package logger
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"time"
 )
 
-var LIMIT int = 1024 * 1024
+var LIMIT = 1024 * 1024
 
 type (
 	// HttpLoggerForMux defines a struct used to log specifically gorilla/mux apps
@@ -91,8 +91,8 @@ func (w *loggingResponseWriter) Write(body []byte) (int, error) { // uses origin
 
 		w.loggingResp = &http.Response{
 			Header:     w.loggingResp.Header,
-			Body:       ioutil.NopCloser(bytes.NewBuffer(loggedBodyBytes)),
-			StatusCode: w.loggingResp.StatusCode, // Status Code 200 will only be overriden if writeHeader is called
+			Body:       io.NopCloser(bytes.NewBuffer(loggedBodyBytes)),
+			StatusCode: w.loggingResp.StatusCode, // Status Code 200 will only be overridden if writeHeader is called
 		}
 	}
 
@@ -100,7 +100,7 @@ func (w *loggingResponseWriter) Write(body []byte) (int, error) { // uses origin
 }
 
 // WriteHeader(s int) uses original response writer to write the header with code s and then logs the response status code.
-// This is only used internarnally by response writer.
+// This is only used internally by response writer.
 func (w *loggingResponseWriter) WriteHeader(statusCode int) {
 	w.loggingResp.StatusCode = statusCode
 
@@ -109,7 +109,7 @@ func (w *loggingResponseWriter) WriteHeader(statusCode int) {
 
 // LogData() takes 1 argument of type http.Handler and returns an object of the same type, http.Handler.
 // This function is intended to be used in a Middleware function in a gorilla/mux server.
-// For details on how to setup Middleware for a mux server see: https://github.com/resurfaceio/logger-go#logging_from_mux
+// For details on how to set up Middleware for a mux server see: https://github.com/resurfaceio/logger-go#logging_from_mux
 func (muxLogger HttpLoggerForMux) LogData(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -120,13 +120,13 @@ func (muxLogger HttpLoggerForMux) LogData(next http.Handler) http.Handler {
 			},
 		}
 
-		buf, err := ioutil.ReadAll(r.Body)
+		buf, err := io.ReadAll(r.Body)
 		if err != nil {
 			log.Fatal(err)
 		}
 		r.Body.Close()
 
-		r.Body = ioutil.NopCloser(bytes.NewBuffer(buf))
+		r.Body = io.NopCloser(bytes.NewBuffer(buf))
 
 		loggingReq := &http.Request{
 			Method:        r.Method,
@@ -145,7 +145,7 @@ func (muxLogger HttpLoggerForMux) LogData(next http.Handler) http.Handler {
 			TLS:           r.TLS,
 			MultipartForm: r.MultipartForm,
 			Response:      r.Response,
-			Body:          ioutil.NopCloser(bytes.NewBuffer(buf)),
+			Body:          io.NopCloser(bytes.NewBuffer(buf)),
 		}
 
 		now := time.Now()
@@ -154,6 +154,6 @@ func (muxLogger HttpLoggerForMux) LogData(next http.Handler) http.Handler {
 
 		interval := time.Since(now).Milliseconds()
 
-		SendHttpMessage(muxLogger.HttpLogger, loggingWriter.loggingResp, loggingReq, (now.UnixNano() / int64(time.Millisecond)), interval, nil)
+		SendHttpMessage(muxLogger.HttpLogger, loggingWriter.loggingResp, loggingReq, now.UnixNano()/int64(time.Millisecond), interval, nil)
 	})
 }

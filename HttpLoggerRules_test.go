@@ -4,6 +4,7 @@ package logger
 
 import (
 	"fmt"
+	"io"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,8 +12,6 @@ import (
 	"strings"
 
 	"net/http"
-
-	"io/ioutil"
 
 	"bytes"
 )
@@ -33,7 +32,7 @@ func TestOverrideDefaultRules(t *testing.T) {
 		Rules: "# 123",
 	}
 	logger, _ = NewHttpLogger(options)
-	assert.Equal(t, "# 123", logger.rules.text, "logger default rules not overriden")
+	assert.Equal(t, "# 123", logger.rules.text, "logger default rules not overridden")
 
 	httpRules.SetDefaultRules("")
 	options = Options{
@@ -46,13 +45,13 @@ func TestOverrideDefaultRules(t *testing.T) {
 		Rules: "   ",
 	}
 	logger, _ = NewHttpLogger(options)
-	assert.Equal(t, "", logger.rules.text, "logger default rules not overriden or blank space not ignored")
+	assert.Equal(t, "", logger.rules.text, "logger default rules not overridden or blank space not ignored")
 	options = Options{
 		Url:   "https://mysite.com",
 		Rules: " sample 42",
 	}
 	logger, _ = NewHttpLogger(options)
-	assert.Equal(t, " sample 42", logger.rules.text, "logger default rules not overriden")
+	assert.Equal(t, " sample 42", logger.rules.text, "logger default rules not overridden")
 
 	httpRules.SetDefaultRules("skip_compression")
 	options = Options{
@@ -65,7 +64,7 @@ func TestOverrideDefaultRules(t *testing.T) {
 		Rules: "include default\nskip_submission\n",
 	}
 	logger, _ = NewHttpLogger(options)
-	assert.Equal(t, "skip_compression\nskip_submission\n", logger.rules.text, ":logger default rules not overriden")
+	assert.Equal(t, "skip_compression\nskip_submission\n", logger.rules.text, ":logger default rules not overridden")
 
 	httpRules.SetDefaultRules("sample 42\n")
 	options = Options{
@@ -92,7 +91,7 @@ func TestOverrideDefaultRules(t *testing.T) {
 		Rules: httpRules.strictRules,
 	}
 	logger, _ = NewHttpLogger(options)
-	assert.Equal(t, httpRules.strictRules, logger.rules.text, "logger default rules not overriden")
+	assert.Equal(t, httpRules.strictRules, logger.rules.text, "logger default rules not overridden")
 
 	httpRules.SetDefaultRules(httpRules.strictRules)
 }
@@ -143,8 +142,8 @@ func TestUsesCopySessionFieldRules(t *testing.T) {
 	request := helper.MockRequestWithJson2()
 	mockResponse := helper.MockResponseWithHtml()
 
-	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
+	request.Body = io.NopCloser(bytes.NewBufferString(helper.mockJSON))
+	mockResponse.Body = io.NopCloser(bytes.NewBufferString(helper.mockHTML))
 	mockResponse.Request = request
 
 	var c1 *http.Cookie = &http.Cookie{Name: "butterfly", Value: "poison"}
@@ -152,7 +151,7 @@ func TestUsesCopySessionFieldRules(t *testing.T) {
 	request.AddCookie(c1)
 	request.AddCookie(c2)
 
-	// tests copy all of session field
+	// tests copy all the session fields
 	_queue := make([]string, 0)
 	options := Options{
 		Rules: "copy_session_field /.*/",
@@ -174,7 +173,7 @@ func TestUsesCopySessionFieldRules(t *testing.T) {
 	assert.Equal(t, 1, len(logger.baseLogger.queue), "_queue length is not 1")
 	assert.Equal(t, false, strings.Contains(logger.baseLogger.queue[0], "[\"session_field:butterfly\",\"poison\"]"), "_queue contains unexpected value")
 	assert.Equal(t, true, strings.Contains(logger.baseLogger.queue[0], "[\"session_field:session_id\",\"asdf1234\"]"), "_queue did not contain expected values")
-	// tests copy non matching term
+	// tests copy non-matching term
 	_queue = make([]string, 0)
 	options = Options{
 		Rules: "copy_session_field /blah/",
@@ -206,8 +205,8 @@ func TestUsesCopySessionFieldAndRemoveRules(t *testing.T) {
 	request := helper.MockRequestWithJson2()
 	mockResponse := helper.MockResponseWithHtml()
 
-	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
+	request.Body = io.NopCloser(bytes.NewBufferString(helper.mockJSON))
+	mockResponse.Body = io.NopCloser(bytes.NewBufferString(helper.mockHTML))
 	mockResponse.Request = request
 
 	var c1 *http.Cookie = &http.Cookie{Name: "butterfly", Value: "poison"}
@@ -268,8 +267,8 @@ func TestUsesCopySessionFieldAndStopRules(t *testing.T) {
 	request := helper.MockRequestWithJson2()
 	mockResponse := helper.MockResponseWithHtml()
 
-	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
+	request.Body = io.NopCloser(bytes.NewBufferString(helper.mockJSON))
+	mockResponse.Body = io.NopCloser(bytes.NewBufferString(helper.mockHTML))
 	mockResponse.Request = request
 
 	var c1 *http.Cookie = &http.Cookie{Name: "butterfly", Value: "poison"}
@@ -803,7 +802,7 @@ func TestUsesReplaceRules(t *testing.T) {
 	assert.Equal(t, false, strings.Contains(logger.baseLogger.queue[0], "[\"response_body\","), "_queue was not altered")
 
 	mockResponse = helper.MockResponseWithHtml()
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML3)) //change html used from helper to mockHtml3
+	mockResponse.Body = io.NopCloser(bytes.NewBufferString(helper.mockHTML3)) //change html used from helper to mockHtml3
 	_queue = make([]string, 0)
 	options = Options{
 		Rules: "!response_body! replace !World!, !Z!",
@@ -815,7 +814,7 @@ func TestUsesReplaceRules(t *testing.T) {
 	assert.Equal(t, true, strings.Contains(logger.baseLogger.queue[0], "[\"response_body\",\"<html>1 Z 2 Z Red Z Blue Z!</html>\"],"), "_queue was not altered")
 
 	mockResponse = helper.MockResponseWithHtml()
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML4)) //change html used from helper to mockHtml4
+	mockResponse.Body = io.NopCloser(bytes.NewBufferString(helper.mockHTML4)) //change html used from helper to mockHtml4
 	_queue = make([]string, 0)
 	options = Options{
 		Rules: "!response_body! replace !World!, !Z!",
@@ -834,7 +833,7 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 	mockResponse := helper.MockResponseWithHtml()
 
 	mockHtml := strings.Replace(helper.mockHTML, "World", "rob@resurface.io", 1)
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(mockHtml))
+	mockResponse.Body = io.NopCloser(bytes.NewBufferString(mockHtml))
 	_queue := make([]string, 0)
 	options := Options{
 		Rules: "/response_body/ replace /[a-zA-Z0-9.!#$%&’*+\\/=?^_'{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)/, /x@y.com/",
@@ -847,7 +846,7 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 
 	mockResponse = helper.MockResponseWithHtml()
 	mockHtml = strings.Replace(helper.mockHTML, "World", "123-45-1343", 1)
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(mockHtml))
+	mockResponse.Body = io.NopCloser(bytes.NewBufferString(mockHtml))
 	_queue = make([]string, 0)
 	options = Options{
 		Rules: "/response_body/ replace /[0-9\\.\\-\\/]{9,}/, /xyxy/",
@@ -859,7 +858,7 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 	assert.Equal(t, true, strings.Contains(logger.baseLogger.queue[0], "[\"response_body\",\"<html>Hello xyxy!</html>\"],"), "custom string not replaced in _queue")
 
 	mockResponse = helper.MockResponseWithHtml()
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
+	mockResponse.Body = io.NopCloser(bytes.NewBufferString(helper.mockHTML))
 	_queue = make([]string, 0)
 	options = Options{
 		Rules: "!response_body! replace !World!, !<b>$0</b>!",
@@ -882,7 +881,7 @@ func TestUsesReplaceRulesWithComplexExpressions(t *testing.T) {
 	assert.Equal(t, true, strings.Contains(logger.baseLogger.queue[0], "[\"response_body\",\"<html>Hello <b>World</b>!</html>\"],"), "custom string not replaced in _queue")
 
 	mockResponse = helper.MockResponseWithHtml()
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML5))
+	mockResponse.Body = io.NopCloser(bytes.NewBufferString(helper.mockHTML5))
 	_queue = make([]string, 0)
 	options = Options{
 		Rules: "!response_body! replace !<input([^>]*)>([^<]*)</input>!, !<input$1></input>!",
@@ -901,8 +900,8 @@ func TestUsesSampleRules(t *testing.T) {
 	request := helper.MockRequestWithJson2()
 	mockResponse := helper.MockResponseWithHtml()
 
-	request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
+	request.Body = io.NopCloser(bytes.NewBufferString(helper.mockJSON))
+	mockResponse.Body = io.NopCloser(bytes.NewBufferString(helper.mockHTML))
 	mockResponse.Request = request
 
 	_queue := make([]string, 0)
@@ -990,7 +989,7 @@ func TestUsesStopRules(t *testing.T) {
 	assert.Equal(t, 1, len(logger.baseLogger.queue), "_queue length is not 1")
 
 	mockResponse = helper.MockResponseWithHtml()
-	mockResponse.Request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
+	mockResponse.Request.Body = io.NopCloser(bytes.NewBufferString(helper.mockJSON))
 	_queue = make([]string, 0)
 	options = Options{
 		Rules: "!.*! stop",
@@ -1013,7 +1012,7 @@ func TestUsesStopRules(t *testing.T) {
 	assert.Equal(t, 0, len(logger.baseLogger.queue), "_queue is not empty")
 
 	mockResponse = helper.MockResponseWithHtml()
-	mockResponse.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockHTML))
+	mockResponse.Body = io.NopCloser(bytes.NewBufferString(helper.mockHTML))
 	mockResponse.Request.Body = nil
 	_queue = make([]string, 0)
 	options = Options{
@@ -1026,7 +1025,7 @@ func TestUsesStopRules(t *testing.T) {
 
 	mockResponse = helper.MockResponseWithHtml()
 	mockResponse.Body = nil
-	mockResponse.Request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
+	mockResponse.Request.Body = io.NopCloser(bytes.NewBufferString(helper.mockJSON))
 	_queue = make([]string, 0)
 	options = Options{
 		Rules: "!request_body! stop\n!response_body! stop",
@@ -1053,7 +1052,7 @@ func TestUsesStopIfRules(t *testing.T) {
 	assert.Equal(t, 1, len(logger.baseLogger.queue), "_queue length is not 1")
 
 	mockResponse = helper.MockResponseWithHtml()
-	mockResponse.Request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
+	mockResponse.Request.Body = io.NopCloser(bytes.NewBufferString(helper.mockJSON))
 	_queue = make([]string, 0)
 	options = Options{
 		Rules: "!response_body! stop_if !.*!",
@@ -1100,7 +1099,7 @@ func TestUsesStopIfFoundRules(t *testing.T) {
 	assert.Equal(t, 1, len(logger.baseLogger.queue), "_queue length is not 1")
 
 	mockResponse = helper.MockResponseWithHtml()
-	mockResponse.Request.Body = ioutil.NopCloser(bytes.NewBufferString(helper.mockJSON))
+	mockResponse.Request.Body = io.NopCloser(bytes.NewBufferString(helper.mockJSON))
 	_queue = make([]string, 0)
 	options = Options{
 		Rules: "!response_body! stop_if_found !.*!",

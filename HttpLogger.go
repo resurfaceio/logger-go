@@ -1,6 +1,6 @@
 // © 2016-2023 Graylog, Inc.
 
-// Resurface Go Logger provides tools to log API requests and responses from different Golang web frameworks to a complete API system of record. (https://resurface.io)
+// Package logger-go from resurface.io provides tools to log API requests and responses from different Golang web frameworks to a complete API system of record. (https://resurface.io)
 package logger
 
 import (
@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// Options struct is passed to a "NewLogger" function to specifiy the desired configuration of the logger to be created.
+// Options struct is passed to a "NewLogger" function to specify the desired configuration of the logger to be created.
 type Options struct {
 	//Rules defines the rules that will be applied to the logger.
 	Rules string

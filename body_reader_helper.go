@@ -88,7 +88,7 @@ func mockGetCustomResponse(request *http.Request, customHeaders map[string][]str
 		log.Panicln(err)
 	}
 	response.Body = io.NopCloser(io.LimitReader(bufio.NewReader(bytes.NewReader(customBodyBytes)), contentLen))
-	response.ContentLength = int64(contentLen)
+	response.ContentLength = contentLen
 
 	return response
 

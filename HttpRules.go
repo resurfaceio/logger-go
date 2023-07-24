@@ -4,8 +4,8 @@ package logger
 
 import (
 	"fmt"
-	"io/ioutil"
 	"math/rand"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -88,7 +88,7 @@ func newHttpRules(rules string) (*HttpRules, error) {
 		rfile = strings.TrimSpace(rfile)
 
 		// read rules from file
-		buffer, err := ioutil.ReadFile(rfile)
+		buffer, err := os.ReadFile(rfile)
 		if err != nil {
 			return nil, fmt.Errorf("failed to load rules: %s", rfile)
 		}
@@ -250,7 +250,7 @@ func (rules *HttpRules) SkipCompression() bool {
 	return rules.skipCompression
 }
 
-func (rules *HttpRules) SkipSubmissio() bool {
+func (rules *HttpRules) SkipSubmission() bool {
 	return rules.skipSubmission
 }
 

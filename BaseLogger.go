@@ -6,7 +6,7 @@ import (
 	"bytes"
 	"compress/zlib"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -61,7 +61,7 @@ func newBaseLogger(_agent string, _url string, _enabled interface{}, _queue []st
 		}
 	}
 
-	_enableable := (_url != "" || _queue != nil)
+	_enableable := _url != "" || _queue != nil
 
 	constructedBaseLogger := &baseLogger{
 		agent:           _agent,
@@ -220,8 +220,13 @@ func (logger *baseLogger) submit(msg string) {
 		return
 	}
 	if submitResponse != nil && submitResponse.StatusCode == 204 {
-		defer submitResponse.Body.Close()
-		_, err := ioutil.ReadAll(submitResponse.Body)
+		defer func(Body io.ReadCloser) {
+			err := Body.Close()
+			if err != nil {
+				log.Println(err)
+			}
+		}(submitResponse.Body)
+		_, err := io.ReadAll(submitResponse.Body)
 
 		if err != nil {
 			log.Println(err)
@@ -267,7 +272,7 @@ func hostLookup() string {
 }
 
 func versionLookup() string {
-	version := "3.0.0"
+	version := "3.3.0"
 	return version
 }
 
