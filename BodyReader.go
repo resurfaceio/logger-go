@@ -20,7 +20,10 @@ func checkMagicBytes(reader *bytes.Reader) (string, error) {
 	if err != nil {
 		return "", nil
 	}
-	reader.Seek(0, io.SeekStart)
+	_, err = reader.Seek(0, io.SeekStart)
+	if err != nil {
+		return "", err
+	}
 
 	// Another way:
 	// encoding := http.DetectContentType(b)
@@ -71,12 +74,15 @@ func checkMagic(reader *io.Reader, magicReader *bytes.Reader) (string, error) {
 
 	if err == nil {
 		if _, ok := (*reader).(*bytes.Reader); ok {
-			(*reader).(*bytes.Reader).Seek(0, io.SeekStart)
+			_, err := (*reader).(*bytes.Reader).Seek(0, io.SeekStart)
+			if err != nil {
+				return "", err
+			}
 		} else {
 			*reader = io.MultiReader(magicReader, *reader)
 		}
 	} else if err == io.EOF {
-		*reader, err = magicReader, nil
+		*reader = magicReader
 	} else {
 		return "", err
 	}
@@ -93,7 +99,10 @@ func newWrap(reader *io.Reader, magicReader *bytes.Reader, encoding string) (io.
 	switch encoding {
 	case "gzip", "x-gzip":
 		newReader, err = gzip.NewReader(magicReader)
-		magicReader.Seek(0, io.SeekStart)
+		_, seekErr := magicReader.Seek(0, io.SeekStart)
+		if seekErr != nil {
+			return nil, seekErr
+		}
 		if err == nil {
 			gzReader, gzErr := gzip.NewReader(*reader)
 			gzReader.Multistream(false)
@@ -101,26 +110,38 @@ func newWrap(reader *io.Reader, magicReader *bytes.Reader, encoding string) (io.
 		}
 	case "deflate", "zlib", "deflated":
 		_, err = zlib.NewReader(magicReader)
-		magicReader.Seek(0, io.SeekStart)
+		_, seekErr := magicReader.Seek(0, io.SeekStart)
+		if seekErr != nil {
+			return nil, seekErr
+		}
 		if err == nil {
 			newReader, err = zlib.NewReader(*reader)
 		}
 	case "br":
 		// Read
 		allBytes, err := io.ReadAll(*reader)
-		magicReader.Seek(0, io.SeekStart)
+		_, seekErr := magicReader.Seek(0, io.SeekStart)
+		if seekErr != nil {
+			return nil, seekErr
+		}
 		if err != nil {
 			return nil, err
 		}
 		if _, ok := (*reader).(*bytes.Reader); !ok {
 			*reader = bytes.NewReader(allBytes)
 		} else {
-			(*reader).(*bytes.Reader).Seek(0, io.SeekStart)
+			_, err := (*reader).(*bytes.Reader).Seek(0, io.SeekStart)
+			if err != nil {
+				return nil, err
+			}
 		}
 		// Decode
 		decodedBytes, err := io.ReadAll(brotli.NewReader(*reader))
 		if err != nil {
-			(*reader).(*bytes.Reader).Seek(0, io.SeekStart)
+			_, seekErr := (*reader).(*bytes.Reader).Seek(0, io.SeekStart)
+			if seekErr != nil {
+				return nil, seekErr
+			}
 			return *reader, err
 		}
 		// Return

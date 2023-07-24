@@ -28,7 +28,7 @@ func readBody(rBody io.ReadCloser, contentEncoding *string) (string, error) {
 	defer rBody.Close()
 
 	var magicReader bytes.Reader
-	var magicCheckEnabled = true
+	var magicCheckEnabled bool
 
 	magicEncoding, err := checkMagic(&reader, &magicReader)
 	if err != nil && err != magic.ErrUnknown {
