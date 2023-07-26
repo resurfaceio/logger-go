@@ -19,7 +19,7 @@ Easily log API requests and responses to your own <a href="https://resurface.io"
 
 ## Dependencies
 
-Requires go 1.15 or later.
+Requires go 1.18 or later.
 
 <a name="installation"/>
 
