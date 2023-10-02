@@ -4,6 +4,7 @@ package logger
 
 import (
 	"os"
+	"sync"
 	"testing"
 	"time"
 
@@ -138,4 +139,35 @@ func TestSetsNowAndInterval(t *testing.T) {
 
 	assert.Contains(t, logger.queue[0], "[\"now", "SendHttpMessage did not append 'now' to message on manual entry")
 	assert.Contains(t, logger.queue[0], "[\"interval\",\"", "SendHttpMessage did not append 'interval' to message on manual entry")
+}
+
+func TestStop(t *testing.T) {
+	helper := newTestHelper()
+
+	opt := Options{
+		Queue:   make([]string, 0),
+		Enabled: true,
+	}
+
+	logger, _ := NewHttpLogger(opt)
+
+	var wg sync.WaitGroup
+	for i := 0; i < 3; i++ {
+		go func() {
+			wg.Add(1)
+			defer wg.Done()
+			for logger.Enabled() {
+				SendHttpMessage(logger, helper.MockResponse(), helper.MockRequestWithJson(), 0, 0, nil)
+			}
+		}()
+	}
+
+	logger.Stop()
+	wg.Wait()
+
+	assert.False(t, logger.Enabled())
+
+	queueLen := len(logger.Queue())
+	SendHttpMessage(logger, helper.MockResponse(), helper.MockRequestWithJson(), 0, 0, nil)
+	assert.Equal(t, queueLen, len(logger.Queue()))
 }

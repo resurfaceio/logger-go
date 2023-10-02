@@ -93,3 +93,7 @@ func init() {
 
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
+
+func (logger *HttpLogger) Stop() {
+	logger.stopDispatcher()
+}

@@ -21,6 +21,14 @@ type UsageLoggers struct {
 
 var usageLoggers *UsageLoggers
 
+func getEnvVar(key string) string {
+	// Override existing (or not) env vars with values from .env (e.g. test/dev envs)
+	_ = godotenv.Overload()
+	// If there's no .env file, the value will be loaded from the existing (or not) env vars for the current process
+	value := os.Getenv(key)
+	return value
+}
+
 func GetUsageLoggers() (*UsageLoggers, error) {
 	//var envError error
 	var parseError error
@@ -68,16 +76,28 @@ func (uLogger *UsageLoggers) IsEnabled() bool {
 * Returns url to use by default.
  */
 func (uLogger *UsageLoggers) UrlByDefault() string {
-	// Override existing (or not) env vars with values from .env (e.g. test/dev envs)
-	err := godotenv.Overload()
-	if err != nil {
-		log.Println(".env file not loaded: ", err)
-	}
-	// If there's no .env file, USAGE_LOGGERS_URL will be loaded from
-	// the existing (or not) env vars for the current process
-	url := os.Getenv("USAGE_LOGGERS_URL")
+	url := getEnvVar("USAGE_LOGGERS_URL")
 	if url == "" {
 		log.Println("USAGE_LOGGERS_URL env var not set or does not exist; logger disabled")
 	}
 	return url
+}
+
+/**
+* Returns additional configuration for the base logger
+ */
+func (uLogger *UsageLoggers) ConfigByDefault() map[string]int {
+	config := map[string]int{
+		"BODY_LIMIT":         1024 * 1024,     // HTTP payload bytes
+		"BUNDLE_SIZE":        5 * 1024 * 1024, // NDJSON bundle size, in bytes
+		"MESSAGE_QUEUE_SIZE": 1000,            // Number of buffered messages
+		"BUNDLE_QUEUE_SIZE":  128,             // Number of buffered NDJSON bundles
+	}
+	for key := range config {
+		value := getEnvVar("USAGE_LOGGERS_" + key)
+		if parsedValue, err := strconv.Atoi(value); err == nil {
+			config[key] = parsedValue
+		}
+	}
+	return config
 }

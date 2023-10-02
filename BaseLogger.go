@@ -14,6 +14,7 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/asaskevich/govalidator"
 )
@@ -31,9 +32,11 @@ type baseLogger struct {
 	url             string
 	urlParsed       *url.URL
 	version         string
+	bundleSize      int
 	msgQueue        chan string
 	submitQueue     chan strings.Builder
 	wg              sync.WaitGroup
+	stop            chan bool
 }
 
 // BaseLogger constructor
@@ -63,6 +66,8 @@ func newBaseLogger(_agent string, _url string, _enabled interface{}, _queue []st
 
 	_enableable := _url != "" || _queue != nil
 
+	config := usageLoggers.ConfigByDefault()
+
 	constructedBaseLogger := &baseLogger{
 		agent:           _agent,
 		enableable:      _enableable,
@@ -76,8 +81,10 @@ func newBaseLogger(_agent string, _url string, _enabled interface{}, _queue []st
 		url:             _url,
 		urlParsed:       _urlParsed,
 		version:         versionLookup(),
-		msgQueue:        make(chan string, 10000),
-		submitQueue:     make(chan strings.Builder, 128),
+		bundleSize:      config["BUNDLE_SIZE"],
+		msgQueue:        make(chan string, config["MESSAGE_QUEUE_SIZE"]),
+		submitQueue:     make(chan strings.Builder, config["BUNDLE_QUEUE_SIZE"]),
+		stop:            make(chan bool, 1),
 	}
 
 	constructedBaseLogger.wg.Add(1)
@@ -111,35 +118,47 @@ work:
 
 func (logger *baseLogger) dispatcher() {
 	defer logger.wg.Done()
-	// Threshold that determines when NDJSON bundles are sent to Resurface
-	thresh := 1000
 	buffer := strings.Builder{}
+	created := time.Now()
 	logger.wg.Add(1)
 	go logger.worker()
 dispatch:
 	for {
 		select {
-		case msg, open := <-logger.msgQueue:
+		case msg := <-logger.msgQueue:
 			if msg != "" {
-				if buffer.Len() < thresh {
+				if buffer.Len() < logger.bundleSize {
 					buffer.WriteString(msg + "\n")
 				} else {
 					buffer.WriteString(msg)
 					logger.submitQueue <- buffer
 					buffer = strings.Builder{}
+					created = time.Now()
 				}
 			}
-			if !open {
-				if buffer.Len() != 0 {
-					logger.submitQueue <- buffer
-					close(logger.submitQueue)
+		case flush := <-logger.stop:
+			if flush {
+				select {
+				case msg, open := <-logger.msgQueue:
+					buffer.WriteString(msg + "\n")
+					if !open {
+						for msg := range logger.msgQueue {
+							buffer.WriteString(msg + "\n")
+						}
+					}
+				default:
 				}
-				break dispatch
 			}
-		default:
 			if buffer.Len() != 0 {
 				logger.submitQueue <- buffer
+			}
+			close(logger.submitQueue)
+			break dispatch
+		default:
+			if buffer.Len() != 0 && time.Since(created) > time.Second {
+				logger.submitQueue <- buffer
 				buffer = strings.Builder{}
+				created = time.Now()
 			}
 		}
 	}
@@ -249,7 +268,7 @@ func (logger *baseLogger) submit(msg string) {
 
 func (logger *baseLogger) stopDispatcher() {
 	logger.Disable()
-	close(logger.msgQueue)
+	logger.stop <- true
 	logger.wg.Wait()
 }
 
