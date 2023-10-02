@@ -153,8 +153,8 @@ func TestStop(t *testing.T) {
 
 	var wg sync.WaitGroup
 	for i := 0; i < 3; i++ {
+		wg.Add(1)
 		go func() {
-			wg.Add(1)
 			defer wg.Done()
 			for logger.Enabled() {
 				SendHttpMessage(logger, helper.MockResponse(), helper.MockRequestWithJson(), 0, 0, nil)
