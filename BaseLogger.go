@@ -119,7 +119,7 @@ work:
 func (logger *baseLogger) dispatcher() {
 	defer logger.wg.Done()
 	buffer := strings.Builder{}
-	created := time.Now()
+	autoFlush := time.NewTicker(time.Second)
 	logger.wg.Add(1)
 	go logger.worker()
 dispatch:
@@ -133,7 +133,6 @@ dispatch:
 					buffer.WriteString(msg)
 					logger.submitQueue <- buffer
 					buffer = strings.Builder{}
-					created = time.Now()
 				}
 			}
 		case flush := <-logger.stop:
@@ -154,11 +153,10 @@ dispatch:
 			}
 			close(logger.submitQueue)
 			break dispatch
-		default:
-			if buffer.Len() != 0 && time.Since(created) > time.Second {
+		case <-autoFlush.C:
+			if buffer.Len() != 0 {
 				logger.submitQueue <- buffer
 				buffer = strings.Builder{}
-				created = time.Now()
 			}
 		}
 	}
