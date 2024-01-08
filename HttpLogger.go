@@ -1,4 +1,4 @@
-// © 2016-2023 Graylog, Inc.
+// © 2016-2024 Graylog, Inc.
 
 // Package logger-go from resurface.io provides tools to log API requests and responses from different Golang web frameworks to a complete API system of record. (https://resurface.io)
 package logger
