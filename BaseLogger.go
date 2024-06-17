@@ -233,6 +233,7 @@ func (logger *baseLogger) submit(msg string) {
 	submitResponse, err := httpLoggerClient.Do(submitRequest)
 
 	if err != nil {
+		log.Println(err)
 		atomic.AddInt64(&logger.submitFailures, 1)
 		return
 	}

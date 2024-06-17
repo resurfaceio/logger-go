@@ -4,11 +4,13 @@
 package logger
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"strings"
-	"time"
 )
 
 // Options struct is passed to a "NewLogger" function to specify the desired configuration of the logger to be created.
@@ -85,9 +87,27 @@ func (logger *HttpLogger) submitIfPassing(msg [][]string, customFields map[strin
 var httpLoggerClient *http.Client
 
 func init() {
+	usageLoggers, _ := GetUsageLoggers()
+	config := usageLoggers.TLSConfigByDefault()
+
+	tc := &tls.Config{InsecureSkipVerify: config.insecure}
+
+	if config.customCert != "" {
+		certPool, err := x509.SystemCertPool()
+		if err != nil {
+			certPool = x509.NewCertPool()
+		}
+		pem, err := os.ReadFile(config.customCert)
+		if err == nil {
+			certPool.AppendCertsFromPEM(pem)
+			tc.RootCAs = certPool
+		}
+	}
+
 	tr := &http.Transport{
 		MaxIdleConnsPerHost: 10000,
-		TLSHandshakeTimeout: 0 * time.Second,
+		TLSHandshakeTimeout: config.timeout,
+		TLSClientConfig:     tc,
 	}
 	httpLoggerClient = &http.Client{Transport: tr}
 

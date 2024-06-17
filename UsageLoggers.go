@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -17,6 +18,12 @@ var onceUsageLoggers sync.Once
 type UsageLoggers struct {
 	bricked  bool
 	disabled bool
+}
+
+type TLSConfig struct {
+	timeout    time.Duration
+	customCert string
+	insecure   bool
 }
 
 var usageLoggers *UsageLoggers
@@ -99,5 +106,33 @@ func (uLogger *UsageLoggers) ConfigByDefault() map[string]int {
 			config[key] = parsedValue
 		}
 	}
+	return config
+}
+
+/**
+* Returns additional TLS configuration for the internal http client
+ */
+func (uLogger *UsageLoggers) TLSConfigByDefault() TLSConfig {
+	config := TLSConfig{
+		timeout:    0 * time.Second, // Time to wait for TLS Handshake. Zero means no timeout
+		customCert: "",              // TLS certificate filepath to assign custom CA  (e.g. self-signed cert)
+		insecure:   false,           // Skip certificate verification. It is not recommended to modify this value.
+	}
+
+	value := getEnvVar("USAGE_LOGGERS_TLS_TIMEOUT")
+	if parsedValue, err := strconv.Atoi(value); err == nil {
+		config.timeout = time.Duration(parsedValue) * time.Second
+	}
+
+	value = getEnvVar("USAGE_LOGGERS_TLS_CUSTOM_CERT")
+	if _, err := os.Stat(value); err == nil {
+		config.customCert = value
+	}
+
+	value = getEnvVar("USAGE_LOGGERS_TLS_INSECURE")
+	if parsedValue, err := strconv.ParseBool(value); err == nil {
+		config.insecure = parsedValue
+	}
+
 	return config
 }
