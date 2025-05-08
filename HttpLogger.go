@@ -117,3 +117,25 @@ func init() {
 func (logger *HttpLogger) Stop() {
 	logger.stopDispatcher()
 }
+
+func (logger *HttpLogger) IsFlukeReachable() bool {
+	req, err := http.NewRequest("POST", logger.url, http.NoBody)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	req.Header.Set("Content-Type", "application/ndjson; charset=UTF-8")
+	req.Header.Set("User-Agent", "Resurface/"+logger.version+" ("+logger.agent+")")
+
+	resp, err := httpLoggerClient.Do(req)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	if resp != nil && resp.StatusCode == 204 {
+		return true
+	}
+
+	return false
+}
