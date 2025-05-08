@@ -18,8 +18,8 @@ import (
 )
 
 // helper function to read body bytes
-func readBody(rBody io.ReadCloser, encoding string) (string, error) {
-	const bodyLimit = 1024 * 1024
+func readBody(rBody io.ReadCloser, encoding string) (*LoggedReader, error) {
+	var bodyLimit = usageLoggers.ConfigByDefault()["BODY_LIMIT"]
 	var reader io.Reader
 	var err error
 	defer rBody.Close()
@@ -28,28 +28,27 @@ func readBody(rBody io.ReadCloser, encoding string) (string, error) {
 	case "gzip", "x-gzip":
 		reader, err = gzip.NewReader(rBody)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 	case "deflate", "zlib", "deflated":
 		reader, err = zlib.NewReader(rBody)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 	case "br":
 		reader = brotli.NewReader(rBody)
 	case "", "identity":
 		reader = rBody
 	default:
-		return "", io.ErrNoProgress
+		return nil, io.ErrNoProgress
 	}
-	reader = io.LimitReader(reader, bodyLimit)
 
-	bodyBytes, err := io.ReadAll(reader)
+	lr, err := NewLoggedReader(reader, bodyLimit)
 	if err != nil {
-		return "", nil
+		return nil, err
 	}
 
-	return string(bodyBytes), err
+	return lr, nil
 }
 
 // create Http message for any logger
@@ -66,7 +65,11 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 
 	var fullUrl string
 	if req.URL.IsAbs() {
-		fullUrl = req.RequestURI
+		if len(req.RequestURI) > 0 {
+			fullUrl = req.RequestURI
+		} else {
+			fullUrl = req.URL.String()
+		}
 	} else {
 		//Not sure of a better way to do this at the moment - 6/24/21
 		//check for other tls proto
@@ -86,16 +89,18 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 		if encodings, encoded := req.Header["Content-Encoding"]; encoded {
 			contentEncoding = encodings[0]
 		}
-		requestBody, err := readBody(req.Body, contentEncoding)
-		if err != nil {
+		var requestBody string
+		if loggedReader, err := readBody(req.Body, contentEncoding); err == nil {
+			requestBody = string(loggedReader.logged)
+			req.Body = io.NopCloser(loggedReader.Reader)
+		} else {
 			log.Println(err)
 		}
 		message = append(message, []string{"request_body", requestBody})
 
 		// Unescaped semicolons in querystring make ParseForm return a non-nil error
 		req.URL.RawQuery = strings.ReplaceAll(req.URL.RawQuery, ";", "%3B")
-		err = req.ParseForm()
-		if err != nil {
+		if err := req.ParseForm(); err != nil {
 			log.Println(err)
 		}
 	}
@@ -109,8 +114,11 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 		if encodings, encoded := resp.Header["Content-Encoding"]; encoded {
 			contentEncoding = encodings[0]
 		}
-		responseBody, err := readBody(resp.Body, contentEncoding)
-		if err != nil {
+		var responseBody string
+		if loggedReader, err := readBody(resp.Body, contentEncoding); err == nil {
+			responseBody = string(loggedReader.logged)
+			resp.Body = io.NopCloser(loggedReader.Reader)
+		} else {
 			log.Println(err)
 		}
 		message = append(message, []string{"response_body", responseBody})

@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-var LIMIT = 1024 * 1024
+var bodyLimit = 1024 * 1024
 
 type (
 	// HttpLoggerForMux defines a struct used to log specifically gorilla/mux apps
@@ -44,6 +44,9 @@ func NewHttpLoggerForMux() (*HttpLoggerForMux, error) {
 		interval:   0,
 		response:   make([]byte, 0),
 	}
+
+	ul, _ := GetUsageLoggers()
+	bodyLimit = ul.ConfigByDefault()["BODY_LIMIT"]
 
 	return &httpLoggerForMux, nil
 }
@@ -83,7 +86,7 @@ func (w *loggingResponseWriter) Write(body []byte) (int, error) { // uses origin
 		}()
 
 		var loggedBodyBytes []byte
-		if size < LIMIT {
+		if size < bodyLimit {
 			loggedBodyBytes = body
 		} else {
 			loggedBodyBytes = []byte(fmt.Sprintf("{ overflowed: %d }", size))
@@ -120,13 +123,14 @@ func (muxLogger HttpLoggerForMux) LogData(next http.Handler) http.Handler {
 			},
 		}
 
-		buf, err := io.ReadAll(r.Body)
-		if err != nil {
-			log.Fatal(err)
-		}
+		loggedReader, err := NewLoggedReader(r.Body, bodyLimit)
 		r.Body.Close()
 
-		r.Body = io.NopCloser(bytes.NewBuffer(buf))
+		if err != nil {
+			log.Println(err)
+		}
+
+		r.Body = io.NopCloser(loggedReader.Reader)
 
 		loggingReq := &http.Request{
 			Method:        r.Method,
@@ -145,7 +149,7 @@ func (muxLogger HttpLoggerForMux) LogData(next http.Handler) http.Handler {
 			TLS:           r.TLS,
 			MultipartForm: r.MultipartForm,
 			Response:      r.Response,
-			Body:          io.NopCloser(bytes.NewBuffer(buf)),
+			Body:          io.NopCloser(bytes.NewBuffer(loggedReader.logged)),
 		}
 
 		now := time.Now()
