@@ -1,4 +1,4 @@
-// © 2016-2024 Graylog, Inc.
+// © 2016-2025 Graylog, Inc.
 
 package logger
 
@@ -290,7 +290,7 @@ func hostLookup() string {
 }
 
 func versionLookup() string {
-	version := "3.4.0"
+	version := "3.5.0"
 	return version
 }
 

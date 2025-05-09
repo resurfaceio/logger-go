@@ -1,4 +1,4 @@
-// © 2016-2024 Graylog, Inc.
+// © 2016-2025 Graylog, Inc.
 
 package logger
 

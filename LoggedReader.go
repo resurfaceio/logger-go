@@ -1,3 +1,5 @@
+// © 2016-2025 Graylog, Inc.
+
 package logger
 
 import (
