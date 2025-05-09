@@ -18,37 +18,60 @@ import (
 )
 
 // helper function to read body bytes
-func readBody(rBody io.ReadCloser, encoding string) (*LoggedReader, error) {
+func readBody(rBodyP *io.ReadCloser, encoding string) (string, error) {
 	var bodyLimit = usageLoggers.ConfigByDefault()["BODY_LIMIT"]
 	var reader io.Reader
 	var err error
-	defer rBody.Close()
+	rBody := *rBodyP
 
 	switch encoding {
 	case "gzip", "x-gzip":
 		reader, err = gzip.NewReader(rBody)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 	case "deflate", "zlib", "deflated":
 		reader, err = zlib.NewReader(rBody)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 	case "br":
 		reader = brotli.NewReader(rBody)
 	case "", "identity":
 		reader = rBody
 	default:
-		return nil, io.ErrNoProgress
+		return "", io.ErrNoProgress
 	}
 
 	lr, err := NewLoggedReader(reader, bodyLimit)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return lr, nil
+	rBody.Close()
+
+	switch encoding {
+	case "gzip", "x-gzip":
+		reader, err = gzip.NewReader(lr.Reader)
+		if err != nil {
+			return "", err
+		}
+
+		*rBodyP = io.NopCloser(reader)
+	case "deflate", "zlib", "deflated":
+		reader, err = zlib.NewReader(lr.Reader)
+		if err != nil {
+			return "", err
+		}
+
+		*rBodyP = reader.(io.ReadCloser)
+	case "br":
+		*rBodyP = io.NopCloser(brotli.NewReader(lr.Reader))
+	case "", "identity":
+		*rBodyP = io.NopCloser(lr.Reader)
+	}
+
+	return string(lr.logged), nil
 }
 
 // create Http message for any logger
@@ -89,11 +112,8 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 		if encodings, encoded := req.Header["Content-Encoding"]; encoded {
 			contentEncoding = encodings[0]
 		}
-		var requestBody string
-		if loggedReader, err := readBody(req.Body, contentEncoding); err == nil {
-			requestBody = string(loggedReader.logged)
-			req.Body = io.NopCloser(loggedReader.Reader)
-		} else {
+		requestBody, err := readBody(&req.Body, contentEncoding)
+		if err != nil {
 			log.Println(err)
 		}
 		message = append(message, []string{"request_body", requestBody})
@@ -114,11 +134,8 @@ func buildHttpMessage(req *http.Request, resp *http.Response) [][]string {
 		if encodings, encoded := resp.Header["Content-Encoding"]; encoded {
 			contentEncoding = encodings[0]
 		}
-		var responseBody string
-		if loggedReader, err := readBody(resp.Body, contentEncoding); err == nil {
-			responseBody = string(loggedReader.logged)
-			resp.Body = io.NopCloser(loggedReader.Reader)
-		} else {
+		responseBody, err := readBody(&resp.Body, contentEncoding)
+		if err != nil {
 			log.Println(err)
 		}
 		message = append(message, []string{"response_body", responseBody})
